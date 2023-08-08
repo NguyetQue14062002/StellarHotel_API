@@ -13,7 +13,7 @@ connect()
     .then(async () => {
         const myUser = [
             {
-                email: '20110727@gmail.com',
+                email: 'nguyetquepham7@gmail.com',
                 password: 'Tinh1234',
                 userName: 'Bùi Quốc Tĩnh',
                 phoneNumber: '0946541256',
