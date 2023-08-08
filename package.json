@@ -8,7 +8,7 @@
         "start": "node index.js",
         "dev": "nodemon index.js",
         "debug": "node inspect index.js",
-        "init": "node seedData.js"
+        "initdb": "node seedData.js"
     },
     "author": "",
     "license": "ISC",

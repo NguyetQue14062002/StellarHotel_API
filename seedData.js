@@ -18,41 +18,41 @@ connect()
                 userName: 'Bùi Quốc Tĩnh',
                 phoneNumber: '0946541256',
                 nationality: 'Việt Nam',
-                yearOfBirth: '2002',
+                yearOfBirth: 2002,
             },
             {
                 email: '20110728@gmail.com',
                 password: 'Tinh1234',
-                userName: 'Bùi Quốc Tĩnh 1',
+                userName: 'Bùi Quốc Tĩnh a',
                 phoneNumber: '0946541257',
                 nationality: 'Việt Nam',
-                yearOfBirth: '2002',
+                yearOfBirth: 2002,
             },
             {
                 email: '20110729@gmail.com',
                 password: 'Tinh1234',
-                userName: 'Bùi Quốc Tĩnh 2',
+                userName: 'Bùi Quốc Tĩnh b',
                 phoneNumber: '0946541258',
                 nationality: 'Việt Nam',
-                yearOfBirth: '2002',
+                yearOfBirth: 2002,
             },
             {
                 email: '20110730@gmail.com',
                 password: 'Tinh1234',
-                userName: 'Bùi Quốc Tĩnh 3',
+                userName: 'Bùi Quốc Tĩnh c',
                 phoneNumber: '0946541259',
                 nationality: 'Việt Nam',
-                yearOfBirth: '2002',
+                yearOfBirth: 2002,
             },
         ];
 
-        let isExistUser = await userModel.bulkCreate(myUser);
+        let isExistUser = await userModel.insertMany(myUser);
         if (isExistUser) {
             print('Insert Users success', OutputType.SUCCESS);
         } else {
             print('Insert Users fail', OutputType.ERROR);
         }
     })
-    .catch(() => {
-        print('Init database failed', OutputType.ERROR);
+    .catch((error) => {
+        print(`Init database failed: \n ${error}`, OutputType.ERROR);
     });

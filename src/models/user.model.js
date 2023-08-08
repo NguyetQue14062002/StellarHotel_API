@@ -70,11 +70,11 @@ const userSchema = new mongoose.Schema(
         },
         nationality: {
             type: String,
-            require: true,
+            required: true,
         },
         yearOfBirth: {
             type: Number,
-            require: true,
+            required: true,
         },
     },
     {
