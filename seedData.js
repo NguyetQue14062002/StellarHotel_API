@@ -46,8 +46,8 @@ connect()
             },
         ];
 
-        let isExistUser = await userModel.insertMany(myUser);
-        if (isExistUser) {
+        let isExist = await userModel.insertMany(myUser);
+        if (isExist) {
             print('Insert Users success', OutputType.SUCCESS);
         } else {
             print('Insert Users fail', OutputType.ERROR);

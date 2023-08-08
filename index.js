@@ -17,10 +17,11 @@ app.use(
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
     }),
 );
+
 app.get('/', (req, res) => {
     res.send('Wellcome to Stellar API');
 });
-app.use('/api/auth', authRoutes);
+app.use('/api/users', authRoutes);
 
 const port = process.env.PORT || 3002;
 connect()
