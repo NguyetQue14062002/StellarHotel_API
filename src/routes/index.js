@@ -1,7 +1,3 @@
-import auth from './auth.router.js';
+import authRoutes from './auth.router.js';
 
-const initRoutes = (app) => {
-    app.use('/api/auth', auth);
-}
-
-module.exports = initRoutes;
+export { authRoutes };

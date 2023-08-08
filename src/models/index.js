@@ -1,15 +1,3 @@
-const accountModel = require('./AccountModel');
-const accountInfoModel = require('./AccountInfoModel');
-const bookingModel = require('./BookingModel');
-const roomModel = require('./RoomModel');
-const utilitieModel = require('./UtilitieModel');
-const contactModel = require('./ContactModel');
+import userModel from './user.model.js';
 
-module.exports = {
-    accountModel,
-    accountInfoModel,
-    bookingModel,
-    roomModel,
-    utilitieModel,
-    contactModel,
-};
+export { userModel };
