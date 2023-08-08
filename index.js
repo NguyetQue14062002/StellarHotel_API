@@ -5,7 +5,7 @@ import cors from 'cors';
 
 import { OutputType, print } from './src/helpers/print.js';
 import connect from './src/database/database.js';
-import { authRoutes } from './src/routes/index.js';
+import { userRoutes, authRoutes } from './src/routes/index.js';
 
 dotenv.config();
 const app = express();
@@ -17,11 +17,12 @@ app.use(
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
     }),
 );
-
 app.get('/', (req, res) => {
     res.send('Wellcome to Stellar API');
 });
-app.use('/api/users', authRoutes);
+
+app.use('/user', userRoutes);
+app.use('/auth', authRoutes);
 
 const port = process.env.PORT || 3002;
 connect()

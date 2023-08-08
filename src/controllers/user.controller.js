@@ -1,20 +1,21 @@
-import {authServices} from '../services/index.js';
+import {userServices} from '../services/index.js';
 import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
-import { STATUS } from '../global/constants.js';
+import { STATUS, MAX_RECORDS } from '../global/constants.js';
 
-const sendOTP = async (req, res) => {
+const getAllUser = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
     }
-    const { email } = req.body;
+    let { page = 1, size = MAX_RECORDS, searchString = '' } = req.query;
+    size = size > MAX_RECORDS ? MAX_RECORDS : size;
     try {
-        const result = await authServices.sendOTP(email);
+        const filterUser = await userServices.getAllUser({ page, size, searchString });
         res.status(HttpStatusCode.OK).json({
             status: STATUS.SUCCESS,
-            message: 'Send OTP successfully.',
-            data: result,
+            message: 'Get the list of successful users.',
+            data: filterUser,
         });
     } catch (exception) {
         res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
@@ -23,4 +24,4 @@ const sendOTP = async (req, res) => {
         });
     }
 };
-export default {sendOTP};
+export default {getAllUser};

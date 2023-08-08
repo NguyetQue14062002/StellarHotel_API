@@ -12,5 +12,6 @@ const DEFAULT_GENDER = {
     MALE: 'male',
     FEMALE: 'female',
 };
+const MAX_RECORDS = 100;
 
-export { STATUS, DEFAULT_ROLES, DEFAULT_GENDER };
+export { STATUS, DEFAULT_ROLES, DEFAULT_GENDER, MAX_RECORDS };

@@ -1,8 +1,9 @@
-import * as controllers from '../controllers/auth.controller.js';
+import authController from '../controllers/auth.controller.js';
 import express from 'express';
 
 const router = express.Router();
 
-router.post('/register', controllers.register);
+
+router.post('/reset-password', authController.sendOTP);
 
 export default router;
