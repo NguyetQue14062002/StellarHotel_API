@@ -1,4 +1,4 @@
-import { userServices } from '../services/index.js';
+import { userRepository } from '../repositories/index.js';
 import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS, MAX_RECORDS } from '../global/constants.js';
@@ -12,7 +12,7 @@ const register = async (req, res) => {
     const { email, password, phoneNumber } = req.body;
 
     try {
-        await userServices.register({ email, password, phoneNumber });
+        await userRepository.register({ email, password, phoneNumber });
 
         res.status(HttpStatusCode.INSERT_OK).json({
             status: STATUS.SUCCESS,
@@ -35,7 +35,7 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const existingAccount = await userServices.login({ email, password });
+        const existingAccount = await userRepository.login({ email, password });
         res.status(HttpStatusCode.OK).json({
             status: STATUS.SUCCESS,
             message: 'Login successfully',
@@ -67,7 +67,7 @@ const getAllUser = async (req, res) => {
     size = size >= MAX_RECORDS ? MAX_RECORDS : size;
 
     try {
-        const filterUser = await userServices.getAllUser( {page, size, searchString} );
+        const filterUser = await userRepository.getAllUser({ page, size, searchString });
         res.status(HttpStatusCode.OK).json({
             status: STATUS.SUCCESS,
             message: 'Get the list of successful users.',

@@ -1,4 +1,4 @@
-import { authServices } from '../services/index.js';
+import { authRepository } from '../repositories/index.js';
 import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS } from '../global/constants.js';
@@ -10,7 +10,7 @@ const sendOTP = async (req, res) => {
     }
     const { email } = req.body;
     try {
-        const result = await authServices.sendOTP(email);
+        const result = await authRepository.sendOTP(email);
         res.status(HttpStatusCode.OK).json({
             status: STATUS.SUCCESS,
             message: 'Send OTP successfully.',
@@ -31,7 +31,7 @@ const checkOTP = async (req, res) => {
     }
     const { email, otp } = req.body;
     try {
-        const result = await authServices.checkOTP(email, otp);
+        const result = await authRepository.checkOTP(email, otp);
         res.status(HttpStatusCode.OK).json({
             status: STATUS.SUCCESS,
             message: 'Check OTP successfully.',
@@ -51,7 +51,7 @@ const resetPassword = async (req, res) => {
     }
     const { email, oldpass, newpass } = req.body;
     try {
-        const result = await authServices.resetPassword(email, oldpass, newpass);
+        const result = await authRepository.resetPassword(email, oldpass, newpass);
         res.status(HttpStatusCode.OK).json({
             status: STATUS.SUCCESS,
             message: 'Reset Password successfully.',
@@ -71,7 +71,7 @@ const forgetpass = async (req, res) => {
     }
     const { email, newpass } = req.body;
     try {
-        const result = await authServices.forgetPassword(email, newpass);
+        const result = await authRepository.forgetPassword(email, newpass);
         res.status(HttpStatusCode.OK).json({
             status: STATUS.SUCCESS,
             message: 'Forget Password successfully.',

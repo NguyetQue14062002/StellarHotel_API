@@ -10,7 +10,7 @@ import { userRoutes, authRoutes } from './src/routes/index.js';
 
 dotenv.config();
 const app = express();
-app.use(checkToken);
+// app.use(checkToken);
 app.use(express.json());
 
 app.use(

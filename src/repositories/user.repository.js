@@ -5,6 +5,7 @@ import { userModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
 
 const register = async ({ email, password, phoneNumber }) => {
+
     let existingAccount = await userModel.findOne({ email });
     if (existingAccount) {
         throw new Exception(Exception.ACCOUNT_EXIST);
@@ -46,7 +47,7 @@ const login = async ({ email, password }) => {
         },
         process.env.JWT_SECRET,
         {
-            expiresIn: '1 days',
+            expiresIn: '60 days',
         },
     );
 
