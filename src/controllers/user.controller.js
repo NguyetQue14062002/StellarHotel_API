@@ -55,7 +55,29 @@ const updateUser = async (req, res) => {
         return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
     }
 
-    const { email, userName, phoneNumber, gender, nationality, yearOfBirth } = req.body;
+    const { id, email, userName, phoneNumber, gender, nationality, yearOfBirth } = req.body;
+
+    try {
+        const existingUser = await userRepository.updateUser({
+            id,
+            email,
+            userName,
+            phoneNumber,
+            gender,
+            nationality,
+            yearOfBirth,
+        });
+        res.status(HttpStatusCode.OK).json({
+            status: STATUS.SUCCESS,
+            message: 'Update user information successfully!',
+            data: existingUser,
+        });
+    } catch (exception) {
+        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+            error: STATUS.ERROR,
+            message: `${exception.message}`,
+        });
+    }
 };
 
 const getAllUser = async (req, res) => {
