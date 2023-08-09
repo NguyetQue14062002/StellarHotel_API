@@ -4,6 +4,8 @@ import express from 'express';
 const router = express.Router();
 
 
-router.post('/reset-password', authController.sendOTP);
-
+router.post('/sendotp', authController.sendOTP);
+router.post('/checkotp', authController.checkOTP);
+router.post('/resetpass', authController.resetPassword);
+router.post('/forgetpass', authController.forgetpass);
 export default router;

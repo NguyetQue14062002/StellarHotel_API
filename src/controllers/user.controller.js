@@ -9,9 +9,10 @@ const getAllUser = async (req, res) => {
         return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
     }
     let { page = 1, size = MAX_RECORDS, searchString = '' } = req.query;
-    size = size > MAX_RECORDS ? MAX_RECORDS : size;
+    size = size >= MAX_RECORDS ? MAX_RECORDS : size;
+
     try {
-        const filterUser = await userServices.getAllUser({ page, size, searchString });
+        const filterUser = await userServices.getAllUser( {page, size, searchString} );
         res.status(HttpStatusCode.OK).json({
             status: STATUS.SUCCESS,
             message: 'Get the list of successful users.',

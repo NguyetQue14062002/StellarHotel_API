@@ -10,6 +10,10 @@ export default class Exception extends Error {
     static WRONG_DB_CONNECTION_STRING = 'Wrong server name connection string';
     static CANNOT_CONECT_MONGODB = "Can't connect to Mongoose";
     static GET_USER_FAILED = "Get user failed";
+    static SEND_OTP_SUCCESS = "OTP has been sent to your email. Please check and enter OTP in the box below to authenticate the user!";
+    static OTP_CORRECT = "OTP is correct";
+    static OTP_INCORRECT = "OTP is incorrect";
+    static CHANGED_PASSWORD_SUCCESS = "You have successfully changed your password";
     constructor(message, validatorErrors = {}) {
         super(message); // call constructor of parent class(Error)
         print(message, OutputType.ERROR);
