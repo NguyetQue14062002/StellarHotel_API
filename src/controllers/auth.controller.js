@@ -1,4 +1,4 @@
-import {authServices} from '../services/index.js';
+import { authServices } from '../services/index.js';
 import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS } from '../global/constants.js';
@@ -23,6 +23,7 @@ const sendOTP = async (req, res) => {
         });
     }
 };
+
 const checkOTP = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -43,13 +44,13 @@ const checkOTP = async (req, res) => {
         });
     }
 };
-const resetPassword = async (req, res)=>{
+const resetPassword = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
     }
-    const { email, oldpass, newpass} = req.body;
-    try{
+    const { email, oldpass, newpass } = req.body;
+    try {
         const result = await authServices.resetPassword(email, oldpass, newpass);
         res.status(HttpStatusCode.OK).json({
             status: STATUS.SUCCESS,
@@ -62,27 +63,25 @@ const resetPassword = async (req, res)=>{
             message: `${exception.message}`,
         });
     }
-
-    };
-const forgetpass = async (req, res)=>{
+};
+const forgetpass = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
     }
-    const { email, newpass} = req.body;
-    try{
+    const { email, newpass } = req.body;
+    try {
         const result = await authServices.forgetPassword(email, newpass);
         res.status(HttpStatusCode.OK).json({
             status: STATUS.SUCCESS,
             message: 'Forget Password successfully.',
             data: result,
         });
-    }
-    catch (exception) {
+    } catch (exception) {
         res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
             error: STATUS.ERROR,
             message: `${exception.message}`,
         });
     }
 };
-export default {sendOTP, checkOTP, resetPassword, forgetpass};
+export default { sendOTP, checkOTP, resetPassword, forgetpass };
