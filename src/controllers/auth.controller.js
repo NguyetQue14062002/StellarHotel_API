@@ -1,4 +1,4 @@
-import {authServices} from '../services/index.js';
+import { authServices } from '../services/index.js';
 import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS } from '../global/constants.js';
@@ -23,4 +23,5 @@ const sendOTP = async (req, res) => {
         });
     }
 };
-export default {sendOTP};
+
+export default { sendOTP };

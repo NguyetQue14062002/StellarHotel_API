@@ -65,22 +65,17 @@ const userSchema = new mongoose.Schema(
                 values: [DEFAULT_GENDER.MALE, DEFAULT_GENDER.FEMALE],
                 massage: '{VALUE} is not supported',
             },
-            required: true,
-            default: DEFAULT_GENDER.MALE,
         },
         nationality: {
             type: String,
-            required: true,
         },
         yearOfBirth: {
             type: Number,
-            required: true,
         },
         otp: {
             type: Number,
             required: true,
             default: 0,
-
         },
     },
     {

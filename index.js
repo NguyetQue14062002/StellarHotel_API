@@ -3,12 +3,14 @@ import express from 'express';
 import * as dotenv from 'dotenv'; // tải các biến môi trường từ tệp .env vào tệp process.env
 import cors from 'cors';
 
+import checkToken from './src/authentication/auth.js';
 import { OutputType, print } from './src/helpers/print.js';
 import connect from './src/database/database.js';
 import { userRoutes, authRoutes } from './src/routes/index.js';
 
 dotenv.config();
 const app = express();
+app.use(checkToken);
 app.use(express.json());
 
 app.use(
