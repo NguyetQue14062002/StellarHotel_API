@@ -1,67 +1,6 @@
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-
 import { userModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
 import { OutputType, print } from '../helpers/print.js';
-
-const register = async ({ email, password, phoneNumber }) => {
-    let existingAccount = await userModel.findOne({ email });
-    if (existingAccount) {
-        throw new Exception(Exception.ACCOUNT_EXIST);
-    }
-
-    if (/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/.test(password)) {
-        // encrypted password, use bcrypt
-        const hashPassword = await bcrypt.hash(password, parseInt(process.env.SALT_ROUNDS));
-
-        const newAccount = await userModel.create({
-            email,
-            password: hashPassword,
-            phoneNumber,
-        });
-
-        if (!newAccount) {
-            throw new Exception(Exception.CANNOT_REGISTER_ACCOUNT);
-        }
-    } else {
-        throw new Exception(Exception.CANNOT_REGISTER_ACCOUNT);
-    }
-};
-
-const login = async ({ email, password }) => {
-    let existingAccount = await userModel.findOne({ email });
-    if (!existingAccount) {
-        throw new Exception(Exception.WRONG_EMAIL_OR_PASSWORD);
-    }
-
-    let isMatched = await bcrypt.compare(password, existingAccount.password);
-    if (!isMatched) {
-        throw new Exception(Exception.WRONG_EMAIL_OR_PASSWORD);
-    }
-
-    // Create a java web token
-    let token = jwt.sign(
-        {
-            data: existingAccount,
-        },
-        process.env.JWT_SECRET,
-        {
-            expiresIn: '60 days',
-        },
-    );
-
-    return {
-        id: existingAccount._id,
-        userName: existingAccount.userName,
-        yearOfBirth: existingAccount.yearOfBirth,
-        gender: existingAccount.gender,
-        nationality: existingAccount.nationality,
-        email,
-        phoneNumber: existingAccount.phoneNumber,
-        token: token,
-    };
-};
 
 const updateUser = async ({ id, email, userName, phoneNumber, gender, nationality, yearOfBirth }) => {
     let existingUser = await userModel.findById(id);
@@ -133,4 +72,4 @@ const getAllUser = async ({ page, size, searchString }) => {
     }
 };
 
-export default { getAllUser, register, login, updateUser };
+export default { getAllUser, updateUser };

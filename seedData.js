@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import { OutputType, print } from './src/helpers/print.js';
 import connect from './src/database/database.js';
 
-import { userModel, typeRoomModel, roomModel } from './src/models/index.js';
+import { typeRoomModel, roomModel } from './src/models/index.js';
 import { TYPE_ROOMS, DESCRIPTION_ROOM, TYPE_BED } from './src/global/constants.js';
 
 const app = express();

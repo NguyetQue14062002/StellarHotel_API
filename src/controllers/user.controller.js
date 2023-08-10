@@ -3,52 +3,6 @@ import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS, MAX_RECORDS } from '../global/constants.js';
 
-const register = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
-    }
-
-    const { email, password, phoneNumber } = req.body;
-
-    try {
-        await userRepository.register({ email, password, phoneNumber });
-
-        res.status(HttpStatusCode.INSERT_OK).json({
-            status: STATUS.SUCCESS,
-            message: 'Register Account successfully',
-        });
-    } catch (exception) {
-        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-            status: STATUS.ERROR,
-            message: `${exception.message}`,
-        });
-    }
-};
-
-const login = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
-    }
-
-    const { email, password } = req.body;
-
-    try {
-        const existingAccount = await userRepository.login({ email, password });
-        res.status(HttpStatusCode.OK).json({
-            status: STATUS.SUCCESS,
-            message: 'Login successfully',
-            data: existingAccount,
-        });
-    } catch (exception) {
-        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-            status: STATUS.ERROR,
-            message: `${exception.message}`,
-        });
-    }
-};
-
 const updateUser = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -102,4 +56,4 @@ const getAllUser = async (req, res) => {
         });
     }
 };
-export default { register, login, updateUser, getAllUser };
+export default { updateUser, getAllUser };
