@@ -49,6 +49,7 @@ const DESCRIPTION_ROOM = {
 
 const COLLECTION = {
     TYPE_ROOMS: 'TypeRooms',
+    DESCRIPTION_ROOM: 'Description',
 };
 
 export {

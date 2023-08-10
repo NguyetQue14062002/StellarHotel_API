@@ -6,6 +6,6 @@ const router = express.Router();
 
 router.patch('/update-user', userController.updateUser);
 
-router.get('/getAllUser', userController.getAllUser);
+router.get('/', userController.getAllUser);
 
 export default router;
