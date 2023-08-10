@@ -3,6 +3,7 @@ import Exception from '../exceptions/Exception.js';
 import nodemailer from 'nodemailer';
 import { OutputType, print } from '../helpers/print.js';
 import bcrypt from 'bcryptjs';
+import e from 'cors';
 
 const sendOTP =  async(
     email
@@ -27,7 +28,7 @@ const sendOTP =  async(
                 to: email,
                 subject: 'Xác thực người dùng',
                 html: `<h1>Xác thực người dùng</h1>
-                    <p>OTP xác thực người dùng của bạn là: ${otp}</p>`
+                    <p>OTP xác thực người dùng của bạn là: ${otp}, có hiệu lực trong vòng 1 phút.</p>`
             };
             transporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
@@ -39,6 +40,14 @@ const sendOTP =  async(
             await userModel.findByIdAndUpdate(filterUser._id , {
                 otp:otp
             });
+            if (filterUser.otp !== 0) {
+                setTimeout(async () => {
+                    await userModel.findByIdAndUpdate(filterUser._id, {
+                        otp: 0
+                    });
+                    console.log('OTP updated to 0');
+                }, 60000); 
+            }
             return Exception.SEND_OTP_SUCCESS;
     }
     catch (error) {
@@ -76,31 +85,23 @@ const resetPassword = async (
     newpass
 )=> {
     try{
+       
         const user = await userModel.findOne({email});
         if (!user) {
             return Exception.INVALID_EMAIL;
         }
         else{
-           /* const saltRounds = 10;
-
-            bcrypt.hash(oldPassword, saltRounds, (err, oldHash) => {
-                if (err) {
-                    console.error('Error hashing old password:', err);
-                    return;
+            let isMatched = await bcrypt.compare(oldpass, user.password);
+            const hashPassword = await bcrypt.hash(newpass, parseInt(process.env.SALT_ROUNDS));
+            if (!isMatched ) {
+                return Exception.INCORRECT_PASS;
+            }else{
+                if (/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/.test(newpass)) {
+                    await userModel.findByIdAndUpdate(user._id , { password: hashPassword });
+                    return Exception.CHANGED_PASSWORD_SUCCESS;
                 }
-                bcrypt.compare(newPassword, oldHash, (err, result) => {
-                    if (err) {
-                        console.error('Error comparing passwords:', err);
-                        return;
-                    }
-            */
-            if (oldpass=== user.password, user.role == "client") {
-                await userModel.findByIdAndUpdate(user._id , { password: newpass});
-                return Exception.CHANGED_PASSWORD_SUCCESS;
-              
+                return Exception.INVALID_PASSWORD;
             }
-            return Exception.INVALID_PASSWORD;
-           
         }
     }catch (error) {
         print(error, OutputType.ERROR);
@@ -116,12 +117,20 @@ const forgetPassword = async (
                
                 return Exception.INVALID_EMAIL;
             }
-            await userModel.findByIdAndUpdate(user._id , { password: newpass});
-            return Exception.CHANGED_PASSWORD_SUCCESS;
-    }
-    catch (error) {
-            print(error, OutputType.ERROR);
-    }
+            else{
+                if (/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/.test(newpass)) {
+                    const hashPassword = await bcrypt.hash(newpass, parseInt(process.env.SALT_ROUNDS));
+                    await userModel.findByIdAndUpdate(user._id , { password: hashPassword});
+                    return Exception.CHANGED_PASSWORD_SUCCESS;
+                 }
+                else{
+                    return Exception.INVALID_PASSWORD;
+                }
+            }
+        }
+        catch (error) {
+                print(error, OutputType.ERROR);
+        }
 };
 
 
