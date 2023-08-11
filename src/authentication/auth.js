@@ -3,7 +3,6 @@ import jwt from 'jsonwebtoken';
 
 export default function checkToken(req, res, next) {
     const bypassUrl = ['/user/login', '/user/register', '/user/getAllUser'];
-
     // bypass login, rigister
     if (
         bypassUrl

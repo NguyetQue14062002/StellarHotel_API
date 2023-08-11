@@ -3,6 +3,8 @@ import express from 'express';
 
 const router = express.Router();
 
+router.post('/register', authController.register);
+router.post('/login', authController.login);
 router.post('/sendotp', authController.sendOTP);
 router.post('/checkotp', authController.checkOTP);
 router.post('/resetpass', authController.resetPassword);

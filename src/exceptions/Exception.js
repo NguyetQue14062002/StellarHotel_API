@@ -23,7 +23,9 @@ export default class Exception extends Error {
     static CANNOT_REGISTER_ACCOUNT = "Can't register Account";
     static WRONG_EMAIL_OR_PASSWORD = 'Wrong email or password';
     static GET_USER_FAILED = 'Get user failed';
+    static UPDATE_USER_FAILED = 'User information update failed';
 
+    static DATA_RETRIEVAL_FAILED = 'Data retrieval failed';
     static TYPE_ROOM_NOT_EXIST = 'Type room not exist';
     static CANNOT_ADD_ROOM = "Can't add room";
 
