@@ -96,24 +96,30 @@ const sendOTP = async (email) => {
         await userModel.findByIdAndUpdate(filterUser._id, {
             otp: otp,
         });
-        return Exception.SEND_OTP_SUCCESS;
+        return {
+            otp: otp,
+        };
     } catch (error) {
         print(error, OutputType.ERROR);
     }
 };
 
 const checkOTP = async (email, otp) => {
-    try {
-        const user = await userModel.findOne({ email, otp });
-        if (!user) {
-            return Exception.INVALID_EMAIL;
-        } else {
-            await userModel.updateOne({ _id: user._id }, { $set: { otp: null } });
-            return Exception.OTP_CORRECT;
-        }
-    } catch (error) {
-        print(error, OutputType.ERROR);
+    const user = await userModel.findOne({ email });
+    if (!user) {
+        throw new Exception(Exception.INVALID_EMAIL);
     }
+
+    if (user.otp == null) {
+        throw new Exception('Yêu cầu người dùng send otp');
+    }
+
+    if (user.otp != otp) {
+        throw new Exception('otp không hợp lệ');
+    }
+
+    await userModel.updateOne({ _id: user._id }, { $set: { otp: null } });
+    return Exception.OTP_CORRECT;
 };
 
 const resetPassword = async (email, oldpass, newpass) => {

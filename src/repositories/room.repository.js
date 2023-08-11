@@ -45,7 +45,7 @@ const updateRoom = async (name, roomNumber, image, acreage, typeBed, capacity, v
         throw new Exception(Exception.TYPE_ROOM_NOT_EXIST);
     }
 
-    let Room = await roomModel.findOneAndUpdate(roomModel.roomNumber, {
+    let Room = await roomModel.findOneAndUpdate(roomNumber, {
         typeRoom: existingTypeRoom.id,
         image,
         acreage,
@@ -55,9 +55,11 @@ const updateRoom = async (name, roomNumber, image, acreage, typeBed, capacity, v
         prices,
         status,
     });
+
     if (!Room) {
         throw new Exception(Exception.CANNOT_UPDATE_ROOM);
     }
+    
     return {
         id: Room._id,
         typeRoom: existingTypeRoom.name,

@@ -19,10 +19,6 @@ const roomSchema = new mongoose.Schema(
             required: true,
             default: URL_ROOM_DEFAULT,
         },
-        description: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: COLLECTION.DESCRIPTION_ROOM,
-        },
         acreage: {
             type: Number,
             required: true,
