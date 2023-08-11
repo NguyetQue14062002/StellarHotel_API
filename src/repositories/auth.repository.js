@@ -4,7 +4,6 @@ import nodemailer from 'nodemailer';
 import { OutputType, print } from '../helpers/print.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 
 const register = async ({ email, password, phoneNumber }) => {
     let existingAccount = await userModel.findOne({ email });
