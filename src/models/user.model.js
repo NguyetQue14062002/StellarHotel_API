@@ -63,7 +63,7 @@ const userSchema = new mongoose.Schema(
             type: String,
             enum: {
                 values: [DEFAULT_GENDER.MALE, DEFAULT_GENDER.FEMALE],
-                massage: '{VALUE} is not supported',
+                message: '{VALUE} is not supported',
             },
         },
         nationality: {
@@ -74,13 +74,15 @@ const userSchema = new mongoose.Schema(
         },
         otp: {
             type: Number,
-            required: true,
-            default: 0,
+            index: true ,
         },
     },
     {
         timestamps: true,
     },
 );
+
+userSchema.index({otp: 1},{expireAfterSeconds:60});
+
 
 export default mongoose.model('Users', userSchema);

@@ -3,7 +3,8 @@ import Exception from '../exceptions/Exception.js';
 import nodemailer from 'nodemailer';
 import { OutputType, print } from '../helpers/print.js';
 import bcrypt from 'bcryptjs';
-import e from 'cors';
+import jwt from 'jsonwebtoken';
+
 
 const sendOTP =  async(
     email
@@ -28,7 +29,7 @@ const sendOTP =  async(
                 to: email,
                 subject: 'Xác thực người dùng',
                 html: `<h1>Xác thực người dùng</h1>
-                    <p>OTP xác thực người dùng của bạn là: ${otp}, có hiệu lực trong vòng 1 phút.</p>`
+                    <p>OTP xác thực người dùng của bạn là: ${otp},  có hiệu lực trong vòng 1 phút.</p>`
             };
             transporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
@@ -40,14 +41,6 @@ const sendOTP =  async(
             await userModel.findByIdAndUpdate(filterUser._id , {
                 otp:otp
             });
-            if (filterUser.otp !== 0) {
-                setTimeout(async () => {
-                    await userModel.findByIdAndUpdate(filterUser._id, {
-                        otp: 0
-                    });
-                    console.log('OTP updated to 0');
-                }, 60000); 
-            }
             return Exception.SEND_OTP_SUCCESS;
     }
     catch (error) {
@@ -60,18 +53,13 @@ const checkOTP = async (
     otp
 ) => {
     try {
-        const user = await userModel.findOne({email});
+        const user = await userModel.findOne({email, otp});
         if (!user) {
             return Exception.INVALID_EMAIL;
         }
         else{
-            if (user.otp == otp && user.role == "client") {
-                await userModel.findByIdAndUpdate(user._id , { otp :0});
-                return Exception.OTP_CORRECT;
-            }
-            else{
-                return Exception.OTP_INCORRECT;
-            }
+            await userModel.updateOne({_id:user._id},{$set:{otp:null}});
+            return Exception.OTP_CORRECT;
         }
     }
         catch (error) {

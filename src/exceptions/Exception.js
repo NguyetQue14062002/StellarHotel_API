@@ -15,6 +15,7 @@ export default class Exception extends Error {
         'OTP has been sent to your email. Please check and enter OTP in the box below to authenticate the user!';
     static OTP_CORRECT = 'OTP is correct';
     static OTP_INCORRECT = 'OTP is incorrect';
+    static OTP_EXPIRED = 'OTP is expired';
     static CHANGED_PASSWORD_SUCCESS = 'You have successfully changed your password';
     static INCORRECT_PASS = 'Incorrect password';
 
@@ -25,6 +26,8 @@ export default class Exception extends Error {
 
     static TYPE_ROOM_NOT_EXIST = 'Type room not exist';
     static CANNOT_ADD_ROOM = "Can't add room";
+
+    static CANNOT_UPDATE_ROOM = "Can't update room";
     constructor(message, validatorErrors = {}) {
         super(message); // call constructor of parent class(Error)
         print(message, OutputType.ERROR);

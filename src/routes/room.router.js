@@ -4,6 +4,6 @@ import express from 'express';
 const router = express.Router();
 
 router.post('/addRoom', roomController.addRoom);
-//router.post('/update', roomController.updateRoom);
+router.post('/update', roomController.updateRoom );
 
 export default router;
