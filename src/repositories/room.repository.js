@@ -1,9 +1,13 @@
-import { roomModel, typeRoomModel } from "../models/index.js";
+import { roomModel, typeRoomModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
-import {TYPE_BED} from '../global/constants.js';
-import { OutputType ,print } from "../helpers/print.js";
+import { TYPE_BED } from '../global/constants.js';
+import { OutputType, print } from '../helpers/print.js';
 
-const addRoom = async ( idTypeRoom, roomNumber, image, acreage, typeBed, capacity, view, prices, status ) => {
+const getAvailableRooms = async ({ page, size, searchString }) => {
+
+};
+
+const addRoom = async (idTypeRoom, roomNumber, image, acreage, typeBed, capacity, view, prices, status) => {
     let existingTypeRoom = await typeRoomModel.findById(idTypeRoom);
     if (!existingTypeRoom) {
         throw new Exception(Exception.TYPE_ROOM_NOT_EXIST);
@@ -13,11 +17,11 @@ const addRoom = async ( idTypeRoom, roomNumber, image, acreage, typeBed, capacit
         roomNumber,
         image,
         acreage,
-        typeBed: TYPE_BED[typeBed] ,
+        typeBed: TYPE_BED[typeBed],
         capacity,
         view,
         prices,
-        status
+        status,
     });
     if (!Room) {
         throw new Exception(Exception.CANNOT_ADD_ROOM);
@@ -33,10 +37,8 @@ const addRoom = async ( idTypeRoom, roomNumber, image, acreage, typeBed, capacit
         capacity: Room.capacity,
         view: Room.view,
         prices: Room.prices,
-        status: Room.status
-
+        status: Room.status,
     };
 };
 
-
-export default { addRoom };
+export default { addRoom, getAvailableRooms };

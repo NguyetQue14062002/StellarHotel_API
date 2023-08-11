@@ -6,7 +6,7 @@ import cors from 'cors';
 import checkToken from './src/authentication/auth.js';
 import { OutputType, print } from './src/helpers/print.js';
 import connect from './src/database/database.js';
-import { userRoutes, authRoutes, roomRoutes } from './src/routes/index.js';
+import { userRoutes, authRoutes, roomRoutes, typeRoomRoutes } from './src/routes/index.js';
 
 dotenv.config();
 const app = express();
@@ -26,6 +26,8 @@ app.get('/', (req, res) => {
 app.use('/user', userRoutes);
 app.use('/auth', authRoutes);
 app.use('/room', roomRoutes);
+app.use('/type-room', typeRoomRoutes);
+
 const port = process.env.PORT || 3002;
 connect()
     .then(() => {
