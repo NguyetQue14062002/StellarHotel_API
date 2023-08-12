@@ -8,6 +8,7 @@ const roomSchema = new mongoose.Schema(
         typeRoom: {
             type: mongoose.Schema.Types.ObjectId,
             ref: COLLECTION.TYPE_ROOMS,
+            index: false,
         },
         roomNumber: {
             type: Number,
@@ -54,7 +55,9 @@ const roomSchema = new mongoose.Schema(
         },
     },
     {
-        timestamps: true,
+        timestamps: {
+            currentTime: () => new Date().getTime(),
+        },
     },
 );
 

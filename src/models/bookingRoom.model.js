@@ -1,20 +1,24 @@
 import mongoose from 'mongoose';
 
-import { STATUS_BOOKING } from '../global/constants.js';
+import { STATUS_BOOKING, COLLECTION } from '../global/constants.js';
 
 const bookingRoomSchema = new mongoose.Schema(
     {
         user: {
-            type: String,
-            required: true,
+            type: mongoose.Schema.Types.ObjectId,
+            ref: COLLECTION.USERS,
+
+            index: false,
         },
-        checkin_date: {
-            type: Date,
-            required: true,
+        typeRoom: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: COLLECTION.TYPE_ROOMS,
+            index: false,
         },
-        checkout_date: {
-            type: Date,
+        quantity: {
+            type: Number,
             required: true,
+            default: 0,
         },
         totalprice: {
             type: Number,
@@ -29,9 +33,19 @@ const bookingRoomSchema = new mongoose.Schema(
             },
             default: STATUS_BOOKING.BOOKED,
         },
+        checkinDate: {
+            type: Date,
+            required: true,
+        },
+        checkoutDate: {
+            type: Date,
+            required: true,
+        },
     },
     {
-        timestamps: true,
+        timestamps: {
+            currentTime: () => new Date().getTime(),
+        },
     },
 );
 

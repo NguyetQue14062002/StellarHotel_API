@@ -19,7 +19,9 @@ const bookingRoomItemSchema = new mongoose.Schema(
         },
     },
     {
-        timestamps: true,
+        timestamps: {
+            currentTime: () => new Date().getTime(),
+        },
     },
 );
 

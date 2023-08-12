@@ -3,14 +3,16 @@ import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS } from '../global/constants.js';
 
-const getAvailableRooms = async (req, res) => {
+const filterNumberAvailableRooms = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
     }
 
+    const { typeRoom } = req.query;
+
     try {
-        const existingRooms = await roomRepository.getAvailableRooms({ roomNumber, size, searchString });
+        const existingRooms = await roomRepository.filterNumberAvailableRooms({ typeRoom });
 
         res.status(HttpStatusCode.OK).json({
             status: STATUS.SUCCESS,
@@ -87,4 +89,4 @@ const updateRoom = async (req, res) => {
     }
 };
 
-export default { addRoom, updateRoom, getAvailableRooms };
+export default { addRoom, updateRoom, filterNumberAvailableRooms };

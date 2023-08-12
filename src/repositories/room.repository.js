@@ -1,9 +1,29 @@
-import { roomModel, typeRoomModel } from '../models/index.js';
+import { roomModel, typeRoomModel, bookingRoomItemModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
 import { TYPE_BED } from '../global/constants.js';
 import { OutputType, print } from '../helpers/print.js';
 
-const getAvailableRooms = async ({ page, size, searchString }) => {};
+const filterNumberAvailableRooms = async ({ typeRoom }) => {
+    const existingBooking = await bookingRoomItemModel.find({ typeRoom });
+
+    const existingRooms = await roomModel
+        .find(
+            { typeRoom, status: 'available' },
+            {
+                _id: 1,
+                roomNumber: 1,
+                image: 1,
+                acreage: 1,
+                typeBed: 1,
+                capacity: 1,
+                view: 1,
+                prices: 1,
+            },
+        )
+        .sort({ roomNumber: 1 });
+
+    return existingBooking;
+};
 
 const addRoom = async (idTypeRoom, roomNumber, image, acreage, typeBed, capacity, view, prices, status) => {
     let existingTypeRoom = await typeRoomModel.findById(idTypeRoom);
@@ -59,7 +79,7 @@ const updateRoom = async (name, roomNumber, image, acreage, typeBed, capacity, v
     if (!Room) {
         throw new Exception(Exception.CANNOT_UPDATE_ROOM);
     }
-    
+
     return {
         id: Room._id,
         typeRoom: existingTypeRoom.name,
@@ -75,4 +95,4 @@ const updateRoom = async (name, roomNumber, image, acreage, typeBed, capacity, v
     };
 };
 
-export default { getAvailableRooms, addRoom, updateRoom };
+export default { filterNumberAvailableRooms, addRoom, updateRoom };

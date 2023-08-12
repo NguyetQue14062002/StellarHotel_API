@@ -39,7 +39,9 @@ const typeRoomSchema = new mongoose.Schema(
         },
     },
     {
-        timestamps: true,
+        timestamps: {
+            currentTime: () => new Date().getTime(),
+        },
     },
 );
 

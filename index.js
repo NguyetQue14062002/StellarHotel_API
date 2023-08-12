@@ -11,7 +11,7 @@ import {
     authRoutes,
     roomRoutes,
     typeRoomRoutes,
-    // bookingRoomRoutes,
+    bookingRoomRoutes,
     // bookingRoomItemRoutes,
 } from './src/routes/index.js';
 
@@ -19,6 +19,7 @@ dotenv.config();
 const app = express();
 // app.use(checkToken);
 app.use(express.json());
+
 
 app.use(
     cors({
@@ -34,7 +35,7 @@ app.use('/user', userRoutes);
 app.use('/auth', authRoutes);
 app.use('/room', roomRoutes);
 app.use('/type-room', typeRoomRoutes);
-// app.use('/booking-room', bookingRoomRoutes);
+app.use('/booking-room', bookingRoomRoutes);
 // app.use('/booking-room-item', bookingRoomItemRoutes);
 
 const port = process.env.PORT || 3002;
