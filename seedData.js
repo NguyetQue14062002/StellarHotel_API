@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import { OutputType, print } from './src/helpers/print.js';
 import connect from './src/database/database.js';
 
-import { typeRoomModel, roomModel } from './src/models/index.js';
+import { typeRoomModel, roomModel, utilitiesModel } from './src/models/index.js';
 import { TYPE_ROOMS, DESCRIPTION_ROOM, TYPE_BED } from './src/global/constants.js';
 
 const app = express();
@@ -226,6 +226,39 @@ connect()
             print('Insert Rooms success', OutputType.SUCCESS);
         } else {
             print('Insert Rooms fail', OutputType.ERROR);
+        }
+    })
+    .then(async () => {
+        const myUtilities = [
+            {
+                name: 'Nhà Hàng Buffers',
+                description: `Nơi hoàn hảo để tận hưởng sự sang trọng và thoải mái tuyệt đỉnh!\nTọa lạc tầng 5, với góc nhìn đẹp hướng ra đại lộ Nguyễn Huệ, Stellar Hotel nổi bật với hơn 60 món ăn của đồng bằng sông Cửu Long được chế biến tỉ mỉ của gồm mì, bánh khọt, gỏi cuốn, đậu hũ, chè, hột vịt lộn và nước mát cũng như các món hải sản nướng. Ngoài ra, thực khách còn được thưởng thức các buổi trình diễn nhạc cụ truyền thống trong khi thưởng thức bữa ăn.\nGiờ mở cửa: Bữa sáng: từ 6 giờ sáng đến 9 giờ sang hàng ngày.\nĂn trưa: từ 11 giờ sáng đến 2 giờ chiều hàng ngày.\nBữa tối: từ 6 giờ tối đến 9 giờ 30 chiều hàng phục.`,
+            },
+            {
+                name: 'Stellar Bar',
+                description: `Stellar Hotel mang không khí của câu lạc bộ biển. Thường xuyên thu hút người nước ngoài ăn mặc bảnh bao và người dân địa phương đến đây giải trí thư giãn. Quán bar trên tầng thượng này được trang bị rất nhiều cây nhiệt đới, trang trí nội thất theo tông màu đen trắng. Sàn nhảy rộng và quầy bar đầy đủ dự trữ trên boong chính phục vụ đầy và nhiệt tình các khách hàng đến đây.\nVới một cái nhìn tuyệt đẹp của trung tâm Sài Gòn. Chill Skybar là một trong những hộp đêm nổi tiếng nhất trong thành phố. Ở đây bạn sẽ chứng kiến một Sài Gòn cực kì đẹp với thưởng thức nhạc dance hay hip hop sôi động đầy hấp dẫn. Nhưng đồ uống ở đây là rất tốn kém, chi phí của một cocktail gần 20$. Bù vào đó đừng bỏ lở giờ hạnh phúc tuyệt vời 17:30 đến 20:00, các loại thức ăn và đồ uống sẽ được giảm một nửa giá.`,
+            },
+            {
+                name: 'Hồ Bơi Tràn Bờ Trên Cao',
+                description:
+                    'Hồ bơi tràn bờ dài 24m toạ lạc tại tầng cao nhất của Stellar như nối dài vô tận theo dòng sông Sài Gòn, tạo nên một không gian riêng tư và biệt lập giữa long đô thị nhiệt đới. Thư giãn trong làn nước xanh mát, bạn sẽ tìm thấy cảm giác thú vị như chỉ dành cho riêng mình khi chọn một ly cocktail yêu thích và nhìn ngắm một Sài Gòn li ti chuyển động trong tầm mắt.',
+            },
+            {
+                name: 'Phòng Tập Thể Thao',
+                description:
+                    'Phòng tập thể thao hiện đại mở cánh cửa bừng sáng đón chào ngày mới với những thiết bị tập luyện thể thao hiện đại và góc nhìn phủ khắp Sài Gòn từ trên cao. Dành một chút thời gian tập luyện cho cơ thể mỗi sớm, bạn sẽ có cả một ngày tràn đầy năng lượng để làm việc và tận hưởng chuyến đi khám phá thành phố.',
+            },
+            {
+                name: 'Stellar Spa',
+                description: `Hòa mình vào không gian an lành, bạn sẽ được trải nghiệm những phương pháp chăm sóc tinh tế của Stellar Spa, từ hồ massage chân đến phòng trị liệu thiết kế tỉ mỉ. Tại đây, những bí mật trong nghệ thuật massage truyền thống Việt Nam sẽ được khám phá như một cuộc phiêu lưu trong Sài Gòn xưa. Hãy để những liệu pháp chăm sóc hiện đại và toàn diện đưa bạn vào trạng thái thư thái, cùng với nụ cười chân thành của nhân viên đón bạn về nhà. Đến với  Stellar Spa và trải nghiệm cảm giác nghỉ ngơi trọn vẹn`,
+            },
+        ];
+
+        let isExist = await utilitiesModel.insertMany(myUtilities);
+        if (isExist) {
+            print('Insert Utilities success', OutputType.SUCCESS);
+        } else {
+            print('Insert Utilities fail', OutputType.ERROR);
         }
     })
     .catch((error) => {
