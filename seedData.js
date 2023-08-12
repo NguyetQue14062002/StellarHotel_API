@@ -39,7 +39,7 @@ connect()
         }
     })
     .then(async () => {
-        let isExistingTypeRoom = await typeRoomModel.find({ name: TYPE_ROOMS.SUPERIOR_DOUBLE_OR_TWIN_ROOM });
+        let isExistingTypeRoom = await typeRoomModel.findOne({ name: TYPE_ROOMS.SUPERIOR_DOUBLE_OR_TWIN_ROOM });
 
         const myRooms_SDoTR = [
             {
@@ -84,7 +84,7 @@ connect()
             },
         ];
 
-        isExistingTypeRoom = await typeRoomModel.find({ name: TYPE_ROOMS.DELUXE_DOUBLE_ROOM });
+        isExistingTypeRoom = await typeRoomModel.findOne({ name: TYPE_ROOMS.DELUXE_DOUBLE_ROOM });
 
         const myRooms_DDR = [
             {
@@ -129,7 +129,7 @@ connect()
             },
         ];
 
-        isExistingTypeRoom = await typeRoomModel.find({ name: TYPE_ROOMS.EXECUTIVE_CITY_VIEW_ROOM });
+        isExistingTypeRoom = await typeRoomModel.findOne({ name: TYPE_ROOMS.EXECUTIVE_CITY_VIEW_ROOM });
 
         const myRooms_ECVR = [
             {
@@ -174,7 +174,7 @@ connect()
             },
         ];
 
-        isExistingTypeRoom = await typeRoomModel.find({ name: TYPE_ROOMS.SUITE_GARDEN_ROOM });
+        isExistingTypeRoom = await typeRoomModel.findOne({ name: TYPE_ROOMS.SUITE_GARDEN_ROOM });
 
         const myRooms_SGR = [
             {

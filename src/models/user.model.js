@@ -74,15 +74,16 @@ const userSchema = new mongoose.Schema(
         },
         otp: {
             type: Number,
-            index: true ,
+            index: true,
         },
     },
     {
-        timestamps: true,
+        timestamps: {
+            currentTime: () => new Date().getTime(),
+        },
     },
 );
 
-userSchema.index({otp: 1},{expireAfterSeconds:60});
-
+userSchema.index({ otp: 1 }, { expireAfterSeconds: 60 });
 
 export default mongoose.model('Users', userSchema);

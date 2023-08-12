@@ -3,8 +3,8 @@ import express from 'express';
 
 const router = express.Router();
 
-router.get('/', roomController.getAvailableRooms);
+router.get('/', roomController.filterNumberAvailableRooms);
 router.post('/addRoom', roomController.addRoom);
-router.patch('/update', roomController.updateRoom );
+router.patch('/update', roomController.updateRoom);
 
 export default router;
