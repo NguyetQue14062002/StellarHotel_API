@@ -1,11 +1,9 @@
-import { roomModel, typeRoomModel, bookingRoomItemModel } from '../models/index.js';
+import { roomModel, typeRoomModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
 import { TYPE_BED } from '../global/constants.js';
 import { OutputType, print } from '../helpers/print.js';
 
 const filterNumberAvailableRooms = async ({ typeRoom }) => {
-    const existingBooking = await bookingRoomItemModel.find({ typeRoom });
-
     const existingRooms = await roomModel
         .find(
             { typeRoom, status: 'available' },
