@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.get('/', roomController.getAvailableRooms);
 router.post('/addRoom', roomController.addRoom);
-router.post('/update', roomController.updateRoom );
+router.patch('/update', roomController.updateRoom );
 
 export default router;

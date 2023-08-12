@@ -4,7 +4,7 @@ import express from 'express';
 const router = express.Router();
 
 
-router.patch('/update-user', userController.updateUser);
+router.post('/update-user', userController.updateUser);
 
 router.get('/', userController.getAllUser);
 

@@ -64,10 +64,10 @@ const login = async ({ email, password }) => {
 };
 
 const sendOTP = async (email) => {
-    try {
+   
         const filterUser = await userModel.findOne({ email });
         if (!filterUser) {
-            return Exception.INVALID_EMAIL;
+            throw new Exception(Exception.INVALID_EMAIL);;
         }
         const otp = Math.floor(1000 + Math.random() * 9000);
         //send mail
@@ -99,9 +99,7 @@ const sendOTP = async (email) => {
         return {
             otp: otp,
         };
-    } catch (error) {
-        print(error, OutputType.ERROR);
-    }
+  
 };
 
 const checkOTP = async (email, otp) => {
@@ -123,44 +121,40 @@ const checkOTP = async (email, otp) => {
 };
 
 const resetPassword = async (email, oldpass, newpass) => {
-    try {
+   
         const user = await userModel.findOne({ email });
         if (!user) {
-            return Exception.INVALID_EMAIL;
+            throw new Exception(Exception.INVALID_EMAIL);
         } else {
             let isMatched = await bcrypt.compare(oldpass, user.password);
             const hashPassword = await bcrypt.hash(newpass, parseInt(process.env.SALT_ROUNDS));
             if (!isMatched) {
-                return Exception.INCORRECT_PASS;
+                throw new Exception(Exception.INCORRECT_PASS);
             } else {
                 if (/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/.test(newpass)) {
                     await userModel.findByIdAndUpdate(user._id, { password: hashPassword });
                     return Exception.CHANGED_PASSWORD_SUCCESS;
                 }
-                return Exception.INVALID_PASSWORD;
+                throw new Exception(Exception.INVALID_PASSWORD);
             }
         }
-    } catch (error) {
-        print(error, OutputType.ERROR);
-    }
+   
 };
 const forgetPassword = async (email, newpass) => {
-    try {
+   
         const user = await userModel.findOne({ email });
         if (!user) {
-            return Exception.INVALID_EMAIL;
+            throw new Exception(Exception.INVALID_EMAIL);
         } else {
-            if (/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/.test(newpass)) {
-                const hashPassword = await bcrypt.hash(newpass, parseInt(process.env.SALT_ROUNDS));
-                await userModel.findByIdAndUpdate(user._id, { password: hashPassword });
-                return Exception.CHANGED_PASSWORD_SUCCESS;
-            } else {
-                return Exception.INVALID_PASSWORD;
-            }
+         if (/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/.test(newpass)) {
+            const hashPassword = await bcrypt.hash(newpass, parseInt(process.env.SALT_ROUNDS));
+            await userModel.findByIdAndUpdate(user._id, { password: hashPassword });
+            return Exception.CHANGED_PASSWORD_SUCCESS;
+        } else {
+            throw new Exception(Exception.INVALID_PASSWORD);
         }
-    } catch (error) {
-        print(error, OutputType.ERROR);
     }
+    
 };
 
 export default { register, login, sendOTP, checkOTP, resetPassword, forgetPassword };

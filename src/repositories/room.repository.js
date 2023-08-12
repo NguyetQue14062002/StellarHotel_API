@@ -40,39 +40,48 @@ const addRoom = async (idTypeRoom, roomNumber, image, acreage, typeBed, capacity
 };
 
 const updateRoom = async (name, roomNumber, image, acreage, typeBed, capacity, view, prices, status) => {
-    let existingTypeRoom = await typeRoomModel.findOne({ name });
-    if (!existingTypeRoom) {
-        throw new Exception(Exception.TYPE_ROOM_NOT_EXIST);
-    }
+    try {
+        let existingTypeRoom = await typeRoomModel.findOne({ name });
+        let existingRoom = await roomModel.findOne({ roomNumber });
 
-    let Room = await roomModel.findOneAndUpdate(roomNumber, {
-        typeRoom: existingTypeRoom.id,
-        image,
-        acreage,
-        typeBed: TYPE_BED[typeBed],
-        capacity,
-        view,
-        prices,
-        status,
-    });
+        if (!existingTypeRoom) {
+            throw new Error('TYPE_ROOM_NOT_EXIST');
+        } else if (!existingRoom) {
+            throw new Error('ROOM_NOT_EXIST');
+        } else {
+            existingRoom.typeRoom = existingTypeRoom.id ?? existingRoom.typeRoom;
+            existingRoom.image = image ?? existingRoom.image;
+            existingRoom.acreage = acreage ?? existingRoom.acreage;
+            existingRoom.typeBed = TYPE_BED[typeBed] ?? existingRoom.typeBed;
+            existingRoom.capacity = capacity || existingRoom.capacity;
+            existingRoom.view = view ?? existingRoom.view;
+            existingRoom.prices = prices ?? existingRoom.prices;
+            existingRoom.status = status ?? existingRoom.status;
 
-    if (!Room) {
-        throw new Exception(Exception.CANNOT_UPDATE_ROOM);
+            await existingRoom.save();
+
+            return {
+                id: existingRoom._id,
+                typeRoom: existingTypeRoom.name,
+                roomNumber: existingRoom.roomNumber,
+                image: existingRoom.image,
+                description: existingTypeRoom.description,
+                acreage: existingRoom.acreage,
+                typeBed: existingRoom.typeBed,
+                capacity: existingRoom.capacity,
+                view: existingRoom.view,
+                prices: existingRoom.prices,
+                status: existingRoom.status,
+            };
+        }
+    } catch (error) {
+        console.error(error.message);
+        if (error.message === 'TYPE_ROOM_NOT_EXIST' || error.message === 'ROOM_NOT_EXIST') {
+            throw error;
+        } else {
+            throw 'UPDATE_ROOM_FAILED';
+        }
     }
-    
-    return {
-        id: Room._id,
-        typeRoom: existingTypeRoom.name,
-        roomNumber: Room.roomNumber,
-        image: Room.image,
-        description: existingTypeRoom.description,
-        acreage: Room.acreage,
-        typeBed: Room.typeBed,
-        capacity: Room.capacity,
-        view: Room.view,
-        prices: Room.prices,
-        status: Room.status,
-    };
 };
 
-export default { getAvailableRooms, addRoom, updateRoom };
+export default { getAvailableRooms, addRoom, updateRoom};

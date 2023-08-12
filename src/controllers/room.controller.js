@@ -87,4 +87,5 @@ const updateRoom = async (req, res) => {
     }
 };
 
+
 export default { addRoom, updateRoom, getAvailableRooms };

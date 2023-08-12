@@ -51,6 +51,7 @@ const COLLECTION = {
 
 const STATUS_BOOKING = {
     BOOKED: 'Booked',
+    PAID: 'Paid',
     CANCELLED: 'cancelled',
 };
 
