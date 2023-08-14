@@ -1,10 +1,12 @@
-import { authController } from '../controllers/index.js';
 import express from 'express';
+
+import { authController } from '../controllers/index.js';
+import { validationError, authValidation } from '../middleware/validation/index.js';
 
 const router = express.Router();
 
-router.post('/register', authController.register);
-router.post('/login', authController.login);
+router.post('/register', authValidation.validateRegister, validationError, authController.register);
+router.post('/login', authValidation.validateLogin, validationError, authController.login);
 router.post('/sendotp', authController.sendOTP);
 router.post('/checkotp', authController.checkOTP);
 router.post('/resetpass', authController.resetPassword);

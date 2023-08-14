@@ -1,6 +1,6 @@
 import { userModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
-import { OutputType, print } from '../helpers/print.js';
+import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
 
 const updateUser = async ({ id, email, userName, phoneNumber, gender, nationality, yearOfBirth }) => {
     let existingUser = await userModel.findById(id);
@@ -16,7 +16,7 @@ const updateUser = async ({ id, email, userName, phoneNumber, gender, nationalit
     existingUser.nationality = nationality ?? existingUser.nationality;
     existingUser.yearOfBirth = yearOfBirth ?? existingUser.yearOfBirth;
     await existingUser.save().catch((exception) => {
-        print(`${exception.message}`, OutputType.ERROR);
+        printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
         throw new Exception(Exception.UPDATE_USER_FAILED);
     });
 

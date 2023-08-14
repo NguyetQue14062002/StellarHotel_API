@@ -1,7 +1,7 @@
 import { roomModel, typeRoomModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
 import { TYPE_BED } from '../global/constants.js';
-import { OutputType, print } from '../helpers/print.js';
+import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
 
 const filterNumberAvailableRooms = async ({ typeRoom }) => {
     const existingRooms = await roomModel
