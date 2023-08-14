@@ -30,6 +30,11 @@ export default class Exception extends Error {
     static CANNOT_ADD_ROOM = "Can't add room";
 
     static CANNOT_UPDATE_ROOM = "Can't update room";
+
+    static UTILITIES_NOT_EXIST = 'Utilities not exist';
+    static UTILITIES_EXIST = 'Utilities already exists';
+    static CREATE_UTILITIES_ERROR = "Can't create utilities";
+    DELETE_UTILITIES_SUCCESS = 'Delete utilities successfully';
     constructor(message, validatorErrors = {}) {
         super(message); // call constructor of parent class(Error)
         print(message, OutputType.ERROR);

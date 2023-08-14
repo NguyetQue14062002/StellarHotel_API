@@ -3,5 +3,6 @@ import userRoutes from './user.router.js';
 import roomRoutes from './room.router.js';
 import typeRoomRoutes from './typeRoom.router.js';
 import bookingRoomRoutes from './bookingRoom.router.js';
+import utilitiesRoutes from './utilities.router.js';
 
-export { authRoutes, userRoutes, roomRoutes, typeRoomRoutes, bookingRoomRoutes };
+export { authRoutes, userRoutes, roomRoutes, typeRoomRoutes, bookingRoomRoutes, utilitiesRoutes };
