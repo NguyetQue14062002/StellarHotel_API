@@ -1,6 +1,6 @@
 import { typeRoomModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
-import { OutputType, print } from '../helpers/print.js';
+import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
 
 const filterTypeRooms = async ({ page, size, searchString }) => {
     const filterTypeRooms = await typeRoomModel.aggregate([

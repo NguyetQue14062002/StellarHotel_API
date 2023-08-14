@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
-import { OutputType, print } from '../helpers/print.js';
+import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
+import chalk from 'chalk';
 import Exception from '../exceptions/Exception.js';
 
 mongoose.set('strictQuery', true);
@@ -7,9 +8,11 @@ mongoose.set('strictQuery', true);
 const connect = async () => {
     try {
         let connection = await mongoose.connect(process.env.MONGODB_URI);
-        print('Connect mongoose successfully', OutputType.SUCCESS);
+        console.log(chalk.green('Connect mongoose successfully'));
         return connection;
     } catch (error) {
+        console.log(chalk.red(Exception.CANNOT_CONECT_MONGODB));
+
         // let errorMessage = error.code;
         const { code } = error;
         if (error.code === 8000) {

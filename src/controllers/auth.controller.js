@@ -1,53 +1,31 @@
+import asyncHandler from 'express-async-handler';
 import { authRepository } from '../repositories/index.js';
 import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS } from '../global/constants.js';
+import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
 
-const register = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
-    }
-
+const register = asyncHandler(async (req, res) => {
     const { email, password, phoneNumber } = req.body;
 
-    try {
-        await authRepository.register({ email, password, phoneNumber });
+    await authRepository.register({ email, password, phoneNumber });
 
-        res.status(HttpStatusCode.INSERT_OK).json({
-            status: STATUS.SUCCESS,
-            message: 'Register Account successfully',
-        });
-    } catch (exception) {
-        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-            status: STATUS.ERROR,
-            message: `${exception.message}`,
-        });
-    }
-};
+    res.status(HttpStatusCode.INSERT_OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Register Account successfully',
+    });
+});
 
-const login = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
-    }
-
+const login = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
-    try {
-        const existingAccount = await authRepository.login({ email, password });
-        res.status(HttpStatusCode.OK).json({
-            status: STATUS.SUCCESS,
-            message: 'Login successfully',
-            data: existingAccount,
-        });
-    } catch (exception) {
-        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-            status: STATUS.ERROR,
-            message: `${exception.message}`,
-        });
-    }
-};
+    const existingAccount = await authRepository.login({ email, password });
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Login successfully',
+        data: existingAccount,
+    });
+});
 
 const sendOTP = async (req, res) => {
     const errors = validationResult(req);

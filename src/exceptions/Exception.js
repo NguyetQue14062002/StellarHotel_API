@@ -1,4 +1,4 @@
-import { OutputType, print } from '../helpers/print.js';
+import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
 
 export default class Exception extends Error {
     static INVALID_EMAIL = 'Invalid email';
@@ -23,7 +23,7 @@ export default class Exception extends Error {
     static CANNOT_REGISTER_ACCOUNT = "Can't register Account";
     static WRONG_EMAIL_OR_PASSWORD = 'Wrong email or password';
     static UPDATE_USER_FAILED = 'User information update failed';
-    static BOOKING_FAILED = 'Booking failed'
+    static BOOKING_FAILED = 'Booking failed';
 
     static DATA_RETRIEVAL_FAILED = 'Data retrieval failed';
     static TYPE_ROOM_NOT_EXIST = 'Type room not exist';
@@ -32,7 +32,7 @@ export default class Exception extends Error {
     static CANNOT_UPDATE_ROOM = "Can't update room";
     constructor(message, validatorErrors = {}) {
         super(message); // call constructor of parent class(Error)
-        print(message, OutputType.ERROR);
+        printDebug(message, OutputTypeDebug.ERROR);
         this.validatorErrors = validatorErrors;
     }
 }

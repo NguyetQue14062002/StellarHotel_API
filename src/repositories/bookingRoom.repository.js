@@ -1,7 +1,7 @@
 import moment from 'moment-timezone';
 import { userModel, bookingRoomModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
-import { OutputType, print } from '../helpers/print.js';
+import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
 
 const bookingRoom = async ({ user, typeRoom, quantity, checkinDate, checkoutDate }) => {
     const existingUser = await userModel.findById(user);
@@ -16,13 +16,13 @@ const bookingRoom = async ({ user, typeRoom, quantity, checkinDate, checkoutDate
         .tz('Etc/UTC')
         .format();
 
-    print(`checkinDate: ${checkinDate}`, OutputType.INFORMATION);
+    printDebug(`checkinDate: ${checkinDate}`, OutputTypeDebug.INFORMATION);
 
     checkoutDate = moment
         .utc(checkoutDate + ' 5:00', formatStr)
         .tz('Asia/Ho_Chi_Minh')
         .format();
-    print(`checkoutDate: ${checkoutDate}`, OutputType.INFORMATION);
+    printDebug(`checkoutDate: ${checkoutDate}`, OutputTypeDebug.INFORMATION);
 
     await bookingRoomModel
         .create({
