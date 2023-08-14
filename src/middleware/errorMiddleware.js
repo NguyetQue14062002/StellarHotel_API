@@ -1,4 +1,5 @@
 import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
+import { OutputType, print } from '../helpers/print.js';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS } from '../global/constants.js';
 
@@ -53,6 +54,7 @@ const errorMiddleware = (err, req, res, next) => {
             break;
     }
     printDebug(err.stack, OutputTypeDebug.ERROR);
+    print(`Error massage: ${err.message}`, OutputTypeDebug.ERROR);
 };
 
 export { notFound, errorMiddleware };

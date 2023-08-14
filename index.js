@@ -5,9 +5,16 @@ import cors from 'cors';
 
 import { notFound, errorMiddleware } from './src/middleware/errorMiddleware.js';
 import loggerMiddleware from './src/middleware/loggerMiddleware.js';
-import { OutputTypeDebug, printDebug } from './src/helpers/printDebug.js';
+import { OutputType, print } from './src/helpers/print.js';
 import connect from './src/database/database.js';
-import { userRoutes, authRoutes, roomRoutes, typeRoomRoutes, bookingRoomRoutes, utilitiesRoutes } from './src/routes/index.js';
+import {
+    userRoutes,
+    authRoutes,
+    roomRoutes,
+    typeRoomRoutes,
+    bookingRoomRoutes,
+    utilitiesRoutes,
+} from './src/routes/index.js';
 
 dotenv.config();
 const app = express();
@@ -42,9 +49,9 @@ const port = process.env.PORT || 3002;
 connect()
     .then(() => {
         app.listen(port, async () => {
-            printDebug(`Server is running on port ${port}`, OutputTypeDebug.INFORMATION);
+            print(`Server is running on port ${port}`, OutputType.INFORMATION);
         });
     })
     .catch(() => {
-        printDebug(`Server is not working`, OutputTypeDebug.INFORMATION);
+        print(`Server is not working`, OutputType.INFORMATION);
     });
