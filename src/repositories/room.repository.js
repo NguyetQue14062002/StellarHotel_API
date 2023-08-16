@@ -2,6 +2,8 @@ import { roomModel, typeRoomModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
 import { TYPE_BED } from '../global/constants.js';
 import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
+import { v2 as cloudinary } from 'cloudinary';
+import streamifier from 'streamifier';
 
 const filterNumberAvailableRooms = async ({ typeRoom }) => {
     const existingRooms = await roomModel
@@ -20,18 +22,17 @@ const filterNumberAvailableRooms = async ({ typeRoom }) => {
         )
         .sort({ roomNumber: 1 });
 
-    return existingBooking;
+    return existingRooms;
 };
 
-const addRoom = async (idTypeRoom, roomNumber, image, acreage, typeBed, capacity, view, prices, status) => {
+const addRoom = async (idTypeRoom, link_img, acreage, typeBed, capacity, view, prices, status) => {
     let existingTypeRoom = await typeRoomModel.findById(idTypeRoom);
     if (!existingTypeRoom) {
         throw new Exception(Exception.TYPE_ROOM_NOT_EXIST);
     }
     let Room = await roomModel.create({
         idTypeRoom: existingTypeRoom._id,
-        roomNumber,
-        image,
+        image: link_img,
         acreage,
         typeBed: TYPE_BED[typeBed],
         capacity,
@@ -45,7 +46,6 @@ const addRoom = async (idTypeRoom, roomNumber, image, acreage, typeBed, capacity
     return {
         id: Room._id,
         typeRoom: existingTypeRoom.name,
-        roomNumber: Room.roomNumber,
         image: Room.image,
         description: existingTypeRoom.description,
         acreage: Room.acreage,
@@ -102,4 +102,5 @@ const updateRoom = async (name, roomNumber, image, acreage, typeBed, capacity, v
     }
 };
 
-export default { filterNumberAvailableRooms, addRoom, updateRoom };
+
+export default { filterNumberAvailableRooms, addRoom, updateRoom};

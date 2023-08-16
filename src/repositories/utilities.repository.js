@@ -1,6 +1,7 @@
 import { utilitiesModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
 import { OutputType, print } from '../helpers/print.js';
+import {v2 as cloudinary} from 'cloudinary';
 
 const getAllUtilities = async (page, size, name) => {
     const filterUtilities = await utilitiesModel.aggregate([
@@ -34,14 +35,19 @@ const getAllUtilities = async (page, size, name) => {
         throw new Exception(Exception.UTILITIES_NOT_EXIST);
     }
 };
-const createUtility = async (name, image, description) => {
+const createUtility = async (name, link_img, description) => {
     const existingUtilities = await utilitiesModel.findOne({ name });
     if (existingUtilities) {
+        cloudinary.uploader.destroy(link_img, (error, result) => {
+            if (error) {
+                console.error("Error deleting image from Cloudinary:", error);
+            }
+        });
         throw new Exception(Exception.UTILITIES_EXIST);
     } else {
         const newUtility = await utilitiesModel.create({
             name,
-            image,
+            image: link_img,
             description,
         });
         if (!newUtility) {
@@ -55,14 +61,14 @@ const createUtility = async (name, image, description) => {
         };
     }
 };
-const updateUtility = async (id, name, image, description) => {
+const updateUtility = async (id, name, link_img, description) => {
     try {
         let existingUtilities = await utilitiesModel.findById(id);
         if (!existingUtilities) {
             throw new Error('Utilities not exist');
         } else {
             existingUtilities.name = name ?? existingUtilities.name;
-            existingUtilities.image = image ?? existingUtilities.image;
+            existingUtilities.image = link_img ?? existingUtilities.image;
             existingUtilities.description = description ?? existingUtilities.description;
             await existingUtilities.save();
             return {

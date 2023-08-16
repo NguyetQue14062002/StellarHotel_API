@@ -64,6 +64,7 @@ const login = async ({ email, password }) => {
 const sendOTP = async (email) => {
     const filterUser = await userModel.findOne({ email });
     if (!filterUser) {
+        printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
         throw new Exception(Exception.INVALID_EMAIL);
     }
     const otp = Math.floor(1000 + Math.random() * 9000);
@@ -105,10 +106,12 @@ const checkOTP = async (email, otp) => {
     }
 
     if (user.otp == null) {
+        printDebug('Yêu cầu người dùng send otp', OutputTypeDebug.INFORMATION);
         throw new Exception('Yêu cầu người dùng send otp');
     }
 
     if (user.otp != otp) {
+        printDebug('otp không hợp lệ', OutputTypeDebug.INFORMATION);
         throw new Exception('otp không hợp lệ');
     }
 
@@ -117,27 +120,26 @@ const checkOTP = async (email, otp) => {
 };
 
 const resetPassword = async (email, oldpass, newpass) => {
+    const hashPassword = await bcrypt.hash(newpass, parseInt(process.env.SALT_ROUNDS));
     const user = await userModel.findOne({ email });
     if (!user) {
+        printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
         throw new Exception(Exception.INVALID_EMAIL);
-    } else {
-        let isMatched = await bcrypt.compare(oldpass, user.password);
-        const hashPassword = await bcrypt.hash(newpass, parseInt(process.env.SALT_ROUNDS));
-        if (!isMatched) {
+    } 
+    let isMatched = await bcrypt.compare(oldpass, user.password);
+    if (!isMatched) {
+            printDebug('Mật khẩu không đúng!', OutputTypeDebug.INFORMATION);
             throw new Exception(Exception.INCORRECT_PASS);
-        } else {
-            if (/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/.test(newpass)) {
-                await userModel.findByIdAndUpdate(user._id, { password: hashPassword });
-                return Exception.CHANGED_PASSWORD_SUCCESS;
-            }
-            throw new Exception(Exception.INVALID_PASSWORD);
-        }
-    }
+    } 
+    await userModel.findByIdAndUpdate(user._id, { password: hashPassword });
+    return Exception.CHANGED_PASSWORD_SUCCESS;
+    
+
 };
 const forgetPassword = async (email, newpass) => {
     const user = await userModel.findOne({ email });
     if (!user) {
-        throw new Exception(Exception.INVALID_EMAIL);
+        printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
     } else {
         if (/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/.test(newpass)) {
             const hashPassword = await bcrypt.hash(newpass, parseInt(process.env.SALT_ROUNDS));

@@ -34,5 +34,19 @@ const filterTypeRooms = async ({ page, size, searchString }) => {
 
     return filterTypeRooms;
 };
+const updateTypeRoom = async (idTypeRoom, link_img) => {
+    const existingTypeRoom = await typeRoomModel.findByIdAndUpdate(idTypeRoom, {
+        image: link_img ?? existingTypeRoom.image,
+    });
+    if (!existingTypeRoom) {
+        throw new Exception(Exception.TYPE_ROOM_NOT_EXIST);
+    }
+    return {
+        id: existingTypeRoom._id,
+        name: existingTypeRoom.name,
+        image: existingTypeRoom.image,
+        description: existingTypeRoom.description,
+    };
+};
 
-export default { filterTypeRooms };
+export default { filterTypeRooms, updateTypeRoom};

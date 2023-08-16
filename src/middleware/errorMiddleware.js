@@ -33,7 +33,6 @@ const errorMiddleware = (err, req, res, next) => {
                 title: 'Unauthorized',
                 message: err.message,
             });
-            z;
             break;
         case HttpStatusCode.FORBIDDEN:
             res.json({

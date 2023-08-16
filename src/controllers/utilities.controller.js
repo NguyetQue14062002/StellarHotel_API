@@ -2,6 +2,7 @@ import {utilitiesRepository} from '../repositories/index.js';
 import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS, MAX_RECORDS } from '../global/constants.js';
+import {v2 as cloudinary} from 'cloudinary';
 
 const getAllUtilities = async (req, res, next) => {
     const errors = validationResult(req);
@@ -21,33 +22,53 @@ const getAllUtilities = async (req, res, next) => {
     }
 };
 const createUtility = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
-    }
-    const { name, image, description } = req.body;
+    const link_img = req.file?.path;
+    const { name, description } = req.body;
     try {
-        const newUtility = await utilitiesRepository.createUtility(name, image, description);
+        const newUtility = await utilitiesRepository.createUtility(name, link_img, description);
         res.status(HttpStatusCode.OK).json({
             status: STATUS.SUCCESS,
             message: 'Create utility successfully.',
             data: newUtility,
         });
     } catch (exception) {
-        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-            error: STATUS.ERROR,
-            message: `${exception.message}`,
-        });
+    try {
+        const result = await cloudinary.uploader.destroy(
+            req.file.filename,
+            { invalidate: true, resource_type: "image" }
+        );
+        console.log(result); 
+        res.status(200).json({ message: "Create utilities Error" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error deleting image", error: error.message });
+    }
     }
 };
+
+
+
+
+
+
+
+       /* const newUtility = await utilitiesRepository.createUtility(name, link_img, description);
+        res.status(HttpStatusCode.OK).json({
+            status: STATUS.SUCCESS,
+            message: 'Create utility successfully.',
+            data: newUtility,
+        });*/
+    
+
 const updateUtility = async (req, res) => {
+    const link_img = req.file ?.path;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
     }
-    const { id, name, image, description } = req.body;
+    const { id, name,  description } = req.body;
     try {
-        const updatedUtility = await utilitiesRepository.updateUtility(id, name, image, description);
+        const updatedUtility = await utilitiesRepository.updateUtility(id, name, link_img, description);
         res.status(HttpStatusCode.OK).json({
             status: STATUS.SUCCESS,
             message: 'Update utility successfully.',

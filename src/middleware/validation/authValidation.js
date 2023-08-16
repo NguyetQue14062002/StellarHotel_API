@@ -49,4 +49,34 @@ const validateLogin = [
         .withMessage(Exception.INVALID_PASSWORD),
 ];
 
-export default { validateRegister, validateLogin };
+const validateCheckEmail = [
+    body('email')
+        .trim()
+        .not()
+        .isEmpty()
+        .custom((value, { req }) => {
+            return isEmail(value);
+        })
+        .withMessage(Exception.INVALID_EMAIL),
+];
+
+const resetPassword = [
+    body('email')
+        .trim()
+        .not()
+        .isEmpty()
+        .custom((value, { req }) => {
+            return isEmail(value);
+        })
+        .withMessage(Exception.INVALID_EMAIL),
+       
+        body('newpass')
+        .trim()
+        .not()
+        .isEmpty()
+        .custom((value, { req }) => {
+            return /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/.test(value);
+        })
+        .withMessage(Exception.INVALID_PASSWORD),
+];
+export default { validateRegister, validateLogin,  validateCheckEmail, resetPassword };

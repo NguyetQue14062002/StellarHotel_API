@@ -2,6 +2,9 @@ import { roomRepository } from '../repositories/index.js';
 import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS } from '../global/constants.js';
+import {v2 as cloudinary} from 'cloudinary';
+
+
 
 const filterNumberAvailableRooms = async (req, res) => {
     const errors = validationResult(req);
@@ -28,16 +31,13 @@ const filterNumberAvailableRooms = async (req, res) => {
 };
 
 const addRoom = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
-    }
-    const { idTypeRoom, roomNumber, image, acreage, typeBed, capacity, view, prices, status } = req.body;
+    const link_img= req.file?.path;
+    
+    const { idTypeRoom,  acreage, typeBed, capacity, view, prices, status } = req.body;
     try {
         const result = await roomRepository.addRoom(
             idTypeRoom,
-            roomNumber,
-            image,
+            link_img,
             acreage,
             typeBed,
             capacity,
@@ -45,7 +45,7 @@ const addRoom = async (req, res) => {
             prices,
             status,
         );
-        res.status(HttpStatusCode.OK).json({
+      res.status(HttpStatusCode.OK).json({
             status: STATUS.SUCCESS,
             message: 'Add Room successfully.',
             data: result,
@@ -56,6 +56,7 @@ const addRoom = async (req, res) => {
             message: `${exception.message}`,
         });
     }
+
 };
 
 const updateRoom = async (req, res) => {
@@ -88,5 +89,7 @@ const updateRoom = async (req, res) => {
         });
     }
 };
+
+
 
 export default { addRoom, updateRoom, filterNumberAvailableRooms };

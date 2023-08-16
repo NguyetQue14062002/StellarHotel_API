@@ -27,5 +27,26 @@ const filterTypeRooms = async (req, res) => {
         });
     }
 };
+const updateTypeRoom = async (req, res) => {
+    const {files} = req;
+    const link_img = files.map((file) => file.path);
+    const { idTypeRoom } = req.body;
+    try {
+        const result = await typeRoomRepository.updateTypeRoom(
+            idTypeRoom,
+            link_img
+        );
+        res.status(HttpStatusCode.OK).json({
+            status: STATUS.SUCCESS,
+            message: 'Update type room successfully.',
+            data: result,
+        });
+    }catch (exception) {
+        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+            error: STATUS.ERROR,
+            message: `${exception.message}`,
+        });
+    }
+}
 
-export default { filterTypeRooms };
+export default { filterTypeRooms, updateTypeRoom };
