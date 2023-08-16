@@ -176,16 +176,14 @@ const resetPassword = async (email, oldpass, newpass) => {
     if (!user) {
         printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
         throw new Exception(Exception.INVALID_EMAIL);
-    } 
+    }
     let isMatched = await bcrypt.compare(oldpass, user.password);
     if (!isMatched) {
-            printDebug('Mật khẩu không đúng!', OutputTypeDebug.INFORMATION);
-            throw new Exception(Exception.INCORRECT_PASS);
-    } 
+        printDebug('Mật khẩu không đúng!', OutputTypeDebug.INFORMATION);
+        throw new Exception(Exception.INCORRECT_PASS);
+    }
     await userModel.findByIdAndUpdate(user._id, { password: hashPassword });
     return Exception.CHANGED_PASSWORD_SUCCESS;
-    
-
 };
 const forgetPassword = async (email, newpass) => {
     const user = await userModel.findOne({ email });
