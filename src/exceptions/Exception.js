@@ -1,6 +1,7 @@
 import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
 
 export default class Exception extends Error {
+    static USER_NOT_AUTHORIZED_OR_TOKEN_MISSING = 'User is not authorized or token is missing!';
     static INVALID_EMAIL = 'Invalid email';
     static INVALID_PASSWORD =
         'Password must be at least 8 characters. Includes uppercase, lowercase letters and numbers.';
@@ -22,6 +23,8 @@ export default class Exception extends Error {
     static ACCOUNT_EXIST = 'Account already exists';
     static CANNOT_REGISTER_ACCOUNT = "Can't register Account";
     static WRONG_EMAIL_OR_PASSWORD = 'Wrong email or password';
+    static LOGIN_FAILED = 'Login failed';
+    static LOGOUT_FAILED = 'Logout failed';
     static UPDATE_USER_FAILED = 'User information update failed';
     static BOOKING_FAILED = 'Booking failed';
 
@@ -34,7 +37,7 @@ export default class Exception extends Error {
     static UTILITIES_NOT_EXIST = 'Utilities not exist';
     static UTILITIES_EXIST = 'Utilities already exists';
     static CREATE_UTILITIES_ERROR = "Can't create utilities";
-    DELETE_UTILITIES_SUCCESS = 'Delete utilities successfully';
+    static DELETE_UTILITIES_SUCCESS = 'Delete utilities successfully';
     constructor(message, validatorErrors = {}) {
         super(message); // call constructor of parent class(Error)
         printDebug(message, OutputTypeDebug.ERROR);

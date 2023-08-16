@@ -1,9 +1,10 @@
-import { userModel } from '../models/index.js';
+import { userModel, prefreshTokenModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
 import nodemailer from 'nodemailer';
 import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
+import jwt, { decode } from 'jsonwebtoken';
+// import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 
 const register = async ({ email, password, phoneNumber }) => {
     let existingAccount = await userModel.findOne({ email });
@@ -39,26 +40,76 @@ const login = async ({ email, password }) => {
     }
 
     // Create a java web token
-    let token = jwt.sign(
+    let accessToken = jwt.sign(
         {
-            data: existingAccount,
+            user: {
+                userId: existingAccount.id,
+                role: existingAccount.role,
+            },
         },
-        process.env.JWT_SECRET,
+        process.env.JWT_SECRET_ACCESS,
         {
-            expiresIn: '60 days',
+            expiresIn: '1h',
         },
     );
 
+    let prefreshToken = jwt.sign(
+        {
+            user: {
+                userId: existingAccount.id,
+                role: existingAccount.role,
+            },
+        },
+        process.env.JWT_SECRET_PREFRESH,
+        {
+            expiresIn: '1 days',
+        },
+    );
+
+    await prefreshTokenModel.findOneAndDelete({ userId: existingAccount.id });
+    await prefreshTokenModel.create({ userId: existingAccount.id, prefreshToken }).catch(() => {
+        printDebug('Không tạo được prefreshToken', OutputTypeDebug.INFORMATION);
+        throw new Exception(Exception.LOGIN_FAILED);
+    });
+
     return {
-        id: existingAccount._id,
-        userName: existingAccount.userName,
-        yearOfBirth: existingAccount.yearOfBirth,
-        gender: existingAccount.gender,
-        nationality: existingAccount.nationality,
-        email,
-        phoneNumber: existingAccount.phoneNumber,
-        token: token,
+        accessToken,
+        prefreshToken,
     };
+};
+
+const prefreshToken = async ({ userId, token }) => {
+    const existingPrefreshToken = await prefreshTokenModel.findOne({ userId, prefreshToken: token }).exec();
+    if (!existingPrefreshToken) {
+        throw new Exception(Exception.USER_NOT_AUTHORIZED_OR_TOKEN_MISSING);
+    }
+
+    let accessToken;
+    jwt.verify(existingPrefreshToken.prefreshToken, process.env.JWT_SECRET_PREFRESH, (err, decoded) => {
+        if (err || !decoded.user) {
+            printDebug('Xác thực prefreshToken không thành công!', OutputTypeDebug.INFORMATION);
+            throw new Exception(Exception.USER_NOT_AUTHORIZED_OR_TOKEN_MISSING);
+        }
+        accessToken = jwt.sign(
+            {
+                user: decoded.user,
+            },
+            process.env.JWT_SECRET_ACCESS,
+            {
+                expiresIn: '1h',
+            },
+        );
+    });
+
+    return {
+        accessToken,
+    };
+};
+
+const logout = async ({ userId }) => {
+    await prefreshTokenModel.findOneAndDelete({ userId }).catch(() => {
+        throw new Exception(Exception.LOGOUT_FAILED);
+    });
 };
 
 const sendOTP = async (email) => {
@@ -151,4 +202,4 @@ const forgetPassword = async (email, newpass) => {
     }
 };
 
-export default { register, login, sendOTP, checkOTP, resetPassword, forgetPassword };
+export default { register, login, prefreshToken, logout, sendOTP, checkOTP, resetPassword, forgetPassword };
