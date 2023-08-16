@@ -49,4 +49,6 @@ const validateLogin = [
         .withMessage(Exception.INVALID_PASSWORD),
 ];
 
-export default { validateRegister, validateLogin };
+const validatePrefreshToken = [body('token').trim().not().isEmpty()];
+
+export default { validateRegister, validateLogin, validatePrefreshToken };

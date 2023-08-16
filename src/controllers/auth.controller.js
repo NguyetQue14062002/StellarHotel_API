@@ -3,7 +3,6 @@ import { authRepository } from '../repositories/index.js';
 import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS } from '../global/constants.js';
-import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
 
 const register = asyncHandler(async (req, res) => {
     const { email, password, phoneNumber } = req.body;
@@ -24,6 +23,29 @@ const login = asyncHandler(async (req, res) => {
         status: STATUS.SUCCESS,
         message: 'Login successfully',
         data: existingAccount,
+    });
+});
+
+const prefreshToken = asyncHandler(async (req, res) => {
+    const { token } = req.body;
+    const userId = req.userId;
+
+    const prefreshToken = await authRepository.prefreshToken({ userId, token });
+
+    res.status(HttpStatusCode.INSERT_OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Refresh Token successfully',
+        data: prefreshToken,
+    });
+});
+
+const logout = asyncHandler(async (req, res) => {
+    const userId = req.userId;
+    await authRepository.logout({ userId });
+
+    res.status(HttpStatusCode.INSERT_OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Logout successfully',
     });
 });
 
@@ -108,4 +130,4 @@ const forgetpass = async (req, res) => {
         });
     }
 };
-export default { register, login, sendOTP, checkOTP, resetPassword, forgetpass };
+export default { register, login, prefreshToken, logout, sendOTP, checkOTP, resetPassword, forgetpass };
