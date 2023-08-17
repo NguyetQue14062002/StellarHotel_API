@@ -1,25 +1,12 @@
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import asyncHandler from 'express-async-handler';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import Exception from '../exceptions/Exception.js';
 import { printDebug, OutputTypeDebug } from '../helpers/printDebug.js';
 
-export default function checkToken(req, res, next) {
-    const bypassUrl = ['/auth/login', '/auth/register'];
-    // bypass login, rigister
-    if (
-        bypassUrl
-            .map((elementCurrent) => {
-                return elementCurrent.toLowerCase().trim();
-            })
-            .includes(req.url.toLowerCase().trim())
-    ) {
-        next();
-        return;
-    }
-
-    // other request
-    // get and validate token
-    const token = req.headers?.authorization?.split(' ')[1];
+const verifyToken = (req, res, next) => {
+    const token = req.headers?.authorization?.split(' ')[1] || req.headers?.Authorization?.split(' ')[1];
 
     if (!token) {
         printDebug('Token không hợp lệ!', OutputTypeDebug.INFORMATION);
@@ -34,10 +21,41 @@ export default function checkToken(req, res, next) {
             throw new Exception(Exception.USER_NOT_AUTHORIZED_OR_TOKEN_MISSING);
         }
 
-        let role = decoded.user.role;
-        // Ủy quyền
-
+        req.role = decoded.user.role;
         req.userId = decoded.user.userId;
-        next();
+        printDebug(`role: ${req.role}`, OutputTypeDebug.INFORMATION);
+        printDebug(`userIs: ${req.userId}`, OutputTypeDebug.INFORMATION);
     });
-}
+
+    next();
+};
+
+const isAdmin = asyncHandler(async (req, res, next) => {
+    // Giải mã role
+    let isMatched = await bcrypt.compare(process.env.ADMIN, req.role);
+    printDebug(`CLIENT: ${process.env.ADMIN}`, OutputTypeDebug.INFORMATION);
+    printDebug(`isMatched: ${isMatched}`, OutputTypeDebug.INFORMATION);
+    if (!isMatched) {
+        printDebug('Xác thực Admin không thành công!', OutputTypeDebug.INFORMATION);
+        res.status(HttpStatusCode.UNAUTHORIZED);
+        throw new Exception(Exception.USER_NOT_AUTHORIZED_OR_TOKEN_MISSING);
+    }
+    printDebug('Xác thực Admin thành công!', OutputTypeDebug.INFORMATION);
+    next();
+});
+
+const isClient = asyncHandler(async (req, res, next) => {
+    // Giải mã role
+    let isMatched = await bcrypt.compare(process.env.CLIENT, req.role);
+    printDebug(`CLIENT: ${process.env.CLIENT}`, OutputTypeDebug.INFORMATION);
+    printDebug(`isMatched: ${isMatched}`, OutputTypeDebug.INFORMATION);
+    if (!isMatched) {
+        printDebug('Xác thực Client không thành công!', OutputTypeDebug.INFORMATION);
+        res.status(HttpStatusCode.UNAUTHORIZED);
+        throw new Exception(Exception.USER_NOT_AUTHORIZED_OR_TOKEN_MISSING);
+    }
+    printDebug('Xác thực Client thành công!', OutputTypeDebug.INFORMATION);
+    next();
+});
+
+export { verifyToken, isAdmin, isClient };

@@ -1,9 +1,11 @@
 import mongoose from 'mongoose';
 import isEmail from 'validator/lib/isEmail.js';
+import * as dotenv from 'dotenv';
 
 import Exception from '../exceptions/Exception.js';
 import { DEFAULT_ROLES, DEFAULT_GENDER } from '../global/constants.js';
 
+dotenv.config();
 const userSchema = new mongoose.Schema(
     {
         email: {
@@ -30,11 +32,11 @@ const userSchema = new mongoose.Schema(
         role: {
             type: String,
             enum: {
-                values: [DEFAULT_ROLES.CLIENT, DEFAULT_ROLES.MANAGER],
+                values: [process.env.CLIENT, process.env.ADMIN],
                 massage: '{VALUE} is not supported',
             },
             required: true,
-            default: DEFAULT_ROLES.CLIENT,
+            default: process.env.CLIENT,
         },
         userName: {
             type: String,

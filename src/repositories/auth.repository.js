@@ -15,15 +15,14 @@ const register = async ({ email, password, phoneNumber }) => {
     // encrypted password, use bcrypt
     const hashPassword = await bcrypt.hash(password, parseInt(process.env.SALT_ROUNDS));
 
-    await userModel
-        .create({
-            email,
-            password: hashPassword,
-            phoneNumber,
-        })
-        .catch(() => {
-            throw new Exception(Exception.CANNOT_REGISTER_ACCOUNT);
-        });
+    await userModel.create({
+        email,
+        password: hashPassword,
+        phoneNumber,
+    });
+    // .catch(() => {
+    //     throw new Exception(Exception.CANNOT_REGISTER_ACCOUNT);
+    // });
 };
 
 const login = async ({ email, password }) => {
@@ -39,12 +38,14 @@ const login = async ({ email, password }) => {
         throw new Exception(Exception.WRONG_EMAIL_OR_PASSWORD);
     }
 
+    let hashRole = await bcrypt.hash(existingAccount.role, parseInt(process.env.SALT_ROUNDS));
+
     // Create a java web token
     let accessToken = jwt.sign(
         {
             user: {
                 userId: existingAccount.id,
-                role: existingAccount.role,
+                role: hashRole,
             },
         },
         process.env.JWT_SECRET_ACCESS,
@@ -57,7 +58,7 @@ const login = async ({ email, password }) => {
         {
             user: {
                 userId: existingAccount.id,
-                role: existingAccount.role,
+                role: hashRole,
             },
         },
         process.env.JWT_SECRET_PREFRESH,

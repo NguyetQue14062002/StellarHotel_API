@@ -1,39 +1,31 @@
+import asyncHandler from 'express-async-handler';
 import { roomRepository } from '../repositories/index.js';
 import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS } from '../global/constants.js';
-import {v2 as cloudinary} from 'cloudinary';
+import { dateTimeInputFormat, DateStrFormat } from '../helpers/timezone.js';
+import { printDebug, OutputTypeDebug } from '../helpers/printDebug.js';
 
+const getNumberAvailableRooms = asyncHandler(async (req, res) => {
+    const typeRoom = req.query.typeRoom;
+    const checkinDate = dateTimeInputFormat(req.query.checkinDate + ' 12:00', DateStrFormat.DATE_AND_TIME);
+    const checkoutDate = dateTimeInputFormat(req.query.checkoutDate + ' 12:00', DateStrFormat.DATE_AND_TIME);
+    printDebug(`checkinDate format: ${checkinDate}`, OutputTypeDebug.INFORMATION);
+    printDebug(`checkoutDate format: ${checkoutDate}`, OutputTypeDebug.INFORMATION);
 
+    const existingRooms = await roomRepository.getNumberAvailableRooms({ typeRoom, checkinDate, checkoutDate });
 
-const filterNumberAvailableRooms = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
-    }
-
-    const { typeRoom } = req.query;
-
-    try {
-        const existingRooms = await roomRepository.filterNumberAvailableRooms({ typeRoom });
-
-        res.status(HttpStatusCode.OK).json({
-            status: STATUS.SUCCESS,
-            message: 'Get the successful room list!',
-            data: existingRooms,
-        });
-    } catch (exception) {
-        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-            error: STATUS.ERROR,
-            message: `${exception.message}`,
-        });
-    }
-};
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Get the successful room list!',
+        data: existingRooms,
+    });
+});
 
 const addRoom = async (req, res) => {
-    const link_img= req.file?.path;
-    
-    const { idTypeRoom,  acreage, typeBed, capacity, view, prices, status } = req.body;
+    const link_img = req.file?.path;
+
+    const { idTypeRoom, acreage, typeBed, capacity, view, prices, status } = req.body;
     try {
         const result = await roomRepository.addRoom(
             idTypeRoom,
@@ -45,7 +37,7 @@ const addRoom = async (req, res) => {
             prices,
             status,
         );
-      res.status(HttpStatusCode.OK).json({
+        res.status(HttpStatusCode.OK).json({
             status: STATUS.SUCCESS,
             message: 'Add Room successfully.',
             data: result,
@@ -56,7 +48,6 @@ const addRoom = async (req, res) => {
             message: `${exception.message}`,
         });
     }
-
 };
 
 const updateRoom = async (req, res) => {
@@ -90,6 +81,4 @@ const updateRoom = async (req, res) => {
     }
 };
 
-
-
-export default { addRoom, updateRoom, filterNumberAvailableRooms };
+export default { addRoom, updateRoom, getNumberAvailableRooms };

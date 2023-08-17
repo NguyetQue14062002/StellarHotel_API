@@ -1,6 +1,5 @@
 import asyncHandler from 'express-async-handler';
 import { authRepository } from '../repositories/index.js';
-import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS } from '../global/constants.js';
 

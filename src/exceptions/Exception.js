@@ -7,6 +7,9 @@ export default class Exception extends Error {
         'Password must be at least 8 characters. Includes uppercase, lowercase letters and numbers.';
     static INVALID_USERNAME = 'First and last name is a string of letters that do not contain special characters.';
     static INVALID_PHONENUMBER = 'Phone number consists of 10 digits.';
+    static INVALID_TYPE_ROOM = 'Invalid type of room';
+    static INVALID_CHECKIN_DATE = 'Invalid checkin date';
+    static INVALID_CHECKOUT_DATE = 'Invalid checkout date';
     static WRONG_DB_USERNAME_PASSWORD = "Wrong database's username and password";
     static WRONG_DB_CONNECTION_STRING = 'Wrong server name connection string';
     static CANNOT_CONECT_MONGODB = "Can't connect to Mongoose";
@@ -30,6 +33,7 @@ export default class Exception extends Error {
 
     static DATA_RETRIEVAL_FAILED = 'Data retrieval failed';
     static TYPE_ROOM_NOT_EXIST = 'Type room not exist';
+    static GET_NUMBER_AVAILABLE_ROOMS_FAILED = 'Retrieve list of available rooms failed';
     static CANNOT_ADD_ROOM = "Can't add room";
 
     static CANNOT_UPDATE_ROOM = "Can't update room";
