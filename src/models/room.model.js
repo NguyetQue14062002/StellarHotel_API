@@ -15,11 +15,6 @@ const roomSchema = new mongoose.Schema(
             required: true,
             unique: true,
         },
-        image: {
-            type: String,
-            required: true,
-            default: URL_ROOM_DEFAULT,
-        },
         acreage: {
             type: Number,
             required: true,

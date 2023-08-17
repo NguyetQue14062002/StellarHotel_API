@@ -38,11 +38,6 @@ const getAllUtilities = async (page, size, name) => {
 const createUtility = async (name, link_img, description) => {
     const existingUtilities = await utilitiesModel.findOne({ name });
     if (existingUtilities) {
-        cloudinary.uploader.destroy(link_img, (error, result) => {
-            if (error) {
-                console.error("Error deleting image from Cloudinary:", error);
-            }
-        });
         throw new Exception(Exception.UTILITIES_EXIST);
     } else {
         const newUtility = await utilitiesModel.create({

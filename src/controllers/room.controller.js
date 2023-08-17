@@ -31,13 +31,11 @@ const filterNumberAvailableRooms = async (req, res) => {
 };
 
 const addRoom = async (req, res) => {
-    const link_img= req.file?.path;
     
-    const { idTypeRoom,  acreage, typeBed, capacity, view, prices, status } = req.body;
+    const { idTypeRoom, acreage, typeBed, capacity, view, prices, status } = req.body;
     try {
         const result = await roomRepository.addRoom(
             idTypeRoom,
-            link_img,
             acreage,
             typeBed,
             capacity,

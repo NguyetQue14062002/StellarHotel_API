@@ -32,33 +32,16 @@ const createUtility = async (req, res) => {
             data: newUtility,
         });
     } catch (exception) {
-    try {
-        const result = await cloudinary.uploader.destroy(
-            req.file.filename,
-            { invalidate: true, resource_type: "image" }
-        );
-        console.log(result); 
-        res.status(200).json({ message: "Create utilities Error" });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error deleting image", error: error.message });
-    }
+             await cloudinary.uploader.destroy(
+                req.file.filename,
+                { invalidate: true, resource_type: "image" }
+            );
+            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+                error: STATUS.ERROR,
+                message: `${exception.message}`,
+            });
     }
 };
-
-
-
-
-
-
-
-       /* const newUtility = await utilitiesRepository.createUtility(name, link_img, description);
-        res.status(HttpStatusCode.OK).json({
-            status: STATUS.SUCCESS,
-            message: 'Create utility successfully.',
-            data: newUtility,
-        });*/
-    
 
 const updateUtility = async (req, res) => {
     const link_img = req.file ?.path;
@@ -75,6 +58,10 @@ const updateUtility = async (req, res) => {
             data: updatedUtility,
         });
     } catch (exception) {
+        await cloudinary.uploader.destroy(
+            req.file.filename,
+            { invalidate: true, resource_type: "image" }
+        );
         res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
             error: STATUS.ERROR,
             message: `${exception.message}`,

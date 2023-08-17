@@ -37,7 +37,7 @@ const filterTypeRooms = async ({ page, size, searchString }) => {
 const updateTypeRoom = async (idTypeRoom, link_img) => {
     const existingTypeRoom = await typeRoomModel.findByIdAndUpdate(idTypeRoom, {
         image: link_img ?? existingTypeRoom.image,
-    });
+    }).exec();
     if (!existingTypeRoom) {
         throw new Exception(Exception.TYPE_ROOM_NOT_EXIST);
     }

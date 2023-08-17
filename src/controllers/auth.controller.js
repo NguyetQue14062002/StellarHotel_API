@@ -51,8 +51,8 @@ const logout = asyncHandler(async (req, res) => {
 
 const sendOTP = asyncHandler(async (req, res) => {
     const { email } = req.body;
-
-    const result = await authRepository.sendOTP(email);
+    const userId = req.userId;
+    const result = await authRepository.sendOTP({userId, email});
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Send OTP successfully.',
@@ -62,7 +62,8 @@ const sendOTP = asyncHandler(async (req, res) => {
 
 const checkOTP = asyncHandler(async (req, res) => {
     const { email, otp } = req.body;
-    const result = await authRepository.checkOTP(email, otp);
+    const userId = req.userId;
+    const result = await authRepository.checkOTP({userId, email, otp});
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Check OTP successfully.',
@@ -71,7 +72,8 @@ const checkOTP = asyncHandler(async (req, res) => {
 });
 const resetPassword = asyncHandler(async (req, res) => {
     const { email, oldpass, newpass } = req.body;
-    const result = await authRepository.resetPassword(email, oldpass, newpass);
+    const userId = req.userId;
+    const result = await authRepository.resetPassword(userId, email, oldpass, newpass);
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Reset Password successfully.',
@@ -79,14 +81,15 @@ const resetPassword = asyncHandler(async (req, res) => {
     });
 });
 
-const forgetpass = async (req, res) => {
+const forgetpass =  asyncHandler(async (req, res) => {
     const { email, newpass } = req.body;
-    const result = await authRepository.forgetPassword(email, newpass);
+    const userId = req.userId;
+    const result = await authRepository.forgetPassword(userId,email, newpass);
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Forget Password successfully.',
         data: result,
     });
-};
+});
 
 export default { register, login, prefreshToken, logout, sendOTP, checkOTP, resetPassword, forgetpass };

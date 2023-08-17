@@ -25,14 +25,13 @@ const filterNumberAvailableRooms = async ({ typeRoom }) => {
     return existingRooms;
 };
 
-const addRoom = async (idTypeRoom, link_img, acreage, typeBed, capacity, view, prices, status) => {
+const addRoom = async (idTypeRoom, acreage, typeBed, capacity, view, prices, status) => {
     let existingTypeRoom = await typeRoomModel.findById(idTypeRoom);
     if (!existingTypeRoom) {
         throw new Exception(Exception.TYPE_ROOM_NOT_EXIST);
     }
     let Room = await roomModel.create({
         idTypeRoom: existingTypeRoom._id,
-        image: link_img,
         acreage,
         typeBed: TYPE_BED[typeBed],
         capacity,
