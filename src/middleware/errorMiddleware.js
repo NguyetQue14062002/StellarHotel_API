@@ -53,7 +53,7 @@ const errorMiddleware = (err, req, res, next) => {
             break;
     }
     printDebug(err.stack, OutputTypeDebug.ERROR);
-    print(`Error massage: ${err.message}`, OutputTypeDebug.ERROR);
+    print(`Error massage: ${err.message}`, OutputType.ERROR);
 };
 
 export { notFound, errorMiddleware };

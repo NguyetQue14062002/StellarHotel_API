@@ -1,28 +1,37 @@
-import { roomModel, typeRoomModel } from '../models/index.js';
+import { roomModel, typeRoomModel, bookingRoomModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
 import { TYPE_BED } from '../global/constants.js';
 import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
 import { v2 as cloudinary } from 'cloudinary';
 import streamifier from 'streamifier';
 
-const filterNumberAvailableRooms = async ({ typeRoom }) => {
-    const existingRooms = await roomModel
-        .find(
-            { typeRoom, status: 'available' },
-            {
-                _id: 1,
-                roomNumber: 1,
-                image: 1,
-                acreage: 1,
-                typeBed: 1,
-                capacity: 1,
-                view: 1,
-                prices: 1,
-            },
-        )
-        .sort({ roomNumber: 1 });
+const getNumberAvailableRooms = async ({ typeRoom, checkinDate, checkoutDate }) => {
+    // Kiểm tra có tồn tại loại phòng không
+    const existingTypeRoom = await typeRoomModel.findById(typeRoom);
+    if (!existingTypeRoom) {
+        printDebug('Không tồn tại loại phòng', OutputTypeDebug.INFORMATION);
+        throw new Exception(Exception.GET_NUMBER_AVAILABLE_ROOMS_FAILED);
+    }
 
-    return existingRooms;
+    // Lấy só lượng phòng theo mã phòng
+    const getNumberRoomsByTypeRoom = await roomModel
+        .find({ typeRoom: existingTypeRoom.id })
+        .exec()
+        .then((results) => results.length)
+        .catch(() => 0);
+    printDebug(`getNumberRoomsByTypeRoom: ${getNumberRoomsByTypeRoom}`, OutputTypeDebug.INFORMATION);
+
+    const getNumberRoomsBookedByDate = await bookingRoomModel
+        .find({
+            checkinDate: { $gte: checkinDate },
+            checkoutDate: { $lte: checkoutDate },
+        })
+        .exec()
+        .then((elements) => elements.map((element) => element.quantity).reduce((partialSum, a) => partialSum + a, 0))
+        .catch(() => 0);
+    printDebug(`getNumberRoomsBookedByDate: ${getNumberRoomsBookedByDate}`, OutputTypeDebug.INFORMATION);
+
+    return { result: getNumberRoomsByTypeRoom - getNumberRoomsBookedByDate };
 };
 
 const addRoom = async (idTypeRoom, acreage, typeBed, capacity, view, prices, status) => {
@@ -101,5 +110,4 @@ const updateRoom = async (name, roomNumber, image, acreage, typeBed, capacity, v
     }
 };
 
-
-export default { filterNumberAvailableRooms, addRoom, updateRoom};
+export default { getNumberAvailableRooms, addRoom, updateRoom };

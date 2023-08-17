@@ -5,7 +5,6 @@ import cors from 'cors';
 
 import { notFound, errorMiddleware } from './src/middleware/errorMiddleware.js';
 import loggerMiddleware from './src/middleware/loggerMiddleware.js';
-import authMiddleware from './src/middleware/authMiddleware.js';
 import { OutputType, print } from './src/helpers/print.js';
 import connect from './src/database/database.js';
 import {
@@ -20,7 +19,6 @@ import {
 dotenv.config();
 const app = express();
 
-app.use(authMiddleware);
 app.use(express.json());
 app.use(
     cors({
