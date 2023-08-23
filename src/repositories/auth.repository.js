@@ -2,8 +2,7 @@ import { userModel, prefreshTokenModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
 import nodemailer from 'nodemailer';
 import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
-import jwt, { decode } from 'jsonwebtoken';
-// import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
 const register = async ({ email, password, phoneNumber }) => {
@@ -20,9 +19,6 @@ const register = async ({ email, password, phoneNumber }) => {
         password: hashPassword,
         phoneNumber,
     });
-    // .catch(() => {
-    //     throw new Exception(Exception.CANNOT_REGISTER_ACCOUNT);
-    // });
 };
 
 const login = async ({ email, password }) => {
@@ -68,8 +64,9 @@ const login = async ({ email, password }) => {
     );
 
     await prefreshTokenModel.findOneAndDelete({ userId: existingAccount.id });
-    await prefreshTokenModel.create({ userId: existingAccount.id, prefreshToken }).catch(() => {
+    await prefreshTokenModel.create({ userId: existingAccount.id, prefreshToken }).catch((exception) => {
         printDebug('Không tạo được prefreshToken', OutputTypeDebug.INFORMATION);
+        printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
         throw new Exception(Exception.LOGIN_FAILED);
     });
 
@@ -108,14 +105,16 @@ const prefreshToken = async ({ userId, token }) => {
 };
 
 const logout = async ({ userId }) => {
-    await prefreshTokenModel.findOneAndDelete({ userId }).catch(() => {
+    await prefreshTokenModel.findOneAndDelete({ userId }).catch((exception) => {
+        printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
         throw new Exception(Exception.LOGOUT_FAILED);
     });
 };
+
 //Reset password
-const sendOTPresetPass = async ({userId, email}) => {
+const sendOTPresetPass = async ({ userId, email }) => {
     const filterUser = await userModel.findById({ _id: userId });
-    if (filterUser.email != email ) {
+    if (filterUser.email != email) {
         printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
         throw new Exception(Exception.INVALID_EMAIL);
     }
@@ -145,21 +144,20 @@ const sendOTPresetPass = async ({userId, email}) => {
     });
     await userModel.findByIdAndUpdate(filterUser._id, {
         otp: otp,
-    })
+    });
     return Exception.SEND_OTP_SUCCESS;
 };
 
-const checkOTPresetPass = async ({userId, email, otp}) => {
+const checkOTPresetPass = async ({ userId, email, otp }) => {
     const user = await userModel.findById({ _id: userId });
     if (user.email == email && user.otp == otp) {
         await userModel.updateOne({ _id: user._id }, { $set: { otp: null } });
-        return Exception.OTP_CORRECT;    
+        return Exception.OTP_CORRECT;
     }
     if (user.otp == null) {
         throw new Exception(Exception.OTP_INCORRECT);
     }
     throw new Exception(Exception.INVALID_EMAIL);
-    
 };
 
 const resetPassword = async (userId, email, oldpass, newpass) => {
@@ -177,10 +175,11 @@ const resetPassword = async (userId, email, oldpass, newpass) => {
     await userModel.findByIdAndUpdate(user._id, { password: hashPassword });
     return Exception.CHANGED_PASSWORD_SUCCESS;
 };
+
 //forgot password
-const sendOTPforgotPass = async ({ email}) => {
-    const filterUser = await userModel.findOne({ email});
-    if (!filterUser ) {
+const sendOTPforgotPass = async ({ email }) => {
+    const filterUser = await userModel.findOne({ email });
+    if (!filterUser) {
         printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
         throw new Exception(Exception.INVALID_EMAIL);
     }
@@ -210,11 +209,11 @@ const sendOTPforgotPass = async ({ email}) => {
     });
     await userModel.findByIdAndUpdate(filterUser._id, {
         otp: otp,
-    })
+    });
     return Exception.SEND_OTP_SUCCESS;
 };
 
-const checkOTPforgotPass = async ({ email, otp}) => {
+const checkOTPforgotPass = async ({ email, otp }) => {
     const user = await userModel.findOne({ email });
     if (!user) {
         throw new Exception(Exception.INVALID_EMAIL);
@@ -229,20 +228,28 @@ const checkOTPforgotPass = async ({ email, otp}) => {
         printDebug('otp không hợp lệ', OutputTypeDebug.INFORMATION);
         throw new Exception('otp không hợp lệ');
     }
-    
 };
-const forgetPassword = async ( email, newpass) => {
+const forgetPassword = async (email, newpass) => {
     const user = await userModel.findOne({ email });
     if (!user) {
         printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
         throw new Exception(Exception.INVALID_EMAIL);
-    }
-    else {  
+    } else {
         const hashPassword = await bcrypt.hash(newpass, parseInt(process.env.SALT_ROUNDS));
         await userModel.findByIdAndUpdate(user._id, { password: hashPassword });
         return Exception.CHANGED_PASSWORD_SUCCESS;
-        
     }
 };
 
-export default { register, login, prefreshToken, logout, sendOTPresetPass, checkOTPresetPass, resetPassword,sendOTPforgotPass,checkOTPforgotPass, forgetPassword };
+export default {
+    register,
+    login,
+    prefreshToken,
+    logout,
+    sendOTPresetPass,
+    checkOTPresetPass,
+    resetPassword,
+    sendOTPforgotPass,
+    checkOTPforgotPass,
+    forgetPassword,
+};

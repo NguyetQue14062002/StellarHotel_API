@@ -70,6 +70,7 @@ const checkOTPresetPass = asyncHandler(async (req, res) => {
         data: result,
     });
 });
+
 const resetPassword = asyncHandler(async (req, res) => {
     const { email, oldpass, newpass } = req.body;
     const userId = req.userId;
@@ -80,6 +81,7 @@ const resetPassword = asyncHandler(async (req, res) => {
         data: result,
     });
 });
+
 //forgot password
 const sendOTPforgotPass = asyncHandler(async (req, res) => {
     const { email } = req.body;
@@ -100,6 +102,7 @@ const checkOTPforgotPass = asyncHandler(async (req, res) => {
         data: result,
     });
 });
+
 const forgetpass = asyncHandler(async (req, res) => {
     const { email, newpass } = req.body;
     const result = await authRepository.forgetPassword(email, newpass);

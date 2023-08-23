@@ -2,6 +2,7 @@ import { userRepository } from '../repositories/index.js';
 import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS, MAX_RECORDS } from '../global/constants.js';
+import asyncHandler from 'express-async-handler';
 
 //Client
 const getUser = async (req, res) => {
@@ -24,7 +25,7 @@ const getUser = async (req, res) => {
         });
     }
 };
-     
+
 const updateProfile = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -117,19 +118,26 @@ const deleteUser = async (req, res) => {
         return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
     }
     const { id } = req.body;
-    try{
+    try {
         const existingUser = await userRepository.deleteUser(id);
         res.status(HttpStatusCode.OK).json({
             status: STATUS.SUCCESS,
             message: 'Delete user successfully!',
             data: existingUser,
         });
-    }catch(exception){
+    } catch (exception) {
         res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
             error: STATUS.ERROR,
             message: `${exception.message}`,
         });
     }
 };
-   
-export default { updateProfile, getUser, getAllUser, updateUser, deleteUser };
+
+const getTransactionHistory = asyncHandler(async (req, res) => {
+    const userId = req.userId;
+
+    const existingUser = await userRepository.getTransactionHistory;
+    ({ userId });
+});
+
+export default { updateProfile, getUser, getAllUser, updateUser, deleteUser, getTransactionHistory };

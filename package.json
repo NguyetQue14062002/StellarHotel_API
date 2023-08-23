@@ -34,8 +34,7 @@
         "nodemailer": "^6.9.4",
         "on-finished": "^2.4.1",
         "streamifier": "^0.1.1",
-        "validator": "^13.11.0",
-        "vn-payments": "^1.1.0"
+        "validator": "^13.11.0"
     },
     "devDependencies": {
         "nodemon": "^3.0.1"

@@ -25,4 +25,9 @@ const dateTimeOutputFormat = (date, dateStFrormat) => {
         null
     );
 };
-export { DateStrFormat, dateTimeInputFormat, dateTimeOutputFormat };
+
+const dDate = (checkinDate, checkoutDate) => {
+    return Number((new Date(checkoutDate) - new Date(checkinDate)) / 86400000);
+};
+
+export { DateStrFormat, dateTimeInputFormat, dateTimeOutputFormat, dDate };

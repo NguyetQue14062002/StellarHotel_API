@@ -1,35 +1,59 @@
+import asyncHandler from 'express-async-handler';
 import { bookingRoomRepository } from '../repositories/index.js';
-import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS } from '../global/constants.js';
+import { dateTimeInputFormat, DateStrFormat } from '../helpers/timezone.js';
+import { printDebug, OutputTypeDebug } from '../helpers/printDebug.js';
 
-const bookingRoom = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
-    }
+const bookingRoom = asyncHandler(async (req, res) => {
+    const userId = req.userId;
+    const checkinDate = dateTimeInputFormat(req.body.checkinDate + ' 12:00', DateStrFormat.DATE_AND_TIME);
+    const checkoutDate = dateTimeInputFormat(req.body.checkoutDate + ' 12:00', DateStrFormat.DATE_AND_TIME);
+    printDebug(`checkinDate format: ${checkinDate}`, OutputTypeDebug.INFORMATION);
+    printDebug(`checkoutDate format: ${checkoutDate}`, OutputTypeDebug.INFORMATION);
+    const { typeRoom, quantity, acreage, typeBed, view, prices } = req.body;
 
-    const { user, checkinDate, checkoutDate, typeRoom, quantity } = req.body;
+    await bookingRoomRepository.bookingRoom({
+        userId,
+        checkinDate,
+        checkoutDate,
+        typeRoom,
+        quantity,
+        acreage,
+        typeBed,
+        view,
+        prices,
+    });
 
-    try {
-        await bookingRoomRepository.bookingRoom({
-            user,
-            typeRoom,
-            quantity,
-            checkinDate,
-            checkoutDate,
-        });
+    res.status(HttpStatusCode.INSERT_OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Booking room successful',
+    });
+});
 
-        res.status(HttpStatusCode.INSERT_OK).json({
-            status: STATUS.SUCCESS,
-            message: 'Booking room successful',
-        });
-    } catch (exception) {
-        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-            status: STATUS.ERROR,
-            message: `${exception.message}`,
-        });
-    }
-};
+const getTotalPrices = asyncHandler(async (req, res) => {
+    const checkinDate = dateTimeInputFormat(req.query.checkinDate + ' 12:00', DateStrFormat.DATE_AND_TIME);
+    const checkoutDate = dateTimeInputFormat(req.query.checkoutDate + ' 12:00', DateStrFormat.DATE_AND_TIME);
+    printDebug(`checkinDate format: ${checkinDate}`, OutputTypeDebug.INFORMATION);
+    printDebug(`checkoutDate format: ${checkoutDate}`, OutputTypeDebug.INFORMATION);
+    const { typeRoom, quantity, acreage, typeBed, view, prices } = req.query;
 
-export default { bookingRoom };
+    const totoaPrices = await bookingRoomRepository.getTotalPrices({
+        checkinDate,
+        checkoutDate,
+        typeRoom,
+        quantity,
+        acreage,
+        typeBed,
+        view,
+        prices,
+    });
+
+    res.status(HttpStatusCode.INSERT_OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Get total prices successfully',
+        data: totoaPrices,
+    });
+});
+
+export default { bookingRoom, getTotalPrices };

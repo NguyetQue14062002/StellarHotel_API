@@ -21,7 +21,7 @@ const filterTypeRooms = async ({ page, size, searchString }) => {
         },
         {
             $project: {
-                email: 1,
+                name: 1,
                 image: 1,
                 description: 1,
             },

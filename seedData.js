@@ -13,6 +13,25 @@ dotenv.config();
 
 connect()
     .then(async () => {
+        let password = 'Admin1234';
+        const hashPassword = await bcrypt.hash(password, parseInt(process.env.SALT_ROUNDS));
+        const myUser = [
+            {
+                username: 'admin',
+                password: hashPassword,
+                email: 'Stellar@gmail.com',
+                phoneNumber: '0123456789',
+                role: process.env.ADMIN,
+            },
+        ];
+        let isExist = await userModel.insertMany(myUser);
+        if (isExist) {
+            print('Insert User Admin success', OutputType.SUCCESS);
+        } else {
+            print('Insert  User Admin fail', OutputType.ERROR);
+        }
+    })
+    .then(async () => {
         const myTypeRooms = [
             {
                 name: TYPE_ROOMS.SUPERIOR_DOUBLE_OR_TWIN_ROOM,
