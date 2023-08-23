@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 
-import Exception from '../exceptions/Exception.js';
-import { URL_ROOM_DEFAULT, TYPE_BED, ROOM_STATUS, COLLECTION } from '../global/constants.js';
+import { TYPE_BED, ROOM_STATUS, COLLECTION } from '../global/constants.js';
 
 const roomSchema = new mongoose.Schema(
     {
@@ -26,11 +25,6 @@ const roomSchema = new mongoose.Schema(
                 values: [TYPE_BED.SINGLE_BED, TYPE_BED.DOUBLE_BED],
                 massage: '{VALUE} is not supported',
             },
-        },
-        capacity: {
-            type: String,
-            required: true,
-            default: '2 người lớn',
         },
         view: {
             type: String,

@@ -1,5 +1,5 @@
 import { query } from 'express-validator';
-import { dateTimeInputFormat, DateStrFormat } from '../../helpers/timezone.js';
+import { dateTimeInputFormat, dateTimeOutputFormat, DateStrFormat } from '../../helpers/timezone.js';
 
 import Exception from '../../exceptions/Exception.js';
 
@@ -10,7 +10,10 @@ const validateGetNumberAvailableRooms = [
         .not()
         .isEmpty()
         .custom((value, { req }) => {
-            return dateTimeInputFormat(value, DateStrFormat.DATE);
+            return (
+                dateTimeInputFormat(value, DateStrFormat.DATE) >=
+                dateTimeInputFormat(dateTimeOutputFormat(new Date(), DateStrFormat.DATE), DateStrFormat.DATE)
+            );
         })
         .withMessage(Exception.INVALID_CHECKIN_DATE),
     query('checkoutDate')
@@ -26,4 +29,12 @@ const validateGetNumberAvailableRooms = [
         .withMessage(Exception.INVALID_CHECKOUT_DATE),
 ];
 
-export default { validateGetNumberAvailableRooms };
+const validateGetAcreageRooms = [
+    query('typeRoom').trim().not().isEmpty().withMessage(Exception.INVALID_TYPE_ROOM),
+]
+
+const validatetypeBedRooms = [
+    query('typeRoom').trim().not().isEmpty().withMessage(Exception.INVALID_TYPE_ROOM),
+]
+
+export default { validateGetNumberAvailableRooms, validateGetAcreageRooms, validatetypeBedRooms };

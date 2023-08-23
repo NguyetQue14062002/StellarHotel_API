@@ -1,7 +1,5 @@
 import mongoose from 'mongoose';
-
-import Exception from '../exceptions/Exception.js';
-import { TYPE_ROOMS, URL_ROOM_DEFAULT, TYPE_BED, ROOM_STATUS, DESCRIPTION_ROOM } from '../global/constants.js';
+import { TYPE_ROOMS, URL_ROOM_DEFAULT, DESCRIPTION_ROOM } from '../global/constants.js';
 
 const typeRoomSchema = new mongoose.Schema(
     {
@@ -23,6 +21,11 @@ const typeRoomSchema = new mongoose.Schema(
             type: [String],
             required: true,
             default: URL_ROOM_DEFAULT,
+        },
+        capacity: {
+            type: String,
+            required: true,
+            default: '2 người lớn',
         },
         description: {
             type: String,

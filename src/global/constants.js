@@ -45,8 +45,9 @@ const DESCRIPTION_ROOM = {
 
 const COLLECTION = {
     USERS: 'Users',
-    TYPE_ROOMS: 'TypeRooms',    
-    BOOKING_ROM: 'BookingRooms'
+    TYPE_ROOMS: 'TypeRooms',
+    ROOMS: 'Rooms',
+    BOOKING_ROM: 'BookingRooms',
 };
 
 const STATUS_BOOKING = {

@@ -17,11 +17,11 @@ const filterTypeRooms = async ({ page, size, searchString }) => {
             $skip: (page - 1) * size,
         },
         {
-            $limit: size,
+            $limit: Number(size),
         },
         {
             $project: {
-                email: 1,
+                name: 1,
                 image: 1,
                 description: 1,
             },

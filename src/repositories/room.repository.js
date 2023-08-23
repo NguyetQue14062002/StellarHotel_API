@@ -1,11 +1,11 @@
-import { roomModel, typeRoomModel, bookingRoomModel } from '../models/index.js';
+import { roomModel, typeRoomModel, bookingRoomModel, userModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
 import { TYPE_BED } from '../global/constants.js';
 import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
 import { v2 as cloudinary } from 'cloudinary';
 import streamifier from 'streamifier';
 
-const getNumberAvailableRooms = async ({ typeRoom, checkinDate, checkoutDate }) => {
+const getNumberAvailableRooms = async ({ typeRoom, checkinDate, checkoutDate, acreage, typeBed, view, prices }) => {
     // Kiểm tra có tồn tại loại phòng không
     const existingTypeRoom = await typeRoomModel.findById(typeRoom);
     if (!existingTypeRoom) {
@@ -13,25 +13,196 @@ const getNumberAvailableRooms = async ({ typeRoom, checkinDate, checkoutDate }) 
         throw new Exception(Exception.GET_NUMBER_AVAILABLE_ROOMS_FAILED);
     }
 
+    let parameters = { typeRoom: existingTypeRoom._id };
+    if (acreage) {
+        parameters = { ...parameters, acreage };
+    }
+    if (typeBed) {
+        parameters = { ...parameters, typeBed };
+    }
+    if (view) {
+        parameters = { ...parameters, view };
+    }
+    if (prices) {
+        parameters = { ...parameters, prices };
+    }
+
     // Lấy só lượng phòng theo mã phòng
-    const getNumberRoomsByTypeRoom = await roomModel
-        .find({ typeRoom: existingTypeRoom.id })
+    const getListRoomsByParameters = await roomModel
+        .find(parameters, { _id: 0, roomNumber: 1 })
+        .sort({ roomNumber: 1 })
         .exec()
-        .then((results) => results.length)
-        .catch(() => 0);
-    printDebug(`getNumberRoomsByTypeRoom: ${getNumberRoomsByTypeRoom}`, OutputTypeDebug.INFORMATION);
-
-    const getNumberRoomsBookedByDate = await bookingRoomModel
-        .find({
-            checkinDate: { $gte: checkinDate },
-            checkoutDate: { $lte: checkoutDate },
+        .then((elements) => {
+            return elements.map((element) => element.roomNumber);
         })
-        .exec()
-        .then((elements) => elements.map((element) => element.quantity).reduce((partialSum, a) => partialSum + a, 0))
-        .catch(() => 0);
-    printDebug(`getNumberRoomsBookedByDate: ${getNumberRoomsBookedByDate}`, OutputTypeDebug.INFORMATION);
+        .catch((exception) => {
+            printDebug('Lấy danh sách phòng cần đặt không thành công', OutputTypeDebug.INFORMATION);
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.GET_NUMBER_AVAILABLE_ROOMS_FAILED);
+        });
+    printDebug(`getListRoomsByParameters: ${getListRoomsByParameters}`, OutputTypeDebug.INFORMATION);
 
-    return { result: getNumberRoomsByTypeRoom - getNumberRoomsBookedByDate };
+    const getListRoomsBookedByDate = await bookingRoomModel
+        .find(
+            {
+                typeRoom: existingTypeRoom.id,
+                checkinDate: { $gte: checkinDate },
+                checkoutDate: { $lte: checkoutDate },
+            },
+            { _id: 0, room: 1 },
+        )
+        .exec()
+        .then((elements) => {
+            let idRooms = [];
+            elements.map((element) => idRooms.push(...element.room));
+            return idRooms;
+        })
+        .catch((exception) => {
+            printDebug('Lấy danh sách phòng đã đặt không thành công', OutputTypeDebug.INFORMATION);
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.GET_NUMBER_AVAILABLE_ROOMS_FAILED);
+        });
+
+    printDebug(`getListRoomsBookedByDate: ${getListRoomsBookedByDate}`, OutputTypeDebug.INFORMATION);
+
+    const getListAvailableRooms = getListRoomsByParameters.filter((item) => !getListRoomsBookedByDate.includes(item));
+    printDebug(`getListAvailableRooms: ${getListAvailableRooms}`, OutputTypeDebug.INFORMATION);
+
+    return { result: getListAvailableRooms.length };
+};
+
+const getAcreageRooms = async ({ typeRoom }) => {
+    const existingTypeRoom = await typeRoomModel.findById(typeRoom);
+    if (!existingTypeRoom) {
+        printDebug('Không tồn tại loại phòng', OutputTypeDebug.INFORMATION);
+        throw new Exception(Exception.GET_ACREAGE_ROOMS_FAILED);
+    }
+
+    const getAcreageRooms = await roomModel.find({ typeRoom: existingTypeRoom.id }, { acreage: 1, typeBed: 1, view: 1, prices: 1 })
+        .exec()
+        .then((elements) => {
+            const acreages = elements
+                .map((element) => element.acreage)
+                .filter((item, index, arr) => arr.indexOf(item) === index);
+
+            const typeBeds = elements
+                .map((element) => element.typeBed)
+                .filter((item, index, arr) => arr.indexOf(item) === index);
+
+            const views = elements
+                .map((element) => element.view)
+                .filter((item, index, arr) => arr.indexOf(item) === index);
+
+            const prices = elements
+                .map((element) => element.prices)
+                .filter((item, index, arr) => arr.indexOf(item) === index);
+            return { acreages, typeBeds, views, prices };
+        })
+        .catch((exception) => {
+            printDebug('Lấy danh sách diện tích phòng không thành công!', OutputTypeDebug.INFORMATION);
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.GET_ACREAGE_ROOMS_FAILED);
+        })
+
+    return getAcreageRooms;
+}
+
+const getTypeBedRooms = async ({ typeRoom }) => {
+    const existingTypeRoom = await typeRoomModel.findById(typeRoom);
+    if (!existingTypeRoom) {
+        printDebug('Không tồn tại loại phòng', OutputTypeDebug.INFORMATION);
+        throw new Exception(Exception.GET_ACREAGE_ROOMS_FAILED);
+    }
+
+    const getTypeBedRooms = await roomModel.find({ typeRoom: existingTypeRoom.id }, { typeBed: 1 })
+        .exec()
+        .then((elements) => {
+            const results = elements
+                .map((element) => element.typeBed)
+                .filter((item, index, arr) => arr.indexOf(item) === index);
+            return results;
+        })
+        .catch((exception) => {
+            printDebug('Lấy danh sách diện tích phòng không thành công!', OutputTypeDebug.INFORMATION);
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.GET_ACREAGE_ROOMS_FAILED);
+        })
+
+    return getTypeBedRooms;
+}
+
+const getRoomsByTypeRoom = async ({ userId, typeRoom, page, size, searchString }) => {
+    const existingUser = await userModel.findById(userId);
+    if (!existingUser) {
+        throw new Exception(Exception.GET_ROOMS_BY_TYPE_ROOM_FAILED);
+    }
+
+    let existingTypeRoom = await typeRoomModel.findById(typeRoom);
+    if (!existingTypeRoom) {
+        throw new Exception(Exception.GET_ROOMS_BY_TYPE_ROOM_FAILED);
+    }
+
+    page = parseInt(page);
+    size = parseInt(size);
+
+    const existingRooms = await roomModel.aggregate([
+        {
+            $match: {
+                $and: [
+                    {
+                        typeRoom: existingTypeRoom._id,
+                    },
+                    {
+                        $or: [
+                            {
+                                roomNumber: parseInt(searchString)
+                            },
+                            {
+                                acreage: parseInt(searchString),
+                            },
+                            {
+                                typeBed: { $regex: `.*${searchString}.*`, $options: 'i' },
+                            },
+                            {
+                                view: { $regex: `.*${searchString}.*`, $options: 'i' },
+                            },
+                            {
+                                prices: parseInt(searchString),
+                            },
+                        ],
+                    }
+                ]
+            }
+        },
+        {
+            $skip: (page - 1) * size, // số phần tử bỏ qua
+        },
+        {
+            $limit: size, // Giới hạn phần tử trong size
+        },
+        {
+            $project: {
+                _id: 1,
+                typeRoom: 1,
+                roomNumber: 1,
+                price: 1,
+                acreage: 1,
+                typeBed: 1,
+                view: 1,
+                prices: 1,
+                createdAt: 1,
+                updatedAt: 1,
+            },
+        },
+    ]);
+
+    console.log(existingRooms);
+
+    if (!existingRooms) {
+        throw new Exception(Exception.GET_ROOMS_BY_TYPE_ROOM_FAILED);
+    }
+
+    return existingRooms;
 };
 
 const addRoom = async (idTypeRoom, acreage, typeBed, capacity, view, prices, status) => {
@@ -110,4 +281,4 @@ const updateRoom = async (name, roomNumber, image, acreage, typeBed, capacity, v
     }
 };
 
-export default { getNumberAvailableRooms, addRoom, updateRoom };
+export default { getNumberAvailableRooms, getAcreageRooms, getTypeBedRooms, getRoomsByTypeRoom, addRoom, updateRoom };

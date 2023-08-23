@@ -5,4 +5,11 @@ import typeRoomController from './typeRoom.controller.js';
 import bookingRoomController from './bookingRoom.controller.js';
 import utilitiesController from './utilities.controller.js';
 
-export { userController, authController, roomController, typeRoomController, bookingRoomController,  utilitiesController };
+export {
+    userController,
+    authController,
+    roomController,
+    typeRoomController,
+    bookingRoomController,
+    utilitiesController,
+};

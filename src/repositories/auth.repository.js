@@ -20,9 +20,6 @@ const register = async ({ email, password, phoneNumber }) => {
         password: hashPassword,
         phoneNumber,
     });
-    // .catch(() => {
-    //     throw new Exception(Exception.CANNOT_REGISTER_ACCOUNT);
-    // });
 };
 
 const login = async ({ email, password }) => {
@@ -68,8 +65,9 @@ const login = async ({ email, password }) => {
     );
 
     await prefreshTokenModel.findOneAndDelete({ userId: existingAccount.id });
-    await prefreshTokenModel.create({ userId: existingAccount.id, prefreshToken }).catch(() => {
+    await prefreshTokenModel.create({ userId: existingAccount.id, prefreshToken }).catch((exception) => {
         printDebug('Không tạo được prefreshToken', OutputTypeDebug.INFORMATION);
+        printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
         throw new Exception(Exception.LOGIN_FAILED);
     });
 
@@ -108,14 +106,15 @@ const prefreshToken = async ({ userId, token }) => {
 };
 
 const logout = async ({ userId }) => {
-    await prefreshTokenModel.findOneAndDelete({ userId }).catch(() => {
+    await prefreshTokenModel.findOneAndDelete({ userId }).catch((exception) => {
+        printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
         throw new Exception(Exception.LOGOUT_FAILED);
     });
 };
 
-const sendOTP = async ({userId, email}) => {
+const sendOTP = async ({ userId, email }) => {
     const filterUser = await userModel.findById({ _id: userId });
-    if (filterUser.email != email ) {
+    if (filterUser.email != email) {
         printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
         throw new Exception(Exception.INVALID_EMAIL);
     }
@@ -146,22 +145,18 @@ const sendOTP = async ({userId, email}) => {
     await userModel.findByIdAndUpdate(filterUser._id, {
         otp: otp,
     });
-    return {
-        otp: otp,
-    };
 };
 
-const checkOTP = async ({userId, email, otp}) => {
+const checkOTP = async ({ userId, email, otp }) => {
     const user = await userModel.findById({ _id: userId });
     if (user.email == email && user.otp == otp) {
         await userModel.updateOne({ _id: user._id }, { $set: { otp: null } });
-        return Exception.OTP_CORRECT;    
+        return Exception.OTP_CORRECT;
     }
     if (user.otp == null) {
         throw new Exception(Exception.OTP_INCORRECT);
     }
     throw new Exception(Exception.INVALID_EMAIL);
-    
 };
 
 const resetPassword = async (userId, email, oldpass, newpass) => {
@@ -180,16 +175,14 @@ const resetPassword = async (userId, email, oldpass, newpass) => {
     return Exception.CHANGED_PASSWORD_SUCCESS;
 };
 const forgetPassword = async (userId, email, newpass) => {
-    const user = await userModel.findById({ _id: userId });
-    if (user.email != email) {
+    const user = await userModel.findOne({ email });
+    if (!user) {
         printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
         throw new Exception(Exception.INVALID_EMAIL);
-    }
-    else {  
+    } else {
         const hashPassword = await bcrypt.hash(newpass, parseInt(process.env.SALT_ROUNDS));
         await userModel.findByIdAndUpdate(user._id, { password: hashPassword });
         return Exception.CHANGED_PASSWORD_SUCCESS;
-        
     }
 };
 

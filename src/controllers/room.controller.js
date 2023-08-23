@@ -2,22 +2,77 @@ import asyncHandler from 'express-async-handler';
 import { roomRepository } from '../repositories/index.js';
 import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
-import { STATUS } from '../global/constants.js';
+import { STATUS, MAX_RECORDS } from '../global/constants.js';
 import { dateTimeInputFormat, DateStrFormat } from '../helpers/timezone.js';
 import { printDebug, OutputTypeDebug } from '../helpers/printDebug.js';
 
 const getNumberAvailableRooms = asyncHandler(async (req, res) => {
-    const typeRoom = req.query.typeRoom;
+    const { typeRoom, acreage, typeBed, view, prices } = req.query;
     const checkinDate = dateTimeInputFormat(req.query.checkinDate + ' 12:00', DateStrFormat.DATE_AND_TIME);
     const checkoutDate = dateTimeInputFormat(req.query.checkoutDate + ' 12:00', DateStrFormat.DATE_AND_TIME);
     printDebug(`checkinDate format: ${checkinDate}`, OutputTypeDebug.INFORMATION);
     printDebug(`checkoutDate format: ${checkoutDate}`, OutputTypeDebug.INFORMATION);
 
-    const existingRooms = await roomRepository.getNumberAvailableRooms({ typeRoom, checkinDate, checkoutDate });
+    const existingRooms = await roomRepository.getNumberAvailableRooms({
+        typeRoom,
+        checkinDate,
+        checkoutDate,
+        acreage,
+        typeBed,
+        view,
+        prices,
+    });
 
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Get the successful room list!',
+        data: existingRooms,
+    });
+});
+
+const getAcreageRooms = asyncHandler(async (req, res) => {
+    const { typeRoom } = req.query;
+    const existingRooms = await roomRepository.getAcreageRooms({
+        typeRoom
+    });
+
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Get the list of room acreage successfully!',
+        data: existingRooms,
+    });
+});
+
+const getTypeBedRooms = asyncHandler(async (req, res) => {
+    const { typeRoom } = req.query;
+    const existingRooms = await roomRepository.getTypeBedRooms({
+        typeRoom
+    });
+
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Get the list of room typeBed successfully!',
+        data: existingRooms,
+    });
+})
+
+const getRoomsByTypeRoom = asyncHandler(async (req, res) => {
+    const userId = req.userId;
+
+    let { page = 1, size = MAX_RECORDS, searchString = '', typeRoom } = req.query;
+    size = size >= MAX_RECORDS ? MAX_RECORDS : size;
+
+    const existingRooms = await roomRepository.getRoomsByTypeRoom({
+        userId,
+        typeRoom,
+        page,
+        size,
+        searchString,
+    });
+
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Get the successful room list by type room!',
         data: existingRooms,
     });
 });
@@ -70,4 +125,4 @@ const updateRoom = async (req, res) => {
     }
 };
 
-export default { addRoom, updateRoom, getNumberAvailableRooms };
+export default { addRoom, updateRoom, getNumberAvailableRooms, getAcreageRooms, getTypeBedRooms, getRoomsByTypeRoom };

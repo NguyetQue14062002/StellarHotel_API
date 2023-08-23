@@ -30,10 +30,13 @@ export default class Exception extends Error {
     static LOGOUT_FAILED = 'Logout failed';
     static UPDATE_USER_FAILED = 'User information update failed';
     static BOOKING_FAILED = 'Booking failed';
+    static OUT_OF_ROOMS = 'Out of rooms';
 
     static DATA_RETRIEVAL_FAILED = 'Data retrieval failed';
     static TYPE_ROOM_NOT_EXIST = 'Type room not exist';
     static GET_NUMBER_AVAILABLE_ROOMS_FAILED = 'Retrieve list of available rooms failed';
+    static GET_ROOMS_BY_TYPE_ROOM_FAILED = 'Get Rooms by typeRooms failed';
+    static GET_ACREAGE_ROOMS_FAILED = 'Get the list of room acreage failed';
     static CANNOT_ADD_ROOM = "Can't add room";
 
     static CANNOT_UPDATE_ROOM = "Can't update room";
