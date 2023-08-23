@@ -62,6 +62,18 @@ const validateCheckEmail = [
         .withMessage(Exception.INVALID_EMAIL),
 ];
 
+const validateCheckOTP = [
+    body('email')
+        .trim()
+        .not()
+        .isEmpty()
+        .custom((value, { req }) => {
+            return isEmail(value);
+        })
+        .withMessage(Exception.INVALID_EMAIL),
+    body('otp').trim().not().isEmpty().withMessage(Exception.INVALID_OTP),
+];
+
 const resetPassword = [
     body('email')
         .trim()
@@ -71,8 +83,7 @@ const resetPassword = [
             return isEmail(value);
         })
         .withMessage(Exception.INVALID_EMAIL),
-       
-        body('newpass')
+    body('oldpass')
         .trim()
         .not()
         .isEmpty()
@@ -80,6 +91,57 @@ const resetPassword = [
             return /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/.test(value);
         })
         .withMessage(Exception.INVALID_PASSWORD),
+    body('newpass')
+        .trim()
+        .not()
+        .isEmpty()
+        .custom((value, { req }) => {
+            return /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/.test(value);
+        })
+        .withMessage(Exception.INVALID_PASSWORD),
+    body('checknewpass')
+        .trim()
+        .not()
+        .isEmpty()
+        .custom((value, { req }) => {
+            return value === req.body.newpass;
+        })
+        .withMessage(Exception.NEW_PASS_NOT_VALID),
 ];
 
-export default { validateRegister, validateLogin, validatePrefreshToken,  validateCheckEmail, resetPassword };
+const forgetpass = [
+    body('email')
+        .trim()
+        .not()
+        .isEmpty()
+        .custom((value, { req }) => {
+            return isEmail(value);
+        })
+        .withMessage(Exception.INVALID_EMAIL),
+    body('newpass')
+        .trim()
+        .not()
+        .isEmpty()
+        .custom((value, { req }) => {
+            return /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/.test(value);
+        })
+        .withMessage(Exception.INVALID_PASSWORD),
+    body('checknewpass')
+        .trim()
+        .not()
+        .isEmpty()
+        .custom((value, { req }) => {
+            return value === req.body.newpass;
+        })
+        .withMessage(Exception.NEW_PASS_NOT_VALID),
+];
+
+export default {
+    validateRegister,
+    validateLogin,
+    validatePrefreshToken,
+    validateCheckEmail,
+    validateCheckOTP,
+    resetPassword,
+    forgetpass,
+};

@@ -135,7 +135,7 @@ const bookingRoom = async ({
             quantity,
             checkinDate,
             checkoutDate,
-            room: getInfoBookingRooms.idRooms,
+            rooms: getInfoBookingRooms.idRooms,
             totalprice: getInfoBookingRooms.totalPrice,
         })
         .catch((exception) => {
@@ -163,4 +163,68 @@ const getTotalPrices = async ({ checkinDate, checkoutDate, typeRoom, quantity, a
     return { totalPrice: getInfoBookingRooms.totalPrice };
 };
 
-export default { bookingRoom, getTotalPrices };
+const getTransactionHistory = async ({ userId }) => {
+    const existingUser = await userModel.findById(userId);
+    if (!existingUser) {
+        throw new Exception(Exception.GET_TRANSACTION_HISTORY_FAILED);
+    }
+
+    return await bookingRoomModel
+        .find(
+            { user: existingUser._id },
+            { _id: 1, typeRoom: 1, rooms: 1, quantity: 1, totalprice: 1, status: 1, checkinDate: 1, checkoutDate: 1 },
+        )
+
+        .populate({ path: 'typeRoom', select: { _id: 0, name: 1 } })
+        .sort({ createdAt: 1 })
+        .exec()
+        .then((results) => {
+            return results.map((result) => {
+                const { typeRoom, ...objNew } = result;
+                objNew._doc.typeRoom = typeRoom.name;
+                return objNew._doc;
+            });
+        })
+        .catch((exception) => {
+            printDebug('Đặt phòng khong thành công!', OutputTypeDebug.INFORMATION);
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.GET_TRANSACTION_HISTORY_FAILED);
+        });
+};
+
+const getAllTransactionHistory = async () => {
+    return await bookingRoomModel
+        .find(
+            {},
+            {
+                _id: 1,
+                user: 1,
+                typeRoom: 1,
+                rooms: 1,
+                quantity: 1,
+                totalprice: 1,
+                status: 1,
+                checkinDate: 1,
+                checkoutDate: 1,
+            },
+        )
+        .populate({ path: 'user', select: { _id: 1 } })
+        .populate({ path: 'typeRoom', select: { _id: 0, name: 1 } })
+        .sort({ createdAt: 1 })
+        .exec()
+        .then((results) => {
+            return results.map((result) => {
+                const { user, typeRoom, ...objNew } = result;
+                objNew._doc.typeRoom = typeRoom.name;
+                objNew._doc.user = user.id;
+                return objNew._doc;
+            });
+        })
+        .catch((exception) => {
+            printDebug('Đặt phòng khong thành công!', OutputTypeDebug.INFORMATION);
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.GET_ALL_TRANSACTION_HISTORY_FAILED);
+        });
+};
+
+export default { bookingRoom, getTotalPrices, getTransactionHistory, getAllTransactionHistory };

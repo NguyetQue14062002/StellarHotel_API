@@ -31,7 +31,7 @@ const prefreshToken = asyncHandler(async (req, res) => {
 
     const prefreshToken = await authRepository.prefreshToken({ userId, token });
 
-    res.status(HttpStatusCode.INSERT_OK).json({
+    res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Refresh Token successfully',
         data: prefreshToken,
@@ -42,7 +42,7 @@ const logout = asyncHandler(async (req, res) => {
     const userId = req.userId;
     await authRepository.logout({ userId });
 
-    res.status(HttpStatusCode.INSERT_OK).json({
+    res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Logout successfully',
     });
@@ -52,7 +52,9 @@ const logout = asyncHandler(async (req, res) => {
 const sendOTPresetPass = asyncHandler(async (req, res) => {
     const { email } = req.body;
     const userId = req.userId;
-    const result = await authRepository.sendOTPresetpass({ userId, email });
+
+    const result = await authRepository.sendOTPresetPass({ userId, email });
+
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Send OTP successfully.',
@@ -63,7 +65,9 @@ const sendOTPresetPass = asyncHandler(async (req, res) => {
 const checkOTPresetPass = asyncHandler(async (req, res) => {
     const { email, otp } = req.body;
     const userId = req.userId;
-    const result = await authRepository.checkOTPresetpass({ userId, email, otp });
+
+    const result = await authRepository.checkOTPresetPass({ userId, email, otp });
+
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Check OTP successfully.',
@@ -85,7 +89,9 @@ const resetPassword = asyncHandler(async (req, res) => {
 //forgot password
 const sendOTPforgotPass = asyncHandler(async (req, res) => {
     const { email } = req.body;
+
     const result = await authRepository.sendOTPforgotPass({ email });
+
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Send OTP successfully.',
@@ -95,7 +101,9 @@ const sendOTPforgotPass = asyncHandler(async (req, res) => {
 
 const checkOTPforgotPass = asyncHandler(async (req, res) => {
     const { email, otp } = req.body;
+
     const result = await authRepository.checkOTPforgotPass({ email, otp });
+
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Check OTP successfully.',
@@ -105,7 +113,9 @@ const checkOTPforgotPass = asyncHandler(async (req, res) => {
 
 const forgetpass = asyncHandler(async (req, res) => {
     const { email, newpass } = req.body;
+
     const result = await authRepository.forgetPassword(email, newpass);
+    
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Forget Password successfully.',

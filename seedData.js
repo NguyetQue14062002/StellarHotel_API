@@ -1,9 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { OutputType, print } from './src/helpers/print.js';
-import connect from './src/database/database.js';
 import bcrypt from 'bcrypt';
-
+import connect from './src/database/database.js';
+import { printDebug, OutputTypeDebug } from './src/helpers/printDebug.js';
 import { typeRoomModel, roomModel, utilitiesModel, userModel } from './src/models/index.js';
 import { TYPE_ROOMS, DESCRIPTION_ROOM, TYPE_BED } from './src/global/constants.js';
 
@@ -26,9 +25,9 @@ connect()
         ];
         let isExist = await userModel.insertMany(myUser);
         if (isExist) {
-            print('Insert User Admin success', OutputType.SUCCESS);
+            printDebug('Insert User Admin success', OutputTypeDebug.SUCCESS);
         } else {
-            print('Insert  User Admin fail', OutputType.ERROR);
+            printDebug('Insert  User Admin fail', OutputTypeDebug.ERROR);
         }
     })
     .then(async () => {
@@ -53,9 +52,9 @@ connect()
 
         let isExist = await typeRoomModel.insertMany(myTypeRooms);
         if (isExist) {
-            print('Insert Type rooms success', OutputType.SUCCESS);
+            printDebug('Insert Type rooms success', OutputTypeDebug.SUCCESS);
         } else {
-            print('Insert Type rooms fail', OutputType.ERROR);
+            printDebug('Insert Type rooms fail', OutputTypeDebug.ERROR);
         }
     })
     .then(async () => {
@@ -243,9 +242,9 @@ connect()
 
         let isExist = await roomModel.insertMany(myRoom);
         if (isExist) {
-            print('Insert Rooms success', OutputType.SUCCESS);
+            printDebug('Insert Rooms success', OutputTypeDebug.SUCCESS);
         } else {
-            print('Insert Rooms fail', OutputType.ERROR);
+            printDebug('Insert Rooms fail', OutputTypeDebug.ERROR);
         }
     })
     .then(async () => {
@@ -276,31 +275,11 @@ connect()
 
         let isExist = await utilitiesModel.insertMany(myUtilities);
         if (isExist) {
-            print('Insert Utilities success', OutputType.SUCCESS);
+            printDebug('Insert Utilities success', OutputTypeDebug.SUCCESS);
         } else {
-            print('Insert Utilities fail', OutputType.ERROR);
-        }
-    })
-    .then(async() => {
-        let password = 'Admin1234';
-        const hashPassword = await bcrypt.hash(password, parseInt(process.env.SALT_ROUNDS));
-        const myUser = [
-            {
-                username: 'admin',
-                password: hashPassword,
-                email: 'Stellar@gmail.com',
-                phoneNumber: '0123456789',
-                role: process.env.ADMIN,
-            }
-        ];
-        let isExist = await userModel.insertMany(myUser);
-        if (isExist) {
-            print('Insert User success', OutputType.SUCCESS);
-        }
-        else {
-            print('Insert User fail', OutputType.ERROR);
+            printDebug('Insert Utilities fail', OutputTypeDebug.ERROR);
         }
     })
     .catch((error) => {
-        print(`Init database failed: \n ${error}`, OutputType.ERROR);
+        printDebug(`Init database failed: \n ${error}`, OutputTypeDebug.ERROR);
     });

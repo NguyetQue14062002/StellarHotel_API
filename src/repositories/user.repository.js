@@ -1,6 +1,59 @@
 import { userModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
 import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
+import e from 'express';
+
+//Admin
+const getAllUser = async ({ page, size, searchString }) => {
+    size = parseInt(size);
+    page = parseInt(page);
+    const filterUser = await userModel
+        .aggregate([
+            {
+                $match: {
+                    role: process.env.CLIENT,
+                    $or: [
+                        {
+                            email: { $regex: `.*${searchString}.*`, $options: 'i' },
+                        },
+                        {
+                            userName: { $regex: `.*${searchString}.*`, $options: 'i' },
+                        },
+                        {
+                            phoneNumber: { $regex: `.*${searchString}.*`, $options: 'i' },
+                        },
+                    ],
+                },
+            },
+            {
+                $sort: { email: 1 },
+            },
+            {
+                $skip: (page - 1) * size,
+            },
+            {
+                $limit: size,
+            },
+
+            {
+                $project: {
+                    email: 1,
+                    userName: 1,
+                    phoneNumber: 1,
+                    gender: 1,
+                    nationality: 1,
+                    yearOfBirth: 1,
+                },
+            },
+        ])
+        .exec();
+
+    if (filterUser) {
+        return filterUser;
+    } else {
+        throw new Exception(Exception.GET_USER_FAILED);
+    }
+};
 
 //Client
 const getUser = async (userId) => {
@@ -16,7 +69,7 @@ const getUser = async (userId) => {
         gender: existingUser.gender,
         nationality: existingUser.nationality,
         yearOfBirth: existingUser.yearOfBirth,
-    }
+    };
 };
 
 const updateProfile = async ({ id, email, userName, phoneNumber, gender, nationality, yearOfBirth }) => {
@@ -46,55 +99,12 @@ const updateProfile = async ({ id, email, userName, phoneNumber, gender, nationa
     };
 };
 
-//Admin
-const getAllUser = async ({ page, size, searchString }) => {
-    const filterUser = await userModel.aggregate([
-        { $match: {
-            role: process.env.CLIENT,
-            $or:[
-                {
-                    email: { $regex: searchString, $options: 'i' },
-                },
-                {
-                    userName: { $regex: searchString, $options: 'i' },
-                },
-                {
-                    phoneNumber: { $regex: searchString, $options: 'i' },
-                },
-            ]
-        }
-        },
-
-        {
-            $skip: (page - 1) * size,
-        },
-        {
-            $limit: Number(size),
-        },
-        {
-            $project: {
-                email: 1,
-                userName: 1,
-                phoneNumber: 1,
-                gender: 1,
-                nationality: 1,
-                yearOfBirth: 1,             
-            },
-        },
-    ]);
-    if (filterUser) {
-       return filterUser;
-    } else {
-        throw new Exception(Exception.GET_USER_FAILED);
-    }
-};
-
-const updateUser  = async ({ id, email, userName, phoneNumber, gender, nationality, yearOfBirth }) => {
+const updateUser = async ({ id, email, userName, phoneNumber, gender, nationality, yearOfBirth }) => {
     let existingUser = await userModel.findById(id);
-    if (!existingUser) {
-        throw new Exception(Exception.WRONG_EMAIL_OR_PASSWORD);
+    if (!existingUser || existingUser.role !== process.env.CLIENT) {
+        throw new Exception(Exception.UPDATE_USER_FAILED);
     }
-
+    
     // Update information user
     existingUser.email = email ?? existingUser.email;
     existingUser.userName = userName ?? existingUser.userName;
@@ -117,6 +127,7 @@ const updateUser  = async ({ id, email, userName, phoneNumber, gender, nationali
         phoneNumber: existingUser.phoneNumber,
     };
 };
+
 const deleteUser = async (userId) => {
     let existingUser = await userModel.findById(userId);
     if (!existingUser) {
@@ -125,11 +136,10 @@ const deleteUser = async (userId) => {
     try {
         await existingUser.deleteOne({
             _id: userId,
-        })
-        return  Exception.DELETE_USER_SUCCESS;
-    }catch (exception) {
+        });
+        return Exception.DELETE_USER_SUCCESS;
+    } catch (exception) {
         throw new Exception(Exception.DELETE_USER_FAILED);
     }
-   
 };
-export default { updateProfile ,getUser,  getAllUser, updateUser, deleteUser };
+export default { getAllUser, updateProfile, getUser, updateUser, deleteUser };

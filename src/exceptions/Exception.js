@@ -3,8 +3,12 @@ import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
 export default class Exception extends Error {
     static USER_NOT_AUTHORIZED_OR_TOKEN_MISSING = 'User is not authorized or token is missing!';
     static INVALID_EMAIL = 'Invalid email';
+    static INVALID_OTP = 'Invalid otp';
+    static CHECK_OTP_FAILED = 'Check otp failed';
+    static RESET_PASSWORD_FAILED = 'Reset password failed';
     static INVALID_PASSWORD =
         'Password must be at least 8 characters. Includes uppercase, lowercase letters and numbers.';
+    static NEW_PASS_NOT_VALID = 'New password is not valid';
     static INVALID_USERNAME = 'First and last name is a string of letters that do not contain special characters.';
     static INVALID_PHONENUMBER = 'Phone number consists of 10 digits.';
     static INVALID_TYPE_ROOM = 'Invalid type of room';
@@ -16,6 +20,7 @@ export default class Exception extends Error {
     static GET_USER_FAILED = 'Get user failed';
     static SEND_OTP_SUCCESS =
         'OTP has been sent to your email. Please check and enter OTP in the box below to authenticate the user!';
+    static SEND_OTP_FAILED = 'Send OTP failed';
     static OTP_CORRECT = 'OTP is correct';
     static OTP_INCORRECT = 'OTP is incorrect';
     static OTP_EXPIRED = 'OTP is expired';
@@ -46,6 +51,8 @@ export default class Exception extends Error {
     static UTILITIES_EXIST = 'Utilities already exists';
     static CREATE_UTILITIES_ERROR = "Can't create utilities";
     static DELETE_UTILITIES_SUCCESS = 'Delete utilities successfully';
+    static GET_TRANSACTION_HISTORY_FAILED = 'Get the list of failed transaction history';
+    static GET_ALL_TRANSACTION_HISTORY_FAILED = 'Get full list of failed transaction history';
     constructor(message, validatorErrors = {}) {
         super(message); // call constructor of parent class(Error)
         printDebug(message, OutputTypeDebug.ERROR);
