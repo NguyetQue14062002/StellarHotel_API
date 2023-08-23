@@ -75,7 +75,6 @@ const userSchema = new mongoose.Schema(
         },
         otp: {
             type: Number,
-            index: true,
         },
     },
     {
@@ -85,6 +84,5 @@ const userSchema = new mongoose.Schema(
     },
 );
 
-userSchema.index({ otp: 1 }, { expireAfterSeconds: 60 });
 
 export default mongoose.model('Users', userSchema);

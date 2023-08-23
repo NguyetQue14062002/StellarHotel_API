@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
+import {  TYPE_BED, ROOM_STATUS, COLLECTION } from '../global/constants.js';;
 
-import Exception from '../exceptions/Exception.js';
-import { URL_ROOM_DEFAULT, TYPE_BED, ROOM_STATUS, COLLECTION } from '../global/constants.js';
 
 const roomSchema = new mongoose.Schema(
     {
@@ -12,8 +11,8 @@ const roomSchema = new mongoose.Schema(
         },
         roomNumber: {
             type: Number,
-            required: true,
             unique: true,
+            required: true,
         },
         acreage: {
             type: Number,

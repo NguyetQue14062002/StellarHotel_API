@@ -112,8 +112,8 @@ const logout = async ({ userId }) => {
         throw new Exception(Exception.LOGOUT_FAILED);
     });
 };
-
-const sendOTP = async ({userId, email}) => {
+//Reset password
+const sendOTPresetPass = async ({userId, email}) => {
     const filterUser = await userModel.findById({ _id: userId });
     if (filterUser.email != email ) {
         printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
@@ -145,13 +145,11 @@ const sendOTP = async ({userId, email}) => {
     });
     await userModel.findByIdAndUpdate(filterUser._id, {
         otp: otp,
-    });
-    return {
-        otp: otp,
-    };
+    })
+    return Exception.SEND_OTP_SUCCESS;
 };
 
-const checkOTP = async ({userId, email, otp}) => {
+const checkOTPresetPass = async ({userId, email, otp}) => {
     const user = await userModel.findById({ _id: userId });
     if (user.email == email && user.otp == otp) {
         await userModel.updateOne({ _id: user._id }, { $set: { otp: null } });
@@ -179,9 +177,63 @@ const resetPassword = async (userId, email, oldpass, newpass) => {
     await userModel.findByIdAndUpdate(user._id, { password: hashPassword });
     return Exception.CHANGED_PASSWORD_SUCCESS;
 };
-const forgetPassword = async (userId, email, newpass) => {
-    const user = await userModel.findById({ _id: userId });
-    if (user.email != email) {
+//forgot password
+const sendOTPforgotPass = async ({ email}) => {
+    const filterUser = await userModel.findOne({ email});
+    if (!filterUser ) {
+        printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
+        throw new Exception(Exception.INVALID_EMAIL);
+    }
+    const otp = Math.floor(1000 + Math.random() * 9000);
+    //send mail
+    let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        secure: true,
+        auth: {
+            user: 'nguyetque65697@gmail.com',
+            pass: 'kfsxdgbvewakanjq',
+        },
+    });
+    let mailOptions = {
+        from: 'nguyetquepham7@gmail.com',
+        to: email,
+        subject: 'Xác thực người dùng',
+        html: `<h1>Xác thực người dùng</h1>
+                    <p>OTP xác thực người dùng của bạn là: ${otp},  có hiệu lực trong vòng 1 phút.</p>`,
+    };
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            printDebug(error, OutputTypeDebug.ERROR);
+        } else {
+            printDebug('Email sent: ' + info.response, OutputTypeDebug.INFORMATION);
+        }
+    });
+    await userModel.findByIdAndUpdate(filterUser._id, {
+        otp: otp,
+    })
+    return Exception.SEND_OTP_SUCCESS;
+};
+
+const checkOTPforgotPass = async ({ email, otp}) => {
+    const user = await userModel.findOne({ email });
+    if (!user) {
+        throw new Exception(Exception.INVALID_EMAIL);
+    }
+
+    if (user.otp == null) {
+        printDebug('Yêu cầu người dùng send otp', OutputTypeDebug.INFORMATION);
+        throw new Exception('Yêu cầu người dùng send otp');
+    }
+
+    if (user.otp != otp) {
+        printDebug('otp không hợp lệ', OutputTypeDebug.INFORMATION);
+        throw new Exception('otp không hợp lệ');
+    }
+    
+};
+const forgetPassword = async ( email, newpass) => {
+    const user = await userModel.findOne({ email });
+    if (!user) {
         printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
         throw new Exception(Exception.INVALID_EMAIL);
     }
@@ -193,4 +245,4 @@ const forgetPassword = async (userId, email, newpass) => {
     }
 };
 
-export default { register, login, prefreshToken, logout, sendOTP, checkOTP, resetPassword, forgetPassword };
+export default { register, login, prefreshToken, logout, sendOTPresetPass, checkOTPresetPass, resetPassword,sendOTPforgotPass,checkOTPforgotPass, forgetPassword };

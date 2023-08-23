@@ -10,7 +10,7 @@ router.get(
     validationError,
     roomController.getNumberAvailableRooms,
 );
-router.post('/add-room', verifyToken, isAdmin, roomController.addRoom);
+router.post('/create-room', verifyToken, isAdmin, validationError, roomController.createRoom);
 router.patch('/update', verifyToken, isAdmin, roomController.updateRoom);
 
 export default router;

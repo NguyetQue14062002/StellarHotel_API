@@ -29,11 +29,16 @@ export default class Exception extends Error {
     static LOGIN_FAILED = 'Login failed';
     static LOGOUT_FAILED = 'Logout failed';
     static UPDATE_USER_FAILED = 'User information update failed';
+    static GET_USER_FAILED = 'Get user failed';
+    static DELETE_USER_FAILED = 'Delete user failed';
+    static DELETE_USER_SUCCESS = 'Delete user successfully';
     static BOOKING_FAILED = 'Booking failed';
 
     static DATA_RETRIEVAL_FAILED = 'Data retrieval failed';
     static TYPE_ROOM_NOT_EXIST = 'Type room not exist';
+    static ROOM_EXIST = 'Room exist';
     static GET_NUMBER_AVAILABLE_ROOMS_FAILED = 'Retrieve list of available rooms failed';
+    static CREATE_ROOM_FAILED = "Can't create room";
     static CANNOT_ADD_ROOM = "Can't add room";
 
     static CANNOT_UPDATE_ROOM = "Can't update room";

@@ -2,8 +2,9 @@ import express from 'express';
 import dotenv from 'dotenv';
 import { OutputType, print } from './src/helpers/print.js';
 import connect from './src/database/database.js';
+import bcrypt from 'bcrypt';
 
-import { typeRoomModel, roomModel, utilitiesModel } from './src/models/index.js';
+import { typeRoomModel, roomModel, utilitiesModel, userModel } from './src/models/index.js';
 import { TYPE_ROOMS, DESCRIPTION_ROOM, TYPE_BED } from './src/global/constants.js';
 
 const app = express();
@@ -259,6 +260,26 @@ connect()
             print('Insert Utilities success', OutputType.SUCCESS);
         } else {
             print('Insert Utilities fail', OutputType.ERROR);
+        }
+    })
+    .then(async() => {
+        let password = 'Admin1234';
+        const hashPassword = await bcrypt.hash(password, parseInt(process.env.SALT_ROUNDS));
+        const myUser = [
+            {
+                username: 'admin',
+                password: hashPassword,
+                email: 'Stellar@gmail.com',
+                phoneNumber: '0123456789',
+                role: process.env.ADMIN,
+            }
+        ];
+        let isExist = await userModel.insertMany(myUser);
+        if (isExist) {
+            print('Insert User success', OutputType.SUCCESS);
+        }
+        else {
+            print('Insert User fail', OutputType.ERROR);
         }
     })
     .catch((error) => {
