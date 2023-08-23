@@ -31,4 +31,29 @@ const bookingRoom = asyncHandler(async (req, res) => {
     });
 });
 
-export default { bookingRoom };
+const getTotalPrices = asyncHandler(async (req, res) => {
+    const checkinDate = dateTimeInputFormat(req.query.checkinDate + ' 12:00', DateStrFormat.DATE_AND_TIME);
+    const checkoutDate = dateTimeInputFormat(req.query.checkoutDate + ' 12:00', DateStrFormat.DATE_AND_TIME);
+    printDebug(`checkinDate format: ${checkinDate}`, OutputTypeDebug.INFORMATION);
+    printDebug(`checkoutDate format: ${checkoutDate}`, OutputTypeDebug.INFORMATION);
+    const { typeRoom, quantity, acreage, typeBed, view, prices } = req.query;
+
+    const totoaPrices = await bookingRoomRepository.getTotalPrices({
+        checkinDate,
+        checkoutDate,
+        typeRoom,
+        quantity,
+        acreage,
+        typeBed,
+        view,
+        prices,
+    });
+
+    res.status(HttpStatusCode.INSERT_OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Get total prices successfully',
+        data: totoaPrices,
+    });
+});
+
+export default { bookingRoom, getTotalPrices };

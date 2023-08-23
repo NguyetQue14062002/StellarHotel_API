@@ -29,12 +29,8 @@ const validateGetNumberAvailableRooms = [
         .withMessage(Exception.INVALID_CHECKOUT_DATE),
 ];
 
-const validateGetAcreageRooms = [
-    query('typeRoom').trim().not().isEmpty().withMessage(Exception.INVALID_TYPE_ROOM),
-]
+const validateGetParametersRoom = [query('typeRoom').trim().not().isEmpty().withMessage(Exception.INVALID_TYPE_ROOM)];
 
-const validatetypeBedRooms = [
-    query('typeRoom').trim().not().isEmpty().withMessage(Exception.INVALID_TYPE_ROOM),
-]
+const validateGetRoomsByTypeRoom = [query('typeRoom').trim().not().isEmpty().withMessage(Exception.INVALID_TYPE_ROOM)];
 
-export default { validateGetNumberAvailableRooms, validateGetAcreageRooms, validatetypeBedRooms };
+export default { validateGetNumberAvailableRooms, validateGetParametersRoom, validateGetRoomsByTypeRoom };

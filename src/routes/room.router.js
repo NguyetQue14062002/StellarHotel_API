@@ -11,18 +11,19 @@ router.get(
     roomController.getNumberAvailableRooms,
 );
 router.get(
-    '/get-acreage-rooms',
-    roomValidation.validateGetAcreageRooms,
+    '/get-parameters-room',
+    roomValidation.validateGetParametersRoom,
     validationError,
-    roomController.getAcreageRooms
+    roomController.getParametersRoom,
 );
 router.get(
-    '/get-typeBed-rooms',
-    roomValidation.validatetypeBedRooms,
+    '/',
+    roomValidation.validateGetRoomsByTypeRoom,
     validationError,
-    roomController.getTypeBedRooms
+    verifyToken,
+    isAdmin,
+    roomController.getRoomsByTypeRoom,
 );
-router.get('/', verifyToken, isAdmin, roomController.getRoomsByTypeRoom);
 router.post('/add-room', verifyToken, isAdmin, roomController.addRoom);
 router.patch('/update', verifyToken, isAdmin, roomController.updateRoom);
 

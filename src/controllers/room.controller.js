@@ -30,10 +30,10 @@ const getNumberAvailableRooms = asyncHandler(async (req, res) => {
     });
 });
 
-const getAcreageRooms = asyncHandler(async (req, res) => {
+const getParametersRoom = asyncHandler(async (req, res) => {
     const { typeRoom } = req.query;
-    const existingRooms = await roomRepository.getAcreageRooms({
-        typeRoom
+    const existingRooms = await roomRepository.getParametersRoom({
+        typeRoom,
     });
 
     res.status(HttpStatusCode.OK).json({
@@ -42,19 +42,6 @@ const getAcreageRooms = asyncHandler(async (req, res) => {
         data: existingRooms,
     });
 });
-
-const getTypeBedRooms = asyncHandler(async (req, res) => {
-    const { typeRoom } = req.query;
-    const existingRooms = await roomRepository.getTypeBedRooms({
-        typeRoom
-    });
-
-    res.status(HttpStatusCode.OK).json({
-        status: STATUS.SUCCESS,
-        message: 'Get the list of room typeBed successfully!',
-        data: existingRooms,
-    });
-})
 
 const getRoomsByTypeRoom = asyncHandler(async (req, res) => {
     const userId = req.userId;
@@ -125,4 +112,4 @@ const updateRoom = async (req, res) => {
     }
 };
 
-export default { addRoom, updateRoom, getNumberAvailableRooms, getAcreageRooms, getTypeBedRooms, getRoomsByTypeRoom };
+export default { addRoom, updateRoom, getNumberAvailableRooms, getParametersRoom, getRoomsByTypeRoom };

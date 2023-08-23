@@ -71,14 +71,15 @@ const getNumberAvailableRooms = async ({ typeRoom, checkinDate, checkoutDate, ac
     return { result: getListAvailableRooms.length };
 };
 
-const getAcreageRooms = async ({ typeRoom }) => {
+const getParametersRoom = async ({ typeRoom }) => {
     const existingTypeRoom = await typeRoomModel.findById(typeRoom);
     if (!existingTypeRoom) {
         printDebug('Không tồn tại loại phòng', OutputTypeDebug.INFORMATION);
         throw new Exception(Exception.GET_ACREAGE_ROOMS_FAILED);
     }
 
-    const getAcreageRooms = await roomModel.find({ typeRoom: existingTypeRoom.id }, { acreage: 1, typeBed: 1, view: 1, prices: 1 })
+    const getParametersRoom = await roomModel
+        .find({ typeRoom: existingTypeRoom.id }, { acreage: 1, typeBed: 1, view: 1, prices: 1 })
         .exec()
         .then((elements) => {
             const acreages = elements
@@ -102,34 +103,10 @@ const getAcreageRooms = async ({ typeRoom }) => {
             printDebug('Lấy danh sách diện tích phòng không thành công!', OutputTypeDebug.INFORMATION);
             printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
             throw new Exception(Exception.GET_ACREAGE_ROOMS_FAILED);
-        })
+        });
 
-    return getAcreageRooms;
-}
-
-const getTypeBedRooms = async ({ typeRoom }) => {
-    const existingTypeRoom = await typeRoomModel.findById(typeRoom);
-    if (!existingTypeRoom) {
-        printDebug('Không tồn tại loại phòng', OutputTypeDebug.INFORMATION);
-        throw new Exception(Exception.GET_ACREAGE_ROOMS_FAILED);
-    }
-
-    const getTypeBedRooms = await roomModel.find({ typeRoom: existingTypeRoom.id }, { typeBed: 1 })
-        .exec()
-        .then((elements) => {
-            const results = elements
-                .map((element) => element.typeBed)
-                .filter((item, index, arr) => arr.indexOf(item) === index);
-            return results;
-        })
-        .catch((exception) => {
-            printDebug('Lấy danh sách diện tích phòng không thành công!', OutputTypeDebug.INFORMATION);
-            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
-            throw new Exception(Exception.GET_ACREAGE_ROOMS_FAILED);
-        })
-
-    return getTypeBedRooms;
-}
+    return getParametersRoom;
+};
 
 const getRoomsByTypeRoom = async ({ userId, typeRoom, page, size, searchString }) => {
     const existingUser = await userModel.findById(userId);
@@ -155,7 +132,7 @@ const getRoomsByTypeRoom = async ({ userId, typeRoom, page, size, searchString }
                     {
                         $or: [
                             {
-                                roomNumber: parseInt(searchString)
+                                roomNumber: parseInt(searchString),
                             },
                             {
                                 acreage: parseInt(searchString),
@@ -170,9 +147,9 @@ const getRoomsByTypeRoom = async ({ userId, typeRoom, page, size, searchString }
                                 prices: parseInt(searchString),
                             },
                         ],
-                    }
-                ]
-            }
+                    },
+                ],
+            },
         },
         {
             $skip: (page - 1) * size, // số phần tử bỏ qua
@@ -281,4 +258,4 @@ const updateRoom = async (name, roomNumber, image, acreage, typeBed, capacity, v
     }
 };
 
-export default { getNumberAvailableRooms, getAcreageRooms, getTypeBedRooms, getRoomsByTypeRoom, addRoom, updateRoom };
+export default { getNumberAvailableRooms, getParametersRoom, getRoomsByTypeRoom, addRoom, updateRoom };

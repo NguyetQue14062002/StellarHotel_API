@@ -2,6 +2,7 @@ import { userRepository } from '../repositories/index.js';
 import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS, MAX_RECORDS } from '../global/constants.js';
+import asyncHandler from 'express-async-handler';
 
 const updateUser = async (req, res) => {
     const errors = validationResult(req);
@@ -56,4 +57,12 @@ const getAllUser = async (req, res) => {
         });
     }
 };
-export default { updateUser, getAllUser };
+
+const getTransactionHistory = asyncHandler(async (req, res) => {
+    const userId = req.userId;
+
+    const existingUser = await userRepository.getTransactionHistory;
+    ({ userId });
+});
+
+export default { updateUser, getAllUser, getTransactionHistory };

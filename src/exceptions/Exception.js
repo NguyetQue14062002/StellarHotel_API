@@ -38,6 +38,7 @@ export default class Exception extends Error {
     static GET_ROOMS_BY_TYPE_ROOM_FAILED = 'Get Rooms by typeRooms failed';
     static GET_ACREAGE_ROOMS_FAILED = 'Get the list of room acreage failed';
     static CANNOT_ADD_ROOM = "Can't add room";
+    static GET_TOTAL_PRICES_FAILED = 'Get total prices failed';
 
     static CANNOT_UPDATE_ROOM = "Can't update room";
 

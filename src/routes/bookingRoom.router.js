@@ -14,4 +14,11 @@ router.post(
     bookingRoomController.bookingRoom,
 );
 
+router.get(
+    '/get-total-prices',
+    bookingRoomValidation.validateGetPrices,
+    validationError,
+    bookingRoomController.getTotalPrices,
+);
+
 export default router;
