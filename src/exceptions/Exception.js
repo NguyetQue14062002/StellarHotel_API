@@ -13,7 +13,6 @@ export default class Exception extends Error {
     static WRONG_DB_USERNAME_PASSWORD = "Wrong database's username and password";
     static WRONG_DB_CONNECTION_STRING = 'Wrong server name connection string';
     static CANNOT_CONECT_MONGODB = "Can't connect to Mongoose";
-
     static GET_USER_FAILED = 'Get user failed';
     static SEND_OTP_SUCCESS =
         'OTP has been sent to your email. Please check and enter OTP in the box below to authenticate the user!';
@@ -22,7 +21,6 @@ export default class Exception extends Error {
     static OTP_EXPIRED = 'OTP is expired';
     static CHANGED_PASSWORD_SUCCESS = 'You have successfully changed your password';
     static INCORRECT_PASS = 'Incorrect password';
-
     static ACCOUNT_EXIST = 'Account already exists';
     static CANNOT_REGISTER_ACCOUNT = "Can't register Account";
     static WRONG_EMAIL_OR_PASSWORD = 'Wrong email or password';
@@ -31,7 +29,6 @@ export default class Exception extends Error {
     static UPDATE_USER_FAILED = 'User information update failed';
     static BOOKING_FAILED = 'Booking failed';
     static OUT_OF_ROOMS = 'Out of rooms';
-
     static DATA_RETRIEVAL_FAILED = 'Data retrieval failed';
     static TYPE_ROOM_NOT_EXIST = 'Type room not exist';
     static GET_NUMBER_AVAILABLE_ROOMS_FAILED = 'Retrieve list of available rooms failed';
@@ -39,9 +36,7 @@ export default class Exception extends Error {
     static GET_ACREAGE_ROOMS_FAILED = 'Get the list of room acreage failed';
     static CANNOT_ADD_ROOM = "Can't add room";
     static GET_TOTAL_PRICES_FAILED = 'Get total prices failed';
-
     static CANNOT_UPDATE_ROOM = "Can't update room";
-
     static UTILITIES_NOT_EXIST = 'Utilities not exist';
     static UTILITIES_EXIST = 'Utilities already exists';
     static CREATE_UTILITIES_ERROR = "Can't create utilities";

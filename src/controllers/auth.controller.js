@@ -68,6 +68,7 @@ const checkOTP = asyncHandler(async (req, res) => {
         data: result,
     });
 });
+
 const resetPassword = asyncHandler(async (req, res) => {
     const { email, oldpass, newpass } = req.body;
     const userId = req.userId;
