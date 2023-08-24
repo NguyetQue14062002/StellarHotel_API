@@ -2,7 +2,7 @@ import { userModel, bookingRoomModel, typeRoomModel, roomModel } from '../models
 import Exception from '../exceptions/Exception.js';
 import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
 import asyncHandler from 'express-async-handler';
-import { dDate } from '../helpers/timezone.js';
+import { dDate, dateTimeOutputFormat, DateStrFormat } from '../helpers/timezone.js';
 
 const handleBookingRooms = asyncHandler(
     async ({ checkinDate, checkoutDate, typeRoom, quantity, acreage, typeBed, view, prices, messageError }) => {
@@ -180,8 +180,10 @@ const getTransactionHistory = async ({ userId }) => {
         .exec()
         .then((results) => {
             return results.map((result) => {
-                const { typeRoom, ...objNew } = result;
+                const { typeRoom, checkinDate, checkoutDate, ...objNew } = result;
                 objNew._doc.typeRoom = typeRoom.name;
+                objNew._doc.checkinDate = dateTimeOutputFormat(checkinDate, DateStrFormat.DATE_AND_TIME);
+                objNew._doc.checkoutDate = dateTimeOutputFormat(checkoutDate, DateStrFormat.DATE_AND_TIME);
                 return objNew._doc;
             });
         })
@@ -214,9 +216,11 @@ const getAllTransactionHistory = async () => {
         .exec()
         .then((results) => {
             return results.map((result) => {
-                const { user, typeRoom, ...objNew } = result;
-                objNew._doc.typeRoom = typeRoom.name;
+                const { user, typeRoom, checkinDate, checkoutDate, ...objNew } = result;
                 objNew._doc.user = user.id;
+                objNew._doc.typeRoom = typeRoom.name;
+                objNew._doc.checkinDate = dateTimeOutputFormat(checkinDate, DateStrFormat.DATE_AND_TIME);
+                objNew._doc.checkoutDate = dateTimeOutputFormat(checkoutDate, DateStrFormat.DATE_AND_TIME);
                 return objNew._doc;
             });
         })
