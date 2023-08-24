@@ -2,17 +2,16 @@ import { userModel, prefreshTokenModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
 import nodemailer from 'nodemailer';
 import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
-import jwt, { decode } from 'jsonwebtoken';
-// import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
 const register = async ({ email, password, phoneNumber }) => {
     let existingAccount = await userModel.findOne({ email });
     if (existingAccount) {
+        printDebug('Đã tồn tại tài khoản', OutputTypeDebug.INFORMATION);
         throw new Exception(Exception.ACCOUNT_EXIST);
     }
 
-    // encrypted password, use bcrypt
     const hashPassword = await bcrypt.hash(password, parseInt(process.env.SALT_ROUNDS));
 
     await userModel.create({
@@ -112,13 +111,18 @@ const logout = async ({ userId }) => {
     });
 };
 
-const sendOTP = async ({ userId, email }) => {
+//Reset password
+const sendOTPresetPass = async ({ userId, email }) => {
     const filterUser = await userModel.findById({ _id: userId });
-    if (filterUser.email != email) {
+    printDebug(filterUser, OutputTypeDebug.INFORMATION);
+
+    if (!filterUser || filterUser.email !== email) {
         printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
-        throw new Exception(Exception.INVALID_EMAIL);
+        throw new Exception(Exception.SEND_OTP_FAILED);
     }
+
     const otp = Math.floor(1000 + Math.random() * 9000);
+
     //send mail
     let transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -128,6 +132,7 @@ const sendOTP = async ({ userId, email }) => {
             pass: 'kfsxdgbvewakanjq',
         },
     });
+
     let mailOptions = {
         from: 'nguyetquepham7@gmail.com',
         to: email,
@@ -135,6 +140,7 @@ const sendOTP = async ({ userId, email }) => {
         html: `<h1>Xác thực người dùng</h1>
                     <p>OTP xác thực người dùng của bạn là: ${otp},  có hiệu lực trong vòng 1 phút.</p>`,
     };
+
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             printDebug(error, OutputTypeDebug.ERROR);
@@ -142,48 +148,149 @@ const sendOTP = async ({ userId, email }) => {
             printDebug('Email sent: ' + info.response, OutputTypeDebug.INFORMATION);
         }
     });
-    await userModel.findByIdAndUpdate(filterUser._id, {
-        otp: otp,
-    });
+
+    await userModel
+        .findByIdAndUpdate(filterUser._id, {
+            otp: otp,
+        })
+        .exec();
+
+    return Exception.SEND_OTP_SUCCESS;
 };
 
-const checkOTP = async ({ userId, email, otp }) => {
-    const user = await userModel.findById({ _id: userId });
-    if (user.email == email && user.otp == otp) {
-        await userModel.updateOne({ _id: user._id }, { $set: { otp: null } });
-        return Exception.OTP_CORRECT;
-    }
-    if (user.otp == null) {
-        throw new Exception(Exception.OTP_INCORRECT);
-    }
-    throw new Exception(Exception.INVALID_EMAIL);
+const checkOTPresetPass = async ({ userId, email, otp }) => {
+    await userModel
+        .findById({ _id: userId })
+        .exec()
+        .then(async (user) => {
+            if (user.email !== email) {
+                throw new Exception(Exception.CHECK_OTP_FAILED);
+            }
+
+            if (user.otp === Number(otp)) {
+                await userModel.updateOne({ _id: user._id }, { $set: { otp: null } });
+                return Exception.OTP_CORRECT;
+            } else {
+                throw new Exception(Exception.OTP_INCORRECT);
+            }
+        })
+        .catch((exception) => {
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.CHECK_OTP_FAILED);
+        });
 };
 
 const resetPassword = async (userId, email, oldpass, newpass) => {
-    const hashPassword = await bcrypt.hash(newpass, parseInt(process.env.SALT_ROUNDS));
-    const user = await userModel.findById({ _id: userId });
-    if (user.email != email) {
-        printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
-        throw new Exception(Exception.INVALID_EMAIL);
-    }
-    let isMatched = await bcrypt.compare(oldpass, user.password);
-    if (!isMatched) {
-        printDebug('Mật khẩu không đúng!', OutputTypeDebug.INFORMATION);
-        throw new Exception(Exception.INCORRECT_PASS);
-    }
-    await userModel.findByIdAndUpdate(user._id, { password: hashPassword });
-    return Exception.CHANGED_PASSWORD_SUCCESS;
+    await userModel
+        .findById({ _id: userId })
+        .exec()
+        .then(async (user) => {
+            if (user.email !== email) {
+                printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
+                throw new Exception(Exception.WRONG_EMAIL_OR_PASSWORD);
+            }
+
+            const hashPassword = await bcrypt.hash(newpass, parseInt(process.env.SALT_ROUNDS));
+
+            let isMatched = await bcrypt.compare(oldpass, user.password);
+            if (!isMatched) {
+                printDebug('Mật khẩu không đúng!', OutputTypeDebug.INFORMATION);
+                throw new Exception(Exception.WRONG_EMAIL_OR_PASSWORD);
+            }
+
+            user.password = hashPassword ?? user.password;
+            await user.save().catch((exception) => {
+                printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+                throw new Exception(Exception.RESET_PASSWORD_FAILED);
+            });
+            return Exception.CHANGED_PASSWORD_SUCCESS;
+        });
 };
-const forgetPassword = async (userId, email, newpass) => {
+
+//forgot password
+const sendOTPforgotPass = async ({ email }) => {
+    const filterUser = await userModel.findOne({ email });
+
+    if (!filterUser) {
+        printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
+        throw new Exception(Exception.SEND_OTP_FAILED);
+    }
+
+    const otp = Math.floor(1000 + Math.random() * 9000);
+
+    //send mail
+    let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        secure: true,
+        auth: {
+            user: 'nguyetque65697@gmail.com',
+            pass: 'kfsxdgbvewakanjq',
+        },
+    });
+
+    let mailOptions = {
+        from: 'nguyetquepham7@gmail.com',
+        to: email,
+        subject: 'Xác thực người dùng',
+        html: `<h1>Xác thực người dùng</h1>
+                    <p>OTP xác thực người dùng của bạn là: ${otp},  có hiệu lực trong vòng 1 phút.</p>`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            printDebug(error, OutputTypeDebug.ERROR);
+        } else {
+            printDebug('Email sent: ' + info.response, OutputTypeDebug.INFORMATION);
+        }
+    });
+
+    await userModel
+        .findByIdAndUpdate(filterUser._id, {
+            otp: otp,
+        })
+        .exec();
+    return Exception.SEND_OTP_SUCCESS;
+};
+
+const checkOTPforgotPass = async ({ email, otp }) => {
+    const user = await userModel.findOne({ email });
+    if (!user) {
+        throw new Exception(Exception.CHECK_OTP_FAILED);
+    }
+
+    if (user.otp === null) {
+        printDebug('Yêu cầu người dùng send otp', OutputTypeDebug.INFORMATION);
+        throw new Exception(Exception.CHECK_OTP_FAILED);
+    }
+
+    if (user.otp !== Number(otp)) {
+        printDebug('otp không hợp lệ', OutputTypeDebug.INFORMATION);
+        throw new Exception('otp không hợp lệ');
+    }
+
+    await userModel.updateOne({ _id: user._id }, { $set: { otp: null } });
+};
+const forgetPassword = async (email, newpass) => {
     const user = await userModel.findOne({ email });
     if (!user) {
         printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
         throw new Exception(Exception.INVALID_EMAIL);
     } else {
         const hashPassword = await bcrypt.hash(newpass, parseInt(process.env.SALT_ROUNDS));
-        await userModel.findByIdAndUpdate(user._id, { password: hashPassword });
+        await userModel.findByIdAndUpdate(user._id, { password: hashPassword }).exec();
         return Exception.CHANGED_PASSWORD_SUCCESS;
     }
 };
 
-export default { register, login, prefreshToken, logout, sendOTP, checkOTP, resetPassword, forgetPassword };
+export default {
+    register,
+    login,
+    prefreshToken,
+    logout,
+    sendOTPresetPass,
+    checkOTPresetPass,
+    resetPassword,
+    sendOTPforgotPass,
+    checkOTPforgotPass,
+    forgetPassword,
+};

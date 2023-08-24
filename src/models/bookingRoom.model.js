@@ -15,7 +15,7 @@ const bookingRoomSchema = new mongoose.Schema(
             ref: COLLECTION.TYPE_ROOMS,
             index: false,
         },
-        room: {
+        rooms: {
             type: [Number],
             required: true,
         },

@@ -1,8 +1,7 @@
 import express from 'express';
-
 import { authController } from '../controllers/index.js';
 import { validationError, authValidation } from '../middleware/validation/index.js';
-import { verifyToken, isAdmin, isClient } from '../middleware/authMiddleware.js';
+import { verifyToken, isClient } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -16,21 +15,22 @@ router.post(
     authController.prefreshToken,
 );
 router.post('/logout', verifyToken, authController.logout);
+//reset password
 router.post(
     '/sendotp',
     authValidation.validateCheckEmail,
     validationError,
     verifyToken,
     isClient,
-    authController.sendOTP,
+    authController.sendOTPresetPass,
 );
 router.post(
     '/checkotp',
-    authValidation.validateCheckEmail,
+    authValidation.validateCheckOTP,
     validationError,
     verifyToken,
     isClient,
-    authController.checkOTP,
+    authController.checkOTPresetPass,
 );
 router.post(
     '/resetpass',
@@ -40,6 +40,19 @@ router.post(
     isClient,
     authController.resetPassword,
 );
-router.post('/forgetpass', authValidation.resetPassword, validationError, authController.forgetpass);
+//forgot password
+router.post(
+    '/sendotp-forgotpass',
+    authValidation.validateCheckEmail,
+    validationError,
+    authController.sendOTPforgotPass,
+);
+router.post(
+    '/checkotp-forgotpass',
+    authValidation.validateCheckOTP,
+    validationError,
+    authController.checkOTPforgotPass,
+);
+router.post('/forgetpass', authValidation.forgetpass, validationError, authController.forgetpass);
 
 export default router;

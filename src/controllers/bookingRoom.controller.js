@@ -56,4 +56,26 @@ const getTotalPrices = asyncHandler(async (req, res) => {
     });
 });
 
-export default { bookingRoom, getTotalPrices };
+const getTransactionHistory = asyncHandler(async (req, res) => {
+    const userId = req.userId;
+
+    const existingUser = await bookingRoomRepository.getTransactionHistory({ userId });
+
+    res.status(HttpStatusCode.INSERT_OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Get a list of successful transaction history',
+        data: existingUser,
+    });
+});
+
+const getAllTransactionHistory = asyncHandler(async (req, res) => {
+    const existingUser = await bookingRoomRepository.getAllTransactionHistory();
+
+    res.status(HttpStatusCode.INSERT_OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Get a complete list of successful transaction history',
+        data: existingUser,
+    });
+});
+
+export default { bookingRoom, getTotalPrices, getTransactionHistory, getAllTransactionHistory };

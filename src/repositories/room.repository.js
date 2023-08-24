@@ -2,8 +2,6 @@ import { roomModel, typeRoomModel, bookingRoomModel, userModel } from '../models
 import Exception from '../exceptions/Exception.js';
 import { TYPE_BED } from '../global/constants.js';
 import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
-import { v2 as cloudinary } from 'cloudinary';
-import streamifier from 'streamifier';
 
 const getNumberAvailableRooms = async ({ typeRoom, checkinDate, checkoutDate, acreage, typeBed, view, prices }) => {
     // Kiểm tra có tồn tại loại phòng không
@@ -182,13 +180,14 @@ const getRoomsByTypeRoom = async ({ userId, typeRoom, page, size, searchString }
     return existingRooms;
 };
 
-const addRoom = async (idTypeRoom, acreage, typeBed, capacity, view, prices, status) => {
+const createRoom = async ({ idTypeRoom, roomNumber, acreage, typeBed, capacity, view, prices, status }) => {
     let existingTypeRoom = await typeRoomModel.findById(idTypeRoom);
     if (!existingTypeRoom) {
         throw new Exception(Exception.TYPE_ROOM_NOT_EXIST);
     }
-    let Room = await roomModel.create({
-        idTypeRoom: existingTypeRoom._id,
+    let newroom = await roomModel.create({
+        typeRoom: existingTypeRoom.id,
+        roomNumber,
         acreage,
         typeBed: TYPE_BED[typeBed],
         capacity,
@@ -196,24 +195,25 @@ const addRoom = async (idTypeRoom, acreage, typeBed, capacity, view, prices, sta
         prices,
         status,
     });
-    if (!Room) {
-        throw new Exception(Exception.CANNOT_ADD_ROOM);
+    if (!newroom) {
+        throw new Exception(Exception.CREATE_ROOM_FAILED);
     }
     return {
-        id: Room._id,
+        id: newroom._id,
         typeRoom: existingTypeRoom.name,
-        image: Room.image,
+        roomNumber: newroom.roomNumber,
+        image: newroom.image,
         description: existingTypeRoom.description,
-        acreage: Room.acreage,
-        typeBed: Room.typeBed,
-        capacity: Room.capacity,
-        view: Room.view,
-        prices: Room.prices,
-        status: Room.status,
+        acreage: newroom.acreage,
+        typeBed: newroom.typeBed,
+        capacity: newroom.capacity,
+        view: newroom.view,
+        prices: newroom.prices,
+        status: newroom.status,
     };
 };
 
-const updateRoom = async (name, roomNumber, image, acreage, typeBed, capacity, view, prices, status) => {
+const updateRoom = async (name, roomNumber, acreage, typeBed, capacity, view, prices, status) => {
     try {
         let existingTypeRoom = await typeRoomModel.findOne({ name });
         let existingRoom = await roomModel.findOne({ roomNumber });
@@ -224,7 +224,6 @@ const updateRoom = async (name, roomNumber, image, acreage, typeBed, capacity, v
             throw new Error('ROOM_NOT_EXIST');
         } else {
             existingRoom.typeRoom = existingTypeRoom.id ?? existingRoom.typeRoom;
-            existingRoom.image = image ?? existingRoom.image;
             existingRoom.acreage = acreage ?? existingRoom.acreage;
             existingRoom.typeBed = TYPE_BED[typeBed] ?? existingRoom.typeBed;
             existingRoom.capacity = capacity || existingRoom.capacity;
@@ -238,7 +237,6 @@ const updateRoom = async (name, roomNumber, image, acreage, typeBed, capacity, v
                 id: existingRoom._id,
                 typeRoom: existingTypeRoom.name,
                 roomNumber: existingRoom.roomNumber,
-                image: existingRoom.image,
                 description: existingTypeRoom.description,
                 acreage: existingRoom.acreage,
                 typeBed: existingRoom.typeBed,
@@ -258,4 +256,4 @@ const updateRoom = async (name, roomNumber, image, acreage, typeBed, capacity, v
     }
 };
 
-export default { getNumberAvailableRooms, getParametersRoom, getRoomsByTypeRoom, addRoom, updateRoom };
+export default { getNumberAvailableRooms, getParametersRoom, getRoomsByTypeRoom, createRoom, updateRoom };
