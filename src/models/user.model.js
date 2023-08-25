@@ -73,6 +73,14 @@ const userSchema = new mongoose.Schema(
         yearOfBirth: {
             type: Number,
         },
+        status: {
+            type: Number,
+            enum: {
+                values: [0, 1],
+                message: '{VALUE} is not supported',
+            },
+            default: 1,
+        },
         otp: {
             type: Number,
         },
@@ -83,6 +91,5 @@ const userSchema = new mongoose.Schema(
         },
     },
 );
-
 
 export default mongoose.model('Users', userSchema);

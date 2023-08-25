@@ -23,6 +23,12 @@ const register = async ({ email, password, phoneNumber }) => {
 
 const login = async ({ email, password }) => {
     let existingAccount = await userModel.findOne({ email });
+
+    if (existingAccount.status === 0) {
+        printDebug('Tài khoản đã bị khóa', OutputTypeDebug.INFORMATION);
+        throw new Exception(Exception.ACCOUNT_DISABLED);
+    }
+
     if (!existingAccount) {
         printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
         throw new Exception(Exception.WRONG_EMAIL_OR_PASSWORD);

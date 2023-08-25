@@ -4,13 +4,15 @@ import { validationError, roomValidation } from '../middleware/validation/index.
 import { verifyToken, isAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
+
+router.post('/create-room', verifyToken, isAdmin, roomController.createRoom);
+router.patch('/update', verifyToken, isAdmin, roomController.updateRoom);
 router.get(
     '/get-number-available-rooms',
     roomValidation.validateGetNumberAvailableRooms,
     validationError,
     roomController.getNumberAvailableRooms,
 );
-router.post('/create-room', verifyToken, isAdmin, validationError, roomController.createRoom);
 router.get(
     '/get-parameters-room',
     roomValidation.validateGetParametersRoom,
@@ -25,6 +27,5 @@ router.get(
     isAdmin,
     roomController.getRoomsByTypeRoom,
 );
-router.patch('/update', verifyToken, isAdmin, roomController.updateRoom);
 
 export default router;

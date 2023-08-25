@@ -15,16 +15,38 @@ const handleBookingRooms = asyncHandler(
         const getListRoomsBookedByDate = await bookingRoomModel
             .find(
                 {
-                    typeRoom: existingTypeRoom.id,
-                    checkinDate: { $gte: checkinDate },
-                    checkoutDate: { $lte: checkoutDate },
+                    $and: [
+                        {
+                            typeRoom: existingTypeRoom.id,
+                        },
+                        {
+                            $or: [
+                                {
+                                    checkinDate: { $gt: checkinDate, $lt: checkoutDate },
+                                    checkoutDate: { $gte: checkoutDate },
+                                },
+                                {
+                                    checkinDate: { $lte: checkinDate },
+                                    checkoutDate: { $gte: checkoutDate },
+                                },
+                                {
+                                    checkinDate: { $lte: checkinDate },
+                                    checkoutDate: { $gt: checkinDate, $lt: checkoutDate },
+                                },
+                                {
+                                    checkinDate: { $gt: checkinDate },
+                                    checkoutDate: { $lt: checkoutDate },
+                                },
+                            ],
+                        },
+                    ],
                 },
-                { _id: 0, room: 1 },
+                { _id: 0, rooms: 1 },
             )
             .exec()
             .then((elements) => {
                 let idRooms = [];
-                elements.map((element) => idRooms.push(...element.room));
+                elements.map((element) => idRooms.push(...element.rooms));
                 return idRooms;
             })
             .catch((exception) => {

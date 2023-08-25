@@ -2,6 +2,7 @@ import { roomModel, typeRoomModel, bookingRoomModel, userModel } from '../models
 import Exception from '../exceptions/Exception.js';
 import { TYPE_BED } from '../global/constants.js';
 import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
+import { dateTimeOutputFormat, DateStrFormat } from '../helpers/timezone.js';
 
 const getNumberAvailableRooms = async ({ typeRoom, checkinDate, checkoutDate, acreage, typeBed, view, prices }) => {
     // Kiểm tra có tồn tại loại phòng không
@@ -43,16 +44,38 @@ const getNumberAvailableRooms = async ({ typeRoom, checkinDate, checkoutDate, ac
     const getListRoomsBookedByDate = await bookingRoomModel
         .find(
             {
-                typeRoom: existingTypeRoom.id,
-                checkinDate: { $gte: checkinDate },
-                checkoutDate: { $lte: checkoutDate },
+                $and: [
+                    {
+                        typeRoom: existingTypeRoom.id,
+                    },
+                    {
+                        $or: [
+                            {
+                                checkinDate: { $gt: checkinDate, $lt: checkoutDate },
+                                checkoutDate: { $gte: checkoutDate },
+                            },
+                            {
+                                checkinDate: { $lte: checkinDate },
+                                checkoutDate: { $gte: checkoutDate },
+                            },
+                            {
+                                checkinDate: { $lte: checkinDate },
+                                checkoutDate: { $gt: checkinDate, $lt: checkoutDate },
+                            },
+                            {
+                                checkinDate: { $gt: checkinDate },
+                                checkoutDate: { $lt: checkoutDate },
+                            },
+                        ],
+                    },
+                ],
             },
-            { _id: 0, room: 1 },
+            { _id: 0, rooms: 1 },
         )
         .exec()
         .then((elements) => {
             let idRooms = [];
-            elements.map((element) => idRooms.push(...element.room));
+            elements.map((element) => idRooms.push(...element.rooms));
             return idRooms;
         })
         .catch((exception) => {
@@ -120,58 +143,58 @@ const getRoomsByTypeRoom = async ({ userId, typeRoom, page, size, searchString }
     page = parseInt(page);
     size = parseInt(size);
 
-    const existingRooms = await roomModel.aggregate([
-        {
-            $match: {
-                $and: [
-                    {
-                        typeRoom: existingTypeRoom._id,
-                    },
-                    {
-                        $or: [
-                            {
-                                roomNumber: parseInt(searchString),
-                            },
-                            {
-                                acreage: parseInt(searchString),
-                            },
-                            {
-                                typeBed: { $regex: `.*${searchString}.*`, $options: 'i' },
-                            },
-                            {
-                                view: { $regex: `.*${searchString}.*`, $options: 'i' },
-                            },
-                            {
-                                prices: parseInt(searchString),
-                            },
-                        ],
-                    },
-                ],
+    const existingRooms = await roomModel
+        .aggregate([
+            {
+                $match: {
+                    $and: [
+                        {
+                            typeRoom: existingTypeRoom._id,
+                        },
+                        {
+                            $or: [
+                                {
+                                    roomNumber: parseInt(searchString),
+                                },
+                                {
+                                    acreage: parseInt(searchString),
+                                },
+                                {
+                                    typeBed: { $regex: `.*${searchString}.*`, $options: 'i' },
+                                },
+                                {
+                                    view: { $regex: `.*${searchString}.*`, $options: 'i' },
+                                },
+                                {
+                                    prices: parseInt(searchString),
+                                },
+                            ],
+                        },
+                    ],
+                },
             },
-        },
-        {
-            $skip: (page - 1) * size, // số phần tử bỏ qua
-        },
-        {
-            $limit: size, // Giới hạn phần tử trong size
-        },
-        {
-            $project: {
-                _id: 1,
-                typeRoom: 1,
-                roomNumber: 1,
-                price: 1,
-                acreage: 1,
-                typeBed: 1,
-                view: 1,
-                prices: 1,
-                createdAt: 1,
-                updatedAt: 1,
+            {
+                $skip: (page - 1) * size, // số phần tử bỏ qua
             },
-        },
-    ]);
-
-    console.log(existingRooms);
+            {
+                $limit: size, // Giới hạn phần tử trong size
+            },
+            {
+                $project: {
+                    _id: 1,
+                    typeRoom: 1,
+                    roomNumber: 1,
+                    price: 1,
+                    acreage: 1,
+                    typeBed: 1,
+                    view: 1,
+                    prices: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                },
+            },
+        ])
+        .exec();
 
     if (!existingRooms) {
         throw new Exception(Exception.GET_ROOMS_BY_TYPE_ROOM_FAILED);
@@ -180,11 +203,13 @@ const getRoomsByTypeRoom = async ({ userId, typeRoom, page, size, searchString }
     return existingRooms;
 };
 
-const createRoom = async ({ idTypeRoom, roomNumber, acreage, typeBed, capacity, view, prices, status }) => {
+const createRoom = async ({ idTypeRoom, roomNumber, acreage, typeBed, capacity, view, prices }) => {
     let existingTypeRoom = await typeRoomModel.findById(idTypeRoom);
+
     if (!existingTypeRoom) {
         throw new Exception(Exception.TYPE_ROOM_NOT_EXIST);
     }
+
     let newroom = await roomModel.create({
         typeRoom: existingTypeRoom.id,
         roomNumber,
@@ -193,24 +218,11 @@ const createRoom = async ({ idTypeRoom, roomNumber, acreage, typeBed, capacity, 
         capacity,
         view,
         prices,
-        status,
     });
+
     if (!newroom) {
         throw new Exception(Exception.CREATE_ROOM_FAILED);
     }
-    return {
-        id: newroom._id,
-        typeRoom: existingTypeRoom.name,
-        roomNumber: newroom.roomNumber,
-        image: newroom.image,
-        description: existingTypeRoom.description,
-        acreage: newroom.acreage,
-        typeBed: newroom.typeBed,
-        capacity: newroom.capacity,
-        view: newroom.view,
-        prices: newroom.prices,
-        status: newroom.status,
-    };
 };
 
 const updateRoom = async (name, roomNumber, acreage, typeBed, capacity, view, prices, status) => {
@@ -247,7 +259,6 @@ const updateRoom = async (name, roomNumber, acreage, typeBed, capacity, view, pr
             };
         }
     } catch (error) {
-        console.error(error.message);
         if (error.message === 'TYPE_ROOM_NOT_EXIST' || error.message === 'ROOM_NOT_EXIST') {
             throw error;
         } else {

@@ -18,6 +18,8 @@ export default class Exception extends Error {
     static WRONG_DB_CONNECTION_STRING = 'Wrong server name connection string';
     static CANNOT_CONECT_MONGODB = "Can't connect to Mongoose";
     static GET_USER_FAILED = 'Get user failed';
+    static UPDATE_USER_FAILED = 'Update user failed';
+    static ACCOUNT_DISABLED = 'Account disabled';
     static SEND_OTP_SUCCESS =
         'OTP has been sent to your email. Please check and enter OTP in the box below to authenticate the user!';
     static SEND_OTP_FAILED = 'Send OTP failed';

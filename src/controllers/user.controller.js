@@ -3,6 +3,7 @@ import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS, MAX_RECORDS } from '../global/constants.js';
 import asyncHandler from 'express-async-handler';
+import mongoose from 'mongoose';
 
 //Admin
 const getAllUser = asyncHandler(async (req, res) => {
@@ -38,79 +39,51 @@ const updateUser = asyncHandler(async (req, res) => {
     });
 });
 
+const deleteUser = asyncHandler(async (req, res) => {
+    // const { id } = req.body;
+    const id = new mongoose.Types.ObjectId(req.body.id);
+
+    const existingUser = await userRepository.deleteUser(id);
+
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Delete user successfully!',
+        data: existingUser,
+    });
+});
+
 //Client
-const getUser = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
-    }
+const getUser = asyncHandler(async (req, res) => {
     const userId = req.userId;
-    try {
-        const user = await userRepository.getUser(userId);
-        res.status(HttpStatusCode.OK).json({
-            status: STATUS.SUCCESS,
-            message: 'Get user information successfully!',
-            data: user,
-        });
-    } catch (exception) {
-        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-            error: STATUS.ERROR,
-            message: `${exception.message}`,
-        });
-    }
-};
 
-const updateProfile = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
-    }
+    const user = await userRepository.getUser(userId);
 
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Get user information successfully!',
+        data: user,
+    });
+});
+
+const updateProfile = asyncHandler(async (req, res) => {
     const { email, userName, phoneNumber, gender, nationality, yearOfBirth } = req.body;
     const id = req.userId;
 
-    try {
-        const existingUser = await userRepository.updateProfile({
-            id,
-            email,
-            userName,
-            phoneNumber,
-            gender,
-            nationality,
-            yearOfBirth,
-        });
-        res.status(HttpStatusCode.OK).json({
-            status: STATUS.SUCCESS,
-            message: 'Update user information successfully!',
-            data: existingUser,
-        });
-    } catch (exception) {
-        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-            error: STATUS.ERROR,
-            message: `${exception.message}`,
-        });
-    }
-};
+    const existingUser = await userRepository.updateProfile({
+        id,
+        email,
+        userName,
+        phoneNumber,
+        gender,
+        nationality,
+        yearOfBirth,
+    });
 
-const deleteUser = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
-    }
-    const { id } = req.body;
-    try {
-        const existingUser = await userRepository.deleteUser(id);
-        res.status(HttpStatusCode.OK).json({
-            status: STATUS.SUCCESS,
-            message: 'Delete user successfully!',
-            data: existingUser,
-        });
-    } catch (exception) {
-        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-            error: STATUS.ERROR,
-            message: `${exception.message}`,
-        });
-    }
-};
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Update user information successfully!',
+        data: existingUser,
+    });
+});
 
-export default { getAllUser, updateUser, updateProfile, getUser, deleteUser };
+export default { getAllUser, updateUser, deleteUser, getUser, updateProfile };

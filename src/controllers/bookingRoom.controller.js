@@ -49,7 +49,7 @@ const getTotalPrices = asyncHandler(async (req, res) => {
         prices,
     });
 
-    res.status(HttpStatusCode.INSERT_OK).json({
+    res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Get total prices successfully',
         data: totoaPrices,
@@ -61,7 +61,7 @@ const getTransactionHistory = asyncHandler(async (req, res) => {
 
     const existingUser = await bookingRoomRepository.getTransactionHistory({ userId });
 
-    res.status(HttpStatusCode.INSERT_OK).json({
+    res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Get a list of successful transaction history',
         data: existingUser,
@@ -71,7 +71,7 @@ const getTransactionHistory = asyncHandler(async (req, res) => {
 const getAllTransactionHistory = asyncHandler(async (req, res) => {
     const existingUser = await bookingRoomRepository.getAllTransactionHistory();
 
-    res.status(HttpStatusCode.INSERT_OK).json({
+    res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Get a complete list of successful transaction history',
         data: existingUser,

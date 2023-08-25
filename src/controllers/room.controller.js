@@ -5,6 +5,37 @@ import { STATUS, MAX_RECORDS } from '../global/constants.js';
 import { dateTimeInputFormat, DateStrFormat } from '../helpers/timezone.js';
 import { printDebug, OutputTypeDebug } from '../helpers/printDebug.js';
 
+const createRoom = asyncHandler(async (req, res) => {
+    const { idTypeRoom, roomNumber, acreage, typeBed, capacity, view, prices } = req.body;
+
+    await roomRepository.createRoom({
+        idTypeRoom,
+        roomNumber,
+        acreage,
+        typeBed,
+        capacity,
+        view,
+        prices,
+    });
+
+    res.status(HttpStatusCode.INSERT_OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Add Room successfully.',
+    });
+});
+
+const updateRoom = asyncHandler(async (req, res) => {
+    const { name, roomNumber, acreage, typeBed, capacity, view, prices, status } = req.body;
+
+    const result = await roomRepository.updateRoom(name, roomNumber, acreage, typeBed, capacity, view, prices, status);
+
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Update Room successfully.',
+        data: result,
+    });
+});
+
 const getNumberAvailableRooms = asyncHandler(async (req, res) => {
     const { typeRoom, acreage, typeBed, view, prices } = req.query;
     const checkinDate = dateTimeInputFormat(req.query.checkinDate + ' 12:00', DateStrFormat.DATE_AND_TIME);
@@ -42,26 +73,6 @@ const getParametersRoom = asyncHandler(async (req, res) => {
     });
 });
 
-const createRoom = asyncHandler(async (req, res) => {
-    const { idTypeRoom, roomNumber, acreage, typeBed, capacity, view, prices, status } = req.body;
-
-    const result = await roomRepository.createRoom({
-        idTypeRoom,
-        roomNumber,
-        acreage,
-        typeBed,
-        capacity,
-        view,
-        prices,
-        status,
-    });
-    res.status(HttpStatusCode.OK).json({
-        status: STATUS.SUCCESS,
-        message: 'Add Room successfully.',
-        data: result,
-    });
-});
-
 const getRoomsByTypeRoom = asyncHandler(async (req, res) => {
     const userId = req.userId;
 
@@ -82,31 +93,5 @@ const getRoomsByTypeRoom = asyncHandler(async (req, res) => {
         data: existingRooms,
     });
 });
-
-const updateRoom = async (req, res) => {
-    const { name, roomNumber, acreage, typeBed, capacity, view, prices, status } = req.body;
-    try {
-        const result = await roomRepository.updateRoom(
-            name,
-            roomNumber,
-            acreage,
-            typeBed,
-            capacity,
-            view,
-            prices,
-            status,
-        );
-        res.status(HttpStatusCode.OK).json({
-            status: STATUS.SUCCESS,
-            message: 'Update Room successfully.',
-            data: result,
-        });
-    } catch (exception) {
-        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-            error: STATUS.ERROR,
-            message: `${exception.message}`,
-        });
-    }
-};
 
 export default { createRoom, updateRoom, getNumberAvailableRooms, getParametersRoom, getRoomsByTypeRoom };

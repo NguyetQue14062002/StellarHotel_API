@@ -58,25 +58,28 @@ const getAllUser = async ({ page, size, searchString }) => {
 //Client
 const getUser = async (userId) => {
     let existingUser = await userModel.findById(userId);
-    if (!existingUser) {
+
+    if (!existingUser || existingUser.role !== process.env.CLIENT) {
         throw new Exception(Exception.GET_USER_FAILED);
     }
+
     return {
         id: existingUser._id,
         userName: existingUser.userName,
         email: existingUser.email,
         phoneNumber: existingUser.phoneNumber,
-        gender: existingUser.gender,
-        nationality: existingUser.nationality,
-        yearOfBirth: existingUser.yearOfBirth,
+        gender: existingUser.gender || '',
+        nationality: existingUser.nationality || '',
+        yearOfBirth: existingUser.yearOfBirth || '',
     };
 };
 
 const updateProfile = async ({ id, email, userName, phoneNumber, gender, nationality, yearOfBirth }) => {
     let existingUser = await userModel.findById(id);
     if (!existingUser) {
-        throw new Exception(Exception.WRONG_EMAIL_OR_PASSWORD);
+        throw new Exception(Exception.UPDATE_USER_FAILED);
     }
+
     // Update information user
     existingUser.email = email ?? existingUser.email;
     existingUser.userName = userName ?? existingUser.userName;
@@ -88,14 +91,15 @@ const updateProfile = async ({ id, email, userName, phoneNumber, gender, nationa
         printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
         throw new Exception(Exception.UPDATE_USER_FAILED);
     });
+
     return {
         id: existingUser._id,
         userName: existingUser.userName,
-        yearOfBirth: existingUser.yearOfBirth,
-        gender: existingUser.gender,
-        nationality: existingUser.nationality,
         email: existingUser.email,
         phoneNumber: existingUser.phoneNumber,
+        gender: existingUser.gender || '',
+        nationality: existingUser.nationality || '',
+        yearOfBirth: existingUser.yearOfBirth || '',
     };
 };
 
@@ -104,7 +108,7 @@ const updateUser = async ({ id, email, userName, phoneNumber, gender, nationalit
     if (!existingUser || existingUser.role !== process.env.CLIENT) {
         throw new Exception(Exception.UPDATE_USER_FAILED);
     }
-    
+
     // Update information user
     existingUser.email = email ?? existingUser.email;
     existingUser.userName = userName ?? existingUser.userName;
@@ -129,17 +133,12 @@ const updateUser = async ({ id, email, userName, phoneNumber, gender, nationalit
 };
 
 const deleteUser = async (userId) => {
-    let existingUser = await userModel.findById(userId);
+    let existingUser = await userModel.findOneAndUpdate({ _id: userId, status: 1 }, { status: 0 }).exec();
+
     if (!existingUser) {
-        throw new Exception(Exception.GET_USER_FAILED);
-    }
-    try {
-        await existingUser.deleteOne({
-            _id: userId,
-        });
-        return Exception.DELETE_USER_SUCCESS;
-    } catch (exception) {
         throw new Exception(Exception.DELETE_USER_FAILED);
     }
+
+    return Exception.DELETE_USER_SUCCESS;
 };
-export default { getAllUser, updateProfile, getUser, updateUser, deleteUser };
+export default { getAllUser, updateUser, getUser, updateProfile, deleteUser };
