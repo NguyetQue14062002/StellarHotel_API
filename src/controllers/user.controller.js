@@ -1,5 +1,4 @@
 import { userRepository } from '../repositories/index.js';
-import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS, MAX_RECORDS } from '../global/constants.js';
 import asyncHandler from 'express-async-handler';

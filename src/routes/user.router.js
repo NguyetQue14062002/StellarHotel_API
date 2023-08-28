@@ -1,14 +1,14 @@
 import express from 'express';
 import { userController } from '../controllers/index.js';
 import { verifyToken, isAdmin, isClient } from '../middleware/authMiddleware.js';
-
+import {userValidation} from '../middleware/validation/index.js';
 const router = express.Router();
 
 router.get('/', verifyToken, isAdmin, userController.getAllUser);
-router.patch('/update-user', verifyToken, isAdmin, userController.updateUser);
-router.delete('/delete-user', verifyToken, isAdmin, userController.deleteUser);
+router.patch('/update-user',userValidation.updateUserValidation, verifyToken, isAdmin, userController.updateUser);
+router.patch('/delete-user', verifyToken, isAdmin, userController.deleteUser);
 router.get('/profile', verifyToken, isClient, userController.getUser);
-router.patch('/update-profile', verifyToken, isClient, userController.updateProfile);
+router.patch('/update-profile', userValidation.updateUserValidation, verifyToken, isClient, userController.updateProfile);
 
 
 export default router;

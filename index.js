@@ -14,6 +14,7 @@ import {
     typeRoomRoutes,
     bookingRoomRoutes,
     utilitiesRoutes,
+    paymentRoutes
 } from './src/routes/index.js';
 
 dotenv.config();
@@ -40,6 +41,8 @@ app.use('/room', roomRoutes);
 app.use('/type-room', typeRoomRoutes);
 app.use('/booking-room', bookingRoomRoutes);
 app.use('/utilities', utilitiesRoutes);
+app.use('/payment', paymentRoutes);
+
 
 app.use(notFound);
 app.use(errorMiddleware);
