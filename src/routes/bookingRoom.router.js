@@ -20,8 +20,9 @@ router.get(
     bookingRoomController.getTotalPrices,
 );
 router.get('/get-transaction-history', verifyToken, isClient, bookingRoomController.getTransactionHistory);
+router.get('/get-total-transaction-history', verifyToken, isClient, bookingRoomController.getTotalTransactionHistory);
 router.get('/get-all-transactions-history', verifyToken, isAdmin, bookingRoomController.getAllTransactionHistory);
 
-router.post('/create_payment_url',verifyToken, isClient, bookingRoomController.createPayment);
+router.post('/create_payment_url', verifyToken, isClient, bookingRoomController.createPayment);
 router.get('/vnpay_return', bookingRoomController.vnpayReturn);
 export default router;

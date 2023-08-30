@@ -1,5 +1,5 @@
 import { userModel, bookingRoomModel, typeRoomModel, roomModel } from '../models/index.js';
-import { STATUS_BOOKING} from '../global/constants.js';
+import { STATUS_BOOKING } from '../global/constants.js';
 import Exception from '../exceptions/Exception.js';
 import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
 
@@ -221,6 +221,25 @@ const getTransactionHistory = async ({ userId }) => {
         });
 };
 
+const getTotalTransactionHistory = async ({ userId }) => {
+    const existingUser = await userModel.findById(userId);
+    if (!existingUser) {
+        throw new Exception(Exception.GET_TOTAL_TRANSACTION_HISTORY_FAILED);
+    }
+
+    return await bookingRoomModel
+        .find({ user: existingUser._id })
+        .exec()
+        .then((results) => {
+            return { totalTransactionHistory: results.reduce((partialSum, a) => partialSum + 1, 0) };
+        })
+        .catch((exception) => {
+            printDebug('Đặt phòng khong thành công!', OutputTypeDebug.INFORMATION);
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.GET_TOTAL_TRANSACTION_HISTORY_FAILED);
+        });
+};
+
 const getAllTransactionHistory = async () => {
     return await bookingRoomModel
         .find(
@@ -258,15 +277,15 @@ const getAllTransactionHistory = async () => {
         });
 };
 
-const createPayment = async ({ orderId,   bankCode}) => {
-    var  ipAddr = "127.0.0.1";
-    var tmnCode = "9P74Q5DB";
-    var secretKey = "WCBCNCNRFRCERDQNTQLCIWCVQSWJOOCQ";
-    var vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    var returnUrl = "http://localhost:8080/booking-room/vnpay_return";
+const createPayment = async ({ orderId, bankCode }) => {
+    var ipAddr = '127.0.0.1';
+    var tmnCode = '9P74Q5DB';
+    var secretKey = 'WCBCNCNRFRCERDQNTQLCIWCVQSWJOOCQ';
+    var vnpUrl = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
+    var returnUrl = 'http://localhost:8080/booking-room/vnpay_return';
     var createDate = date.format(new Date(), 'YYYYMMDDHHmmss');
     let exsitBooking = await bookingRoomModel.findById(orderId);
-    if(!exsitBooking) throw new Exception(Exception.BOOKING_NOT_FOUND);
+    if (!exsitBooking) throw new Exception(Exception.BOOKING_NOT_FOUND);
     var currCode = 'VND';
     var vnp_Params = {};
     vnp_Params['vnp_Version'] = '2.1.0';
@@ -282,30 +301,30 @@ const createPayment = async ({ orderId,   bankCode}) => {
     vnp_Params['vnp_ReturnUrl'] = returnUrl;
     vnp_Params['vnp_IpAddr'] = ipAddr;
     vnp_Params['vnp_CreateDate'] = createDate;
-    if(bankCode !== null && bankCode !== ''){
+    if (bankCode !== null && bankCode !== '') {
         vnp_Params['vnp_BankCode'] = bankCode;
     }
- 
+
     vnp_Params = sortObject(vnp_Params);
-    var signData = querystring.stringify(vnp_Params, { encode: false });  
-    var hmac = crypto.createHmac("sha512", secretKey);
-    var signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex"); 
+    var signData = querystring.stringify(vnp_Params, { encode: false });
+    var hmac = crypto.createHmac('sha512', secretKey);
+    var signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
     vnp_Params['vnp_SecureHash'] = signed;
     vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
     return vnpUrl;
 };
 function sortObject(obj) {
-	let sorted = {};
-	let str = [];
-	let key;
-	for (key in obj){
-		if (obj.hasOwnProperty(key)) {
-		str.push(encodeURIComponent(key));
-		}
-	}
-	str.sort();
+    let sorted = {};
+    let str = [];
+    let key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            str.push(encodeURIComponent(key));
+        }
+    }
+    str.sort();
     for (key = 0; key < str.length; key++) {
-        sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, "+");
+        sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, '+');
     }
     return sorted;
 }
@@ -319,49 +338,51 @@ const vnpayReturn = async (vnp_Params) => {
 
     vnp_Params = sortObject(vnp_Params);
 
-    var secretKey = "WCBCNCNRFRCERDQNTQLCIWCVQSWJOOCQ";
-    var signData = querystring.stringify(vnp_Params, { encode: false });    
-    var hmac = crypto.createHmac("sha512", secretKey);
-    var signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex");  
+    var secretKey = 'WCBCNCNRFRCERDQNTQLCIWCVQSWJOOCQ';
+    var signData = querystring.stringify(vnp_Params, { encode: false });
+    var hmac = crypto.createHmac('sha512', secretKey);
+    var signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
 
-    let paymentStatus = '0'; 
-    let checkOrderId = true;   
+    let paymentStatus = '0';
+    let checkOrderId = true;
     let checkAmount = true;
-    if(secureHash === signed){
-        if(checkOrderId){
-            if(checkAmount){
-                if(paymentStatus=="0"){ 
-                    if(rspCode=="00"){
-                        let payment = await bookingRoomModel.findOne({orderId: vnp_Params['vnp_TxnRef']});
+    if (secureHash === signed) {
+        if (checkOrderId) {
+            if (checkAmount) {
+                if (paymentStatus == '0') {
+                    if (rspCode == '00') {
+                        let payment = await bookingRoomModel.findOne({ orderId: vnp_Params['vnp_TxnRef'] });
                         payment.status = STATUS_BOOKING.PAID;
                         await payment.save();
-                        printDebug(payment,OutputTypeDebug.INFORMATION);
-                       return({Message: 'Giao dịch thành công'});
-                    }
-                    else {
-                        let payment = await bookingRoomModel.findOne({orderId: vnp_Params['vnp_TxnRef']});
+                        printDebug(payment, OutputTypeDebug.INFORMATION);
+                        return { Message: 'Giao dịch thành công' };
+                    } else {
+                        let payment = await bookingRoomModel.findOne({ orderId: vnp_Params['vnp_TxnRef'] });
                         payment.status = STATUS_BOOKING.CANCELLED;
                         await payment.save();
-                        printDebug(payment,OutputTypeDebug.INFORMATION);
-                        return({Message: 'Hủy giao dịch thành công'})
+                        printDebug(payment, OutputTypeDebug.INFORMATION);
+                        return { Message: 'Hủy giao dịch thành công' };
                     }
+                } else {
+                    return { RspCode: '02', Message: 'This order has been updated to the payment status' };
                 }
-                else{
-                    return({RspCode: '02', Message: 'This order has been updated to the payment status'})
-                }
+            } else {
+                return { RspCode: '04', Message: 'Amount invalid' };
             }
-            else{
-                return({RspCode: '04', Message: 'Amount invalid'})
-            }
-        }       
-        else {
-            res.status(200).json({RspCode: '01', Message: 'Order not found'})
+        } else {
+            res.status(200).json({ RspCode: '01', Message: 'Order not found' });
         }
-
-    } else{
-
-      return ('fail')
+    } else {
+        return 'fail';
     }
-}
+};
 
-export default { bookingRoom, getTotalPrices, getTransactionHistory, getAllTransactionHistory, createPayment, vnpayReturn };
+export default {
+    bookingRoom,
+    getTotalPrices,
+    getTransactionHistory,
+    getTotalTransactionHistory,
+    getAllTransactionHistory,
+    createPayment,
+    vnpayReturn,
+};
