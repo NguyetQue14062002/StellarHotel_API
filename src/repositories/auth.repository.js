@@ -24,14 +24,14 @@ const register = async ({ email, password, phoneNumber }) => {
 const login = async ({ email, password }) => {
     let existingAccount = await userModel.findOne({ email });
 
-    if (existingAccount.status === 0) {
-        printDebug('Tài khoản đã bị khóa', OutputTypeDebug.INFORMATION);
-        throw new Exception(Exception.ACCOUNT_DISABLED);
-    }
-
     if (!existingAccount) {
         printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
         throw new Exception(Exception.WRONG_EMAIL_OR_PASSWORD);
+    }
+
+    if (existingAccount.status === 0) {
+        printDebug('Tài khoản đã bị khóa', OutputTypeDebug.INFORMATION);
+        throw new Exception(Exception.ACCOUNT_DISABLED);
     }
 
     let isMatched = await bcrypt.compare(password, existingAccount.password);
@@ -52,7 +52,7 @@ const login = async ({ email, password }) => {
         },
         process.env.JWT_SECRET_ACCESS,
         {
-            expiresIn: '1h',
+            expiresIn: '1m',
         },
     );
 
@@ -83,7 +83,7 @@ const login = async ({ email, password }) => {
 };
 
 const prefreshToken = async ({ userId, token }) => {
-    const existingPrefreshToken = await prefreshTokenModel.findOne({ userId, prefreshToken: token }).exec();
+    const existingPrefreshToken = await prefreshTokenModel.findOne({ prefreshToken: token }).exec();
     if (!existingPrefreshToken) {
         throw new Exception(Exception.USER_NOT_AUTHORIZED_OR_TOKEN_MISSING);
     }

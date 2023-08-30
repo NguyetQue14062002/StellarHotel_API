@@ -103,6 +103,17 @@ const updateProfile = async ({ id, email, userName, phoneNumber, gender, nationa
     };
 };
 
+const getName = async ({ userId }) => {
+    let existingUser = await userModel.findById(userId);
+    if (!existingUser) {
+        throw new Exception(Exception.GET_USER_FAILED);
+    }
+
+    return {
+        userName: existingUser.userName,
+    };
+};
+
 const updateUser = async ({ id, email, userName, phoneNumber, gender, nationality, yearOfBirth }) => {
     let existingUser = await userModel.findById(id);
     if (!existingUser || existingUser.role !== process.env.CLIENT) {
@@ -141,4 +152,4 @@ const deleteUser = async (userId) => {
 
     return Exception.DELETE_USER_SUCCESS;
 };
-export default { getAllUser, updateUser, getUser, updateProfile, deleteUser };
+export default { getAllUser, updateUser, getUser, updateProfile, getName, deleteUser };

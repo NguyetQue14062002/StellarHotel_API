@@ -64,6 +64,18 @@ const getUser = asyncHandler(async (req, res) => {
     });
 });
 
+const getName = asyncHandler(async (req, res) => {
+    const userId = req.userId;
+
+    const existingUser = await userRepository.getName({ userId });
+
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Get user information successfully!',
+        data: existingUser,
+    });
+});
+
 const updateProfile = asyncHandler(async (req, res) => {
     const { email, userName, phoneNumber, gender, nationality, yearOfBirth } = req.body;
     const id = req.userId;
@@ -85,4 +97,4 @@ const updateProfile = asyncHandler(async (req, res) => {
     });
 });
 
-export default { getAllUser, updateUser, deleteUser, getUser, updateProfile };
+export default { getAllUser, updateUser, deleteUser, getUser, getName, updateProfile };

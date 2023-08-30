@@ -27,9 +27,9 @@ const login = asyncHandler(async (req, res) => {
 
 const prefreshToken = asyncHandler(async (req, res) => {
     const { token } = req.body;
-    const userId = req.userId;
+    // const userId = req.userId;
 
-    const prefreshToken = await authRepository.prefreshToken({ userId, token });
+    const prefreshToken = await authRepository.prefreshToken({ token });
 
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
@@ -115,7 +115,7 @@ const forgetpass = asyncHandler(async (req, res) => {
     const { email, newpass } = req.body;
 
     const result = await authRepository.forgetPassword(email, newpass);
-    
+
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Forget Password successfully.',
