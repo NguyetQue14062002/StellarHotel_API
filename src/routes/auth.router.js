@@ -7,13 +7,7 @@ const router = express.Router();
 
 router.post('/register', authValidation.validateRegister, validationError, authController.register);
 router.post('/login', authValidation.validateLogin, validationError, authController.login);
-router.post(
-    '/prefresh-token',
-    authValidation.validatePrefreshToken,
-    validationError,
-    verifyToken,
-    authController.prefreshToken,
-);
+router.post('/prefresh-token', authValidation.validatePrefreshToken, validationError, authController.prefreshToken);
 router.post('/logout', verifyToken, authController.logout);
 //reset password
 router.post(

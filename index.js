@@ -14,7 +14,7 @@ import {
     typeRoomRoutes,
     bookingRoomRoutes,
     utilitiesRoutes,
-    paymentRoutes
+    paymentRoutes,
 } from './src/routes/index.js';
 
 dotenv.config();
@@ -23,7 +23,7 @@ const app = express();
 app.use(express.json());
 app.use(
     cors({
-        origin: process.env.CLIENT_URL,
+        origin: ['http://localhost:8888', process.env.CLIENT_URL],
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     }),
 );
@@ -42,7 +42,6 @@ app.use('/type-room', typeRoomRoutes);
 app.use('/booking-room', bookingRoomRoutes);
 app.use('/utilities', utilitiesRoutes);
 app.use('/payment', paymentRoutes);
-
 
 app.use(notFound);
 app.use(errorMiddleware);

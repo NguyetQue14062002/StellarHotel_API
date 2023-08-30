@@ -2,15 +2,15 @@ import date from 'date-and-time';
 import querystring from 'qs';
 import crypto from 'crypto';
 import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
-import {paymentModel} from '../models/index.js';
+import { paymentModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
 
-const createPayment = async ({ userId ,amount,  bankCode}) => {
-    var  ipAddr = "127.0.0.1";
-    var tmnCode = "9P74Q5DB";
-    var secretKey = "WCBCNCNRFRCERDQNTQLCIWCVQSWJOOCQ";
-    var vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    var returnUrl = "http://localhost:8080/payment/vnpay_return";
+const createPayment = async ({ userId, amount, bankCode }) => {
+    var ipAddr = '127.0.0.1';
+    var tmnCode = '9P74Q5DB';
+    var secretKey = 'WCBCNCNRFRCERDQNTQLCIWCVQSWJOOCQ';
+    var vnpUrl = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
+    var returnUrl = 'http://localhost:8080/payment/vnpay_return';
     var createDate = date.format(new Date(), 'YYYYMMDDHHmmss');
     var orderId = date.format(new Date(), 'HHmmss');
     var currCode = 'VND';
@@ -28,14 +28,14 @@ const createPayment = async ({ userId ,amount,  bankCode}) => {
     vnp_Params['vnp_ReturnUrl'] = returnUrl;
     vnp_Params['vnp_IpAddr'] = ipAddr;
     vnp_Params['vnp_CreateDate'] = createDate;
-    if(bankCode !== null && bankCode !== ''){
+    if (bankCode !== null && bankCode !== '') {
         vnp_Params['vnp_BankCode'] = bankCode;
     }
- 
+
     vnp_Params = sortObject(vnp_Params);
-    var signData = querystring.stringify(vnp_Params, { encode: false });  
-    var hmac = crypto.createHmac("sha512", secretKey);
-    var signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex"); 
+    var signData = querystring.stringify(vnp_Params, { encode: false });
+    var hmac = crypto.createHmac('sha512', secretKey);
+    var signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
     vnp_Params['vnp_SecureHash'] = signed;
     vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
     const payment = new paymentModel({
@@ -43,23 +43,23 @@ const createPayment = async ({ userId ,amount,  bankCode}) => {
         orderId: orderId,
         amount: amount,
         bankCode: bankCode,
-        dateCreted: createDate
+        dateCreted: createDate,
     });
     await payment.save();
     return vnpUrl;
 };
 function sortObject(obj) {
-	let sorted = {};
-	let str = [];
-	let key;
-	for (key in obj){
-		if (obj.hasOwnProperty(key)) {
-		str.push(encodeURIComponent(key));
-		}
-	}
-	str.sort();
+    let sorted = {};
+    let str = [];
+    let key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            str.push(encodeURIComponent(key));
+        }
+    }
+    str.sort();
     for (key = 0; key < str.length; key++) {
-        sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, "+");
+        sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, '+');
     }
     return sorted;
 }
@@ -73,55 +73,48 @@ const vnpayReturn = async (vnp_Params) => {
 
     vnp_Params = sortObject(vnp_Params);
 
-    var secretKey = "WCBCNCNRFRCERDQNTQLCIWCVQSWJOOCQ";
-    var signData = querystring.stringify(vnp_Params, { encode: false });    
-    var hmac = crypto.createHmac("sha512", secretKey);
-    var signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex");  
+    var secretKey = 'WCBCNCNRFRCERDQNTQLCIWCVQSWJOOCQ';
+    var signData = querystring.stringify(vnp_Params, { encode: false });
+    var hmac = crypto.createHmac('sha512', secretKey);
+    var signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
 
-    let paymentStatus = '0'; 
-    let checkOrderId = true;   
+    let paymentStatus = '0';
+    let checkOrderId = true;
     let checkAmount = true;
-    if(secureHash === signed){
-        if(checkOrderId){
-            if(checkAmount){
-                if(paymentStatus=="0"){ 
-                    if(rspCode=="00"){
-                        let payment = await paymentModel.findOne({orderId: vnp_Params['vnp_TxnRef']});
+    if (secureHash === signed) {
+        if (checkOrderId) {
+            if (checkAmount) {
+                if (paymentStatus == '0') {
+                    if (rspCode == '00') {
+                        let payment = await paymentModel.findOne({ orderId: vnp_Params['vnp_TxnRef'] });
                         payment.status = 1;
                         await payment.save();
-                        printDebug(payment,OutputTypeDebug.INFORMATION);
-                       return({Message: 'Giao dịch thành công'});
+                        printDebug(payment, OutputTypeDebug.INFORMATION);
+                        return { Message: 'Giao dịch thành công' };
+                    } else {
+                        await paymentModel.deleteOne({ orderId: vnp_Params['vnp_TxnRef'] });
+                        return { Message: 'Hủy giao dịch thành công' };
                     }
-                    else {
-                        await paymentModel.deleteOne({orderId: vnp_Params['vnp_TxnRef']});
-                        return({Message: 'Hủy giao dịch thành công'})
-                    }
+                } else {
+                    return { RspCode: '02', Message: 'This order has been updated to the payment status' };
                 }
-                else{
-                    return({RspCode: '02', Message: 'This order has been updated to the payment status'})
-                }
+            } else {
+                return { RspCode: '04', Message: 'Amount invalid' };
             }
-            else{
-                return({RspCode: '04', Message: 'Amount invalid'})
-            }
-        }       
-        else {
-            res.status(200).json({RspCode: '01', Message: 'Order not found'})
+        } else {
+            res.status(200).json({ RspCode: '01', Message: 'Order not found' });
         }
-
-    } else{
-
-      return ('fail')
+    } else {
+        return 'fail';
     }
-}
+};
 const getTransaction = async (userId) => {
-    const result = await paymentModel.find({ $and: [{userId: userId}, {status: 1}]});
-   if(!result) 
-   {
-    return ("Khách hàng chưa có giao dịch nào!");
-   }
+    const result = await paymentModel.find({ $and: [{ userId: userId }, { status: 1 }] });
+    if (!result) {
+        return 'Khách hàng chưa có giao dịch nào!';
+    }
     return result;
-}
+};
 const getAllPayment = async ({ page, size, searchString }) => {
     size = parseInt(size);
     page = parseInt(page);
@@ -132,7 +125,7 @@ const getAllPayment = async ({ page, size, searchString }) => {
                     status: 1,
                     $or: [
                         {
-                           orderId: { $regex: `.*${searchString}.*`, $options: 'i' },
+                            orderId: { $regex: `.*${searchString}.*`, $options: 'i' },
                         },
                         {
                             userId: { $regex: `.*${searchString}.*`, $options: 'i' },
@@ -171,4 +164,4 @@ const getAllPayment = async ({ page, size, searchString }) => {
         throw new Exception(Exception.GET_PAYMENT_FAILED);
     }
 };
-export default { createPayment, vnpayReturn, getTransaction, getAllPayment  };
+export default { createPayment, vnpayReturn, getTransaction, getAllPayment };
