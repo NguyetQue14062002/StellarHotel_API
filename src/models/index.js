@@ -4,6 +4,5 @@ import roomModel from './room.model.js';
 import bookingRoomModel from './bookingRoom.model.js';
 import utilitiesModel from './utilities.model.js';
 import prefreshTokenModel from './prefreshToken.model.js';
-import paymentModel from './payment.model.js';
 
-export { userModel, typeRoomModel, roomModel, bookingRoomModel, utilitiesModel, prefreshTokenModel, paymentModel };
+export { userModel, typeRoomModel, roomModel, bookingRoomModel, utilitiesModel, prefreshTokenModel};

@@ -4,7 +4,6 @@ import roomController from './room.controller.js';
 import typeRoomController from './typeRoom.controller.js';
 import bookingRoomController from './bookingRoom.controller.js';
 import utilitiesController from './utilities.controller.js';
-import paymentController from './payment.controller.js';
 
 export {
     userController,
@@ -13,5 +12,4 @@ export {
     typeRoomController,
     bookingRoomController,
     utilitiesController,
-    paymentController,
 };

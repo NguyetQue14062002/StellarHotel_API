@@ -32,7 +32,7 @@ const bookingRoomSchema = new mongoose.Schema(
         status: {
             type: String,
             enum: {
-                values: [STATUS_BOOKING.BOOKED, STATUS_BOOKING.CANCELLEDFEMALE],
+                values: [STATUS_BOOKING.BOOKED, STATUS_BOOKING.PAID, STATUS_BOOKING.CANCELLED],
                 message: '{VALUE} is not supported',
             },
             default: STATUS_BOOKING.BOOKED,

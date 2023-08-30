@@ -4,6 +4,5 @@ import roomRepository from './room.repository.js';
 import typeRoomRepository from './typeRoom.repository.js';
 import bookingRoomRepository from './bookingRoom.repository.js';
 import utilitiesRepository from './utilities.repository.js';
-import paymentRepository from './payment.repository.js';
 
-export { userRepository, authRepository, roomRepository, typeRoomRepository, bookingRoomRepository, utilitiesRepository, paymentRepository };
+export { userRepository, authRepository, roomRepository, typeRoomRepository, bookingRoomRepository, utilitiesRepository};
