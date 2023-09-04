@@ -54,6 +54,8 @@ export default class Exception extends Error {
     static CREATE_UTILITIES_ERROR = "Can't create utilities";
     static DELETE_UTILITIES_SUCCESS = 'Delete utilities successfully';
     static GET_TRANSACTION_HISTORY_FAILED = 'Get the list of failed transaction history';
+    static GET_TOTAL_TRANSACTION_HISTORY_FAILED = 'Get the total number of failed transactions';
+
     static GET_ALL_TRANSACTION_HISTORY_FAILED = 'Get full list of failed transaction history';
 
     static GET_PAYMENT_FAILED = 'Get the list of failed payment';

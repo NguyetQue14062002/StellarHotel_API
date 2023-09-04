@@ -68,6 +68,18 @@ const getTransactionHistory = asyncHandler(async (req, res) => {
     });
 });
 
+const getTotalTransactionHistory = asyncHandler(async (req, res) => {
+    const userId = req.userId;
+
+    const existingUser = await bookingRoomRepository.getTotalTransactionHistory({ userId });
+
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Get total list of successful transaction history',
+        data: existingUser,
+    });
+});
+
 const getAllTransactionHistory = asyncHandler(async (req, res) => {
     const existingUser = await bookingRoomRepository.getAllTransactionHistory();
 
@@ -79,14 +91,13 @@ const getAllTransactionHistory = asyncHandler(async (req, res) => {
 });
 
 const createPayment = asyncHandler(async (req, res) => {
-    const {orderId,  bankCode} = req.body;
-    const result = await bookingRoomRepository.createPayment({orderId, bankCode});
+    const { orderId, bankCode } = req.body;
+    const result = await bookingRoomRepository.createPayment({ orderId, bankCode });
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Create Payment successfully.',
         data: result,
     });
-
 });
 const vnpayReturn = asyncHandler(async (req, res) => {
     var vnp_Params = req.query;
@@ -99,4 +110,12 @@ const vnpayReturn = asyncHandler(async (req, res) => {
     });
 });
 
-export default { bookingRoom, getTotalPrices, getTransactionHistory, getAllTransactionHistory, createPayment, vnpayReturn };
+export default {
+    bookingRoom,
+    getTotalPrices,
+    getTransactionHistory,
+    getAllTransactionHistory,
+    getTotalTransactionHistory,
+    createPayment,
+    vnpayReturn,
+};
