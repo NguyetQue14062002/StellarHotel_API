@@ -190,11 +190,14 @@ const getTotalPrices = async ({ checkinDate, checkoutDate, typeRoom, quantity, a
     return { totalPrice: getInfoBookingRooms.totalPrice };
 };
 
-const getTransactionHistory = async ({ userId }) => {
+const getTransactionHistory = async ({ userId, page, size }) => {
     const existingUser = await userModel.findById(userId);
     if (!existingUser) {
         throw new Exception(Exception.GET_TRANSACTION_HISTORY_FAILED);
     }
+
+    size = parseInt(size);
+    page = parseInt(page);
 
     return await bookingRoomModel
         .find(
@@ -204,6 +207,8 @@ const getTransactionHistory = async ({ userId }) => {
 
         .populate({ path: 'typeRoom', select: { _id: 0, name: 1 } })
         .sort({ createdAt: 1 })
+        .skip((page - 1) * size)
+        .limit(size)
         .exec()
         .then((results) => {
             return results.map((result) => {

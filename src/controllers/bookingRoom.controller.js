@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import { bookingRoomRepository } from '../repositories/index.js';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
-import { STATUS } from '../global/constants.js';
+import { STATUS, MAX_RECORDS } from '../global/constants.js';
 import { dateTimeInputFormat, DateStrFormat } from '../helpers/timezone.js';
 import { printDebug, OutputTypeDebug } from '../helpers/printDebug.js';
 
@@ -58,8 +58,10 @@ const getTotalPrices = asyncHandler(async (req, res) => {
 
 const getTransactionHistory = asyncHandler(async (req, res) => {
     const userId = req.userId;
+    let { page = 1, size = MAX_RECORDS } = req.query;
+    size = size >= MAX_RECORDS ? MAX_RECORDS : size;
 
-    const existingUser = await bookingRoomRepository.getTransactionHistory({ userId });
+    const existingUser = await bookingRoomRepository.getTransactionHistory({ userId, page, size });
 
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
