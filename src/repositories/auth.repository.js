@@ -79,6 +79,7 @@ const login = async ({ email, password }) => {
     return {
         accessToken,
         prefreshToken,
+        role: existingAccount.role
     };
 };
 
