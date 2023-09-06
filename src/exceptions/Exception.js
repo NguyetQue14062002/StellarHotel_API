@@ -27,6 +27,7 @@ export default class Exception extends Error {
     static OTP_INCORRECT = 'OTP is incorrect';
     static OTP_EXPIRED = 'OTP is expired';
     static CHANGED_PASSWORD_SUCCESS = 'You have successfully changed your password';
+    static CHANGED_PASSWORD_FAILED = 'You have failed to change your password';
     static INCORRECT_PASS = 'Incorrect password';
     static ACCOUNT_EXIST = 'Account already exists';
     static CANNOT_REGISTER_ACCOUNT = "Can't register Account";

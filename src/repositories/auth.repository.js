@@ -24,10 +24,73 @@ const register = async ({ email, password, phoneNumber }) => {
 const login = async ({ email, password }) => {
     let existingAccount = await userModel.findOne({ email });
 
-    if (!existingAccount) {
+    if (!existingAccount || existingAccount.role === process.env.ADMIN) {
         printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
         throw new Exception(Exception.WRONG_EMAIL_OR_PASSWORD);
     }
+
+
+    if (existingAccount.status === 0) {
+        printDebug('Tài khoản đã bị khóa', OutputTypeDebug.INFORMATION);
+        throw new Exception(Exception.ACCOUNT_DISABLED);
+    }
+
+    let isMatched = await bcrypt.compare(password, existingAccount.password);
+    if (!isMatched) {
+        printDebug('Mật khẩu không đúng!', OutputTypeDebug.INFORMATION);
+        throw new Exception(Exception.WRONG_EMAIL_OR_PASSWORD);
+    }
+
+    let hashRole = await bcrypt.hash(existingAccount.role, parseInt(process.env.SALT_ROUNDS));
+
+    // Create a java web token
+    let accessToken = jwt.sign(
+        {
+            user: {
+                userId: existingAccount.id,
+                role: hashRole,
+            },
+        },
+        process.env.JWT_SECRET_ACCESS,
+        {
+            expiresIn: '1m',
+        },
+    );
+
+    let prefreshToken = jwt.sign(
+        {
+            user: {
+                userId: existingAccount.id,
+                role: hashRole,
+            },
+        },
+        process.env.JWT_SECRET_PREFRESH,
+        {
+            expiresIn: '1 days',
+        },
+    );
+
+    await prefreshTokenModel.findOneAndDelete({ userId: existingAccount.id });
+    await prefreshTokenModel.create({ userId: existingAccount.id, prefreshToken }).catch((exception) => {
+        printDebug('Không tạo được prefreshToken', OutputTypeDebug.INFORMATION);
+        printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+        throw new Exception(Exception.LOGIN_FAILED);
+    });
+
+    return {
+        accessToken,
+        prefreshToken,
+    };
+};
+
+const loginAdmin = async ({ email, password }) => {
+    let existingAccount = await userModel.findOne({ email });
+
+    if (!existingAccount || existingAccount.role === process.env.CLIENT) {
+        printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
+        throw new Exception(Exception.WRONG_EMAIL_OR_PASSWORD);
+    }
+
 
     if (existingAccount.status === 0) {
         printDebug('Tài khoản đã bị khóa', OutputTypeDebug.INFORMATION);
@@ -118,14 +181,9 @@ const logout = async ({ userId }) => {
 };
 
 //Reset password
-const sendOTPresetPass = async ({ userId, email }) => {
+const sendOTPresetPass = async ({ userId}) => {
     const filterUser = await userModel.findById({ _id: userId });
     printDebug(filterUser, OutputTypeDebug.INFORMATION);
-
-    if (!filterUser || filterUser.email !== email) {
-        printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
-        throw new Exception(Exception.SEND_OTP_FAILED);
-    }
 
     const otp = Math.floor(1000 + Math.random() * 9000);
 
@@ -141,10 +199,10 @@ const sendOTPresetPass = async ({ userId, email }) => {
 
     let mailOptions = {
         from: 'nguyetquepham7@gmail.com',
-        to: email,
+        to: filterUser.email,
         subject: 'Xác thực người dùng',
         html: `<h1>Xác thực người dùng</h1>
-                    <p>OTP xác thực người dùng của bạn là: ${otp},  có hiệu lực trong vòng 1 phút.</p>`,
+                    <p>OTP xác thực người dùng của bạn là: ${otp},  có hiệu lực trong vòng 5 phút.</p>`,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -186,31 +244,28 @@ const checkOTPresetPass = async ({ userId, email, otp }) => {
         });
 };
 
-const resetPassword = async (userId, email, oldpass, newpass) => {
-    await userModel
-        .findById({ _id: userId })
-        .exec()
-        .then(async (user) => {
-            if (user.email !== email) {
-                printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
-                throw new Exception(Exception.WRONG_EMAIL_OR_PASSWORD);
-            }
+const resetPassword = async (userId, oldpass, newpass, otp) => {
+   let user = await userModel.findById({ _id: userId });
+   if(user.otp === Number(otp)){
+    const hashPassword = await bcrypt.hash(newpass, parseInt(process.env.SALT_ROUNDS));
 
-            const hashPassword = await bcrypt.hash(newpass, parseInt(process.env.SALT_ROUNDS));
+    let isMatched = await bcrypt.compare(oldpass, user.password);
+    if (!isMatched) {
+        printDebug('Mật khẩu không đúng!', OutputTypeDebug.INFORMATION);
+        throw new Exception(Exception.WRONG_EMAIL_OR_PASSWORD);
+    }
 
-            let isMatched = await bcrypt.compare(oldpass, user.password);
-            if (!isMatched) {
-                printDebug('Mật khẩu không đúng!', OutputTypeDebug.INFORMATION);
-                throw new Exception(Exception.WRONG_EMAIL_OR_PASSWORD);
-            }
-
-            user.password = hashPassword ?? user.password;
-            await user.save().catch((exception) => {
-                printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
-                throw new Exception(Exception.RESET_PASSWORD_FAILED);
-            });
-            return Exception.CHANGED_PASSWORD_SUCCESS;
-        });
+    user.password = hashPassword ?? user.password;
+    user.otp = null;
+    await user.save().catch((exception) => {
+        printDebug(` ${exception.message}`, OutputTypeDebug.ERROR);
+        throw new Exception(Exception.RESET_PASSWORD_FAILED);
+    });
+    printDebug('Đổi mật khẩu thành công', OutputTypeDebug.INFORMATION);
+    return Exception.CHANGED_PASSWORD_SUCCESS;
+   }
+   printDebug('otp không hợp lệ', OutputTypeDebug.INFORMATION);
+   throw new Exception(Exception.RESET_PASSWORD_FAILED);                    
 };
 
 //forgot password
@@ -275,28 +330,67 @@ const checkOTPforgotPass = async ({ email, otp }) => {
     }
 
     await userModel.updateOne({ _id: user._id }, { $set: { otp: null } });
+    sendPasswordByEmail(user._id,email);
+
 };
-const forgetPassword = async (email, newpass) => {
-    const user = await userModel.findOne({ email });
-    if (!user) {
-        printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);
-        throw new Exception(Exception.INVALID_EMAIL);
-    } else {
-        const hashPassword = await bcrypt.hash(newpass, parseInt(process.env.SALT_ROUNDS));
-        await userModel.findByIdAndUpdate(user._id, { password: hashPassword }).exec();
-        return Exception.CHANGED_PASSWORD_SUCCESS;
+
+const sendPasswordByEmail = async (id,email) => {
+
+    const length = 12;
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&';
+    let password = '';
+    const charactersLength = characters.length;
+  
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * charactersLength);
+      password += characters.charAt(randomIndex);
     }
+    printDebug(password, OutputTypeDebug.INFORMATION);
+
+    //send mail
+    let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        secure: true,
+        auth: {
+            user: 'nguyetque65697@gmail.com',
+            pass: 'kfsxdgbvewakanjq',
+        },
+    });
+
+    let mailOptions = {
+        from: 'nguyetquepham7@gmail.com',
+        to: email,
+        subject: 'Xác thực người dùng',
+        html: `<h1>Xác thực người dùng</h1>
+                    <p>Mật khẩu mới của bạn là: ${password},  để an toàn bạn nên cập nhật lại mật khẩu của mình!.</p>`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            printDebug(error, OutputTypeDebug.ERROR);
+        } else {
+            printDebug('Email sent: ' + info.response, OutputTypeDebug.INFORMATION);
+        }
+    });
+    const hashPassword = await bcrypt.hash(password, parseInt(process.env.SALT_ROUNDS));
+
+    await userModel
+        .findByIdAndUpdate(id, {
+            password: hashPassword,
+        })
+        .exec();
+
 };
 
 export default {
     register,
     login,
+    loginAdmin,
     prefreshToken,
     logout,
     sendOTPresetPass,
     checkOTPresetPass,
     resetPassword,
     sendOTPforgotPass,
-    checkOTPforgotPass,
-    forgetPassword,
+    checkOTPforgotPass
 };

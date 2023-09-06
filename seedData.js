@@ -34,18 +34,34 @@ connect()
         const myTypeRooms = [
             {
                 name: TYPE_ROOMS.SUPERIOR_DOUBLE_OR_TWIN_ROOM,
+                image: [
+                    'https://res.cloudinary.com/drzp9tafy/image/upload/v1693904007/SuperiorDoubleOrTwin_2_klza9q.jpg',
+                    'https://res.cloudinary.com/drzp9tafy/image/upload/v1692245732/nj3uq7t8uaztrdqfjse7.jpg',
+                ],
                 description: DESCRIPTION_ROOM.SUPERIOR_DOUBLE_OR_TWIN_ROOM,
             },
             {
                 name: TYPE_ROOMS.DELUXE_DOUBLE_ROOM,
+                image: [
+                    'https://res.cloudinary.com/drzp9tafy/image/upload/v1692245598/bmvoulbuynr2t7f2f8ki.jpg',
+                    'https://res.cloudinary.com/drzp9tafy/image/upload/v1692245598/it7t47jabgxhfrfcfbes.jpg',
+                ],
                 description: DESCRIPTION_ROOM.DELUXE_DOUBLE_ROOM,
             },
             {
                 name: TYPE_ROOMS.EXECUTIVE_CITY_VIEW_ROOM,
+                image: [
+                    'https://res.cloudinary.com/drzp9tafy/image/upload/v1693905165/ExecutiveCityView1_hynorn.jpg',
+                    'https://res.cloudinary.com/drzp9tafy/image/upload/v1693905219/ExecutiveCityView2_hvky2w.jpg',
+                ],
                 description: DESCRIPTION_ROOM.EXECUTIVE_CITY_VIEW_ROOM,
             },
             {
                 name: TYPE_ROOMS.SUITE_GARDEN_ROOM,
+                image: [
+                    'https://res.cloudinary.com/drzp9tafy/image/upload/v1692245784/gizoohtni0ifi2lr3ebm.jpg',
+                    'https://res.cloudinary.com/drzp9tafy/image/upload/v1693905330/Suite_Garden2_wp6a6j.jpg',
+                ],
                 description: DESCRIPTION_ROOM.SUITE_GARDEN_ROOM,
             },
         ];

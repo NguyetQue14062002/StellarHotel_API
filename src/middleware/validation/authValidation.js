@@ -75,14 +75,6 @@ const validateCheckOTP = [
 ];
 
 const resetPassword = [
-    body('email')
-        .trim()
-        .not()
-        .isEmpty()
-        .custom((value, { req }) => {
-            return isEmail(value);
-        })
-        .withMessage(Exception.INVALID_EMAIL),
     body('oldpass')
         .trim()
         .not()
