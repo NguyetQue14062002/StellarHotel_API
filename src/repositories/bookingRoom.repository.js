@@ -245,28 +245,49 @@ const getTotalTransactionHistory = async ({ userId }) => {
         });
 };
 
-const getAllTransactionHistory = async () => {
+const getAllTransactionHistory = async ({ page, size, searchString }) => {
+    size = parseInt(size);
+    page = parseInt(page);
+
+    const obj = /^\d+$/.test(searchString)
+        ? {
+              $or: [
+                  {
+                      rooms: { $in: [parseInt(searchString)] },
+                  },
+                  {
+                      quantity: parseInt(searchString),
+                  },
+                  {
+                      totalprice: parseInt(searchString),
+                  },
+              ],
+          }
+        : {};
+
     return await bookingRoomModel
-        .find(
-            {},
-            {
-                _id: 1,
-                user: 1,
-                typeRoom: 1,
-                rooms: 1,
-                quantity: 1,
-                totalprice: 1,
-                status: 1,
-                checkinDate: 1,
-                checkoutDate: 1,
-            },
-        )
+        .find(obj, {
+            _id: 1,
+            user: 1,
+            typeRoom: 1,
+            rooms: 1,
+            quantity: 1,
+            totalprice: 1,
+            status: 1,
+            checkinDate: 1,
+            checkoutDate: 1,
+        })
         .populate({ path: 'user', select: { _id: 1 } })
-        .populate({ path: 'typeRoom', select: { _id: 0, name: 1 } })
+        .populate({
+            path: 'typeRoom',
+            select: { _id: 0, name: 1 },
+        })
         .sort({ createdAt: 1 })
+        .skip((page - 1) * size)
+        .limit(size)
         .exec()
         .then((results) => {
-            return results.map((result) => {
+            const handelResults = results.map((result) => {
                 const { user, typeRoom, checkinDate, checkoutDate, ...objNew } = result;
                 objNew._doc.user = user.id;
                 objNew._doc.typeRoom = typeRoom.name;
@@ -274,6 +295,14 @@ const getAllTransactionHistory = async () => {
                 objNew._doc.checkoutDate = dateTimeOutputFormat(checkoutDate, DateStrFormat.DATE_AND_TIME);
                 return objNew._doc;
             });
+
+            if (!/^\d+$/.test(searchString)) {
+                return handelResults.filter((item) => {
+                    return item.typeRoom.includes(searchString);
+                });
+            } else {
+                return handelResults;
+            }
         })
         .catch((exception) => {
             printDebug('Đặt phòng khong thành công!', OutputTypeDebug.INFORMATION);

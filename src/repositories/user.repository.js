@@ -152,4 +152,16 @@ const deleteUser = async (userId) => {
 
     return Exception.DELETE_USER_SUCCESS;
 };
-export default { getAllUser, updateUser, getUser, updateProfile, getName, deleteUser };
+
+const getTotalAccount = async () => {
+    return await userModel
+        .find({ role: process.env.CLIENT, status: 1 })
+        .count()
+        .exec()
+        .catch((exception) => {
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.GET_TOTAL_ACCOUNTS_FAILED);
+        });
+};
+
+export default { getAllUser, updateUser, getUser, updateProfile, getName, deleteUser, getTotalAccount };

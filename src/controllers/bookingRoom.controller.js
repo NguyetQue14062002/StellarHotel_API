@@ -83,7 +83,10 @@ const getTotalTransactionHistory = asyncHandler(async (req, res) => {
 });
 
 const getAllTransactionHistory = asyncHandler(async (req, res) => {
-    const existingUser = await bookingRoomRepository.getAllTransactionHistory();
+    let { page = 1, size = MAX_RECORDS, searchString = '' } = req.query;
+    size = size >= MAX_RECORDS ? MAX_RECORDS : size;
+
+    const existingUser = await bookingRoomRepository.getAllTransactionHistory({ page, size, searchString });
 
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,

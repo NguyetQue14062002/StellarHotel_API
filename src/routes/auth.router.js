@@ -10,22 +10,7 @@ router.post('/login', authValidation.validateLogin, validationError, authControl
 router.post('/prefresh-token', authValidation.validatePrefreshToken, validationError, authController.prefreshToken);
 router.post('/logout', verifyToken, authController.logout);
 //reset password
-router.post(
-    '/sendotp',
-    authValidation.validateCheckEmail,
-    validationError,
-    verifyToken,
-    isClient,
-    authController.sendOTPresetPass,
-);
-router.post(
-    '/checkotp',
-    authValidation.validateCheckOTP,
-    validationError,
-    verifyToken,
-    isClient,
-    authController.checkOTPresetPass,
-);
+router.post('/sendotp', verifyToken, isClient, authController.sendOTPresetPass);
 router.post(
     '/resetpass',
     authValidation.resetPassword,
@@ -47,6 +32,5 @@ router.post(
     validationError,
     authController.checkOTPforgotPass,
 );
-router.post('/forgetpass', authValidation.forgetpass, validationError, authController.forgetpass);
 
 export default router;
