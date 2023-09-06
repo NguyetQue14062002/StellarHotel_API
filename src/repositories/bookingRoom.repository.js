@@ -311,6 +311,19 @@ const getAllTransactionHistory = async ({ page, size, searchString }) => {
         });
 };
 
+const getTotalAllTransactionHistory = async () => {
+    return await bookingRoomModel
+        .find({})
+        .exec()
+        .then((results) => {
+            return results.reduce((partialSum, a) => partialSum + 1, 0);
+        })
+        .catch((exception) => {
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.GET_TOTAL_TRANSACTION_HISTORY_FAILED);
+        });
+};
+
 const createPayment = async ({ orderId, bankCode }) => {
     var ipAddr = '127.0.0.1';
     var tmnCode = '9P74Q5DB';
@@ -417,6 +430,7 @@ export default {
     getTransactionHistory,
     getTotalTransactionHistory,
     getAllTransactionHistory,
+    getTotalAllTransactionHistory,
     createPayment,
     vnpayReturn,
 };

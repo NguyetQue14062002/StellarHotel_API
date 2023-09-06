@@ -25,6 +25,19 @@ const login = asyncHandler(async (req, res) => {
     });
 });
 
+const loginAdmin = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+
+    const existingAccount = await authRepository.loginAdmin({ email, password });
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Login successfully',
+        data: existingAccount,
+    });
+});
+
+
+
 const prefreshToken = asyncHandler(async (req, res) => {
     const { token } = req.body;
     // const userId = req.userId;
@@ -101,6 +114,7 @@ const checkOTPforgotPass = asyncHandler(async (req, res) => {
 export default {
     register,
     login,
+    loginAdmin,
     prefreshToken,
     logout,
     sendOTPresetPass,

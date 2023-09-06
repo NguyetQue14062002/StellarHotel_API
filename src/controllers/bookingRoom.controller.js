@@ -95,6 +95,16 @@ const getAllTransactionHistory = asyncHandler(async (req, res) => {
     });
 });
 
+const getTotalAllTransactionHistory = asyncHandler(async (req, res) => {
+    const existingUser = await bookingRoomRepository.getTotalAllTransactionHistory();
+
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Get total list of successful transaction history',
+        data: existingUser,
+    });
+});
+
 const createPayment = asyncHandler(async (req, res) => {
     const { orderId, bankCode } = req.body;
     const result = await bookingRoomRepository.createPayment({ orderId, bankCode });
@@ -121,6 +131,7 @@ export default {
     getTransactionHistory,
     getAllTransactionHistory,
     getTotalTransactionHistory,
+    getTotalAllTransactionHistory,
     createPayment,
     vnpayReturn,
 };

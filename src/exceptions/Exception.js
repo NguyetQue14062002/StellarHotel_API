@@ -57,6 +57,8 @@ export default class Exception extends Error {
     static DELETE_UTILITIES_SUCCESS = 'Delete utilities successfully';
     static GET_TRANSACTION_HISTORY_FAILED = 'Get the list of failed transaction history';
     static GET_TOTAL_TRANSACTION_HISTORY_FAILED = 'Get the total number of failed transactions';
+    static GET_TOTAL_TYPE_ROOMS_FAILED = 'Get the total number of failed type rooms';
+
     static GET_ALL_TRANSACTION_HISTORY_FAILED = 'Get full list of failed transaction history';
 
 

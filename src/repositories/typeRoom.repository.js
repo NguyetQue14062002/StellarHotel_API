@@ -35,9 +35,11 @@ const filterTypeRooms = async ({ page, size, searchString }) => {
     return filterTypeRooms;
 };
 const updateTypeRoom = async (idTypeRoom, link_img) => {
-    const existingTypeRoom = await typeRoomModel.findByIdAndUpdate(idTypeRoom, {
-        image: link_img ?? existingTypeRoom.image,
-    }).exec();
+    const existingTypeRoom = await typeRoomModel
+        .findByIdAndUpdate(idTypeRoom, {
+            image: link_img ?? existingTypeRoom.image,
+        })
+        .exec();
     if (!existingTypeRoom) {
         throw new Exception(Exception.TYPE_ROOM_NOT_EXIST);
     }
@@ -49,4 +51,17 @@ const updateTypeRoom = async (idTypeRoom, link_img) => {
     };
 };
 
-export default { filterTypeRooms, updateTypeRoom};
+const getTotalTyperooms = async () => {
+    return await typeRoomModel
+        .find({})
+        .exec()
+        .then((results) => {
+            return results.reduce((partialSum, a) => partialSum + 1, 0);
+        })
+        .catch((exception) => {
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.GET_TOTAL_TYPE_ROOMS_FAILED);
+        });
+};
+
+export default { filterTypeRooms, updateTypeRoom, getTotalTyperooms };
