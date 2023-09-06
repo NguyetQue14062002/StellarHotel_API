@@ -54,4 +54,14 @@ const getTotalTyperooms = asyncHandler(async (req, res) => {
     });
 });
 
-export default { filterTypeRooms, updateTypeRoom, getTotalTyperooms };
+const getListTotalRoomsByTypeRoom = asyncHandler(async (req, res) => {
+    const existingTypeRoom = await typeRoomRepository.getListTotalRoomsByTypeRoom();
+
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Get list total rooms by typeroom successfully',
+        data: existingTypeRoom,
+    });
+});
+
+export default { filterTypeRooms, updateTypeRoom, getTotalTyperooms, getListTotalRoomsByTypeRoom };

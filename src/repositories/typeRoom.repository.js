@@ -1,4 +1,4 @@
-import { typeRoomModel } from '../models/index.js';
+import { roomModel, typeRoomModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
 import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
 
@@ -64,4 +64,37 @@ const getTotalTyperooms = async () => {
         });
 };
 
-export default { filterTypeRooms, updateTypeRoom, getTotalTyperooms };
+const getListTotalRoomsByTypeRoom = async () => {
+    return await roomModel
+        .find({}, { _id: 1, typeRoom: 1 })
+        .populate({ path: 'typeRoom', select: { _id: 0, name: 1 } })
+        .exec()
+        .then((results) => {
+            console.log(results);
+            const typeRooms = results
+                .map((result) => {
+                    return result.typeRoom.name;
+                })
+                .filter((item, index, array) => array.indexOf(item) === index);
+
+            console.log(typeRooms);
+
+            return typeRooms.map((typeRoom) => {
+                return {
+                    typeRoom,
+                    count: results.reduce((sum, result) => {
+                        if (result.typeRoom.name === typeRoom) {
+                            return sum + 1;
+                        }
+                        return sum;
+                    }, 0),
+                };
+            });
+        })
+        .catch((exception) => {
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.GET_LIST_TOAL_ROOMS_BY_TYPE_ROOM_FAILED);
+        });
+};
+
+export default { filterTypeRooms, updateTypeRoom, getTotalTyperooms, getListTotalRoomsByTypeRoom };
