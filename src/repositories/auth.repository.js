@@ -52,7 +52,7 @@ const login = async ({ email, password }) => {
         },
         process.env.JWT_SECRET_ACCESS,
         {
-            expiresIn: '1m',
+            expiresIn: '3 days',
         },
     );
 

@@ -48,6 +48,7 @@ export default class Exception extends Error {
     static GET_ACREAGE_ROOMS_FAILED = 'Get the list of room acreage failed';
     static CANNOT_ADD_ROOM = "Can't add room";
     static GET_TOTAL_PRICES_FAILED = 'Get total prices failed';
+    static GET_TOTAL_ACCOUNTS_FAILED = 'Get total accounts failed';
     static CANNOT_UPDATE_ROOM = "Can't update room";
     static UTILITIES_NOT_EXIST = 'Utilities not exist';
     static UTILITIES_EXIST = 'Utilities already exists';
@@ -55,8 +56,8 @@ export default class Exception extends Error {
     static DELETE_UTILITIES_SUCCESS = 'Delete utilities successfully';
     static GET_TRANSACTION_HISTORY_FAILED = 'Get the list of failed transaction history';
     static GET_TOTAL_TRANSACTION_HISTORY_FAILED = 'Get the total number of failed transactions';
-
     static GET_ALL_TRANSACTION_HISTORY_FAILED = 'Get full list of failed transaction history';
+
 
     static GET_PAYMENT_FAILED = 'Get the list of failed payment';
     constructor(message, validatorErrors = {}) {
