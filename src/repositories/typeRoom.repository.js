@@ -34,6 +34,19 @@ const filterTypeRooms = async ({ page, size, searchString }) => {
 
     return filterTypeRooms;
 };
+const getTypeRoomById = async (idTypeRoom) => {
+    const existingTypeRoom = await typeRoomModel.findById(idTypeRoom).exec();
+    if (!existingTypeRoom) {
+        throw new Exception(Exception.TYPE_ROOM_NOT_EXIST);
+    }
+    return {
+        id: existingTypeRoom._id,
+        name: existingTypeRoom.name,
+        image: existingTypeRoom.image,
+        description: existingTypeRoom.description,
+    };
+};
+
 const updateTypeRoom = async (idTypeRoom, link_img) => {
     const existingTypeRoom = await typeRoomModel
         .findByIdAndUpdate(idTypeRoom, {
@@ -51,6 +64,7 @@ const updateTypeRoom = async (idTypeRoom, link_img) => {
     };
 };
 
+
 const getTotalTyperooms = async () => {
     return await typeRoomModel
         .find({})
@@ -64,4 +78,6 @@ const getTotalTyperooms = async () => {
         });
 };
 
-export default { filterTypeRooms, updateTypeRoom, getTotalTyperooms };
+
+export default { filterTypeRooms, updateTypeRoom, getTotalTyperooms,getTypeRoomById};
+

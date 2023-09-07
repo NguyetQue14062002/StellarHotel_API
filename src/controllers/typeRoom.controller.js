@@ -9,14 +9,38 @@ const filterTypeRooms = asyncHandler(async (req, res) => {
     let { page = 1, size = MAX_RECORDS, searchString = '' } = req.query;
     size = size >= MAX_RECORDS ? MAX_RECORDS : size;
 
-    const existingTypeRooms = await typeRoomRepository.filterTypeRooms({ page, size, searchString });
+    try {
+        const existingTypeRooms = await typeRoomRepository.filterTypeRooms({ page, size, searchString });
 
-    res.status(HttpStatusCode.OK).json({
-        status: STATUS.SUCCESS,
-        message: 'Get the successful room type list!',
-        data: existingTypeRooms,
-    });
+        res.status(HttpStatusCode.OK).json({
+            status: STATUS.SUCCESS,
+            message: 'Get the successful room type list!',
+            data: existingTypeRooms,
+        });
+    } catch (exception) {
+        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+            error: STATUS.ERROR,
+            message: `${exception.message}`,
+        });
+    }
 });
+
+const getTypeRoomById = async (req, res) => {
+    const { idTypeRoom } = req.query;
+    try {
+        const existingTypeRoom = await typeRoomRepository.getTypeRoomById(idTypeRoom);
+        res.status(HttpStatusCode.OK).json({
+            status: STATUS.SUCCESS,
+            message: 'Get the successful room type list!',
+            data: existingTypeRoom,
+        });
+    } catch (exception) {
+        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+            error: STATUS.ERROR,
+            message: `${exception.message}`,
+        });
+    }
+};
 
 const updateTypeRoom = async (req, res) => {
     const { files } = req;
@@ -54,4 +78,4 @@ const getTotalTyperooms = asyncHandler(async (req, res) => {
     });
 });
 
-export default { filterTypeRooms, updateTypeRoom, getTotalTyperooms };
+export default { filterTypeRooms, updateTypeRoom, getTotalTyperooms, getTypeRoomById };
