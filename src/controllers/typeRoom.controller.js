@@ -28,6 +28,24 @@ const filterTypeRooms = async (req, res) => {
         });
     }
 };
+
+const getTypeRoomById = async (req, res) => {
+    const { idTypeRoom } = req.query;
+    try {
+        const existingTypeRoom = await typeRoomRepository.getTypeRoomById(idTypeRoom);
+        res.status(HttpStatusCode.OK).json({
+            status: STATUS.SUCCESS,
+            message: 'Get the successful room type list!',
+            data: existingTypeRoom,
+        });
+    } catch (exception) {
+        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+            error: STATUS.ERROR,
+            message: `${exception.message}`,
+        });
+    }
+};
+
 const updateTypeRoom = async (req, res) => {
     const {files} = req;
     const link_img = files.map((file) => file.path);
@@ -60,4 +78,4 @@ const updateTypeRoom = async (req, res) => {
     }
 }
 
-export default { filterTypeRooms, updateTypeRoom };
+export default { filterTypeRooms, updateTypeRoom, getTypeRoomById};

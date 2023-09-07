@@ -25,4 +25,5 @@ router.get('/get-all-transactions-history', verifyToken, isAdmin, bookingRoomCon
 
 router.post('/create_payment_url', verifyToken, isClient, bookingRoomController.createPayment);
 router.get('/vnpay_return', bookingRoomController.vnpayReturn);
+
 export default router;

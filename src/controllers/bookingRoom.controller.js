@@ -13,7 +13,7 @@ const bookingRoom = asyncHandler(async (req, res) => {
     printDebug(`checkoutDate format: ${checkoutDate}`, OutputTypeDebug.INFORMATION);
     const { typeRoom, quantity, acreage, typeBed, view, prices } = req.body;
 
-    await bookingRoomRepository.bookingRoom({
+    const booking = await bookingRoomRepository.bookingRoom({
         userId,
         checkinDate,
         checkoutDate,
@@ -28,6 +28,7 @@ const bookingRoom = asyncHandler(async (req, res) => {
     res.status(HttpStatusCode.INSERT_OK).json({
         status: STATUS.SUCCESS,
         message: 'Booking room successful',
+        data:booking
     });
 });
 
@@ -106,13 +107,11 @@ const createPayment = asyncHandler(async (req, res) => {
 });
 const vnpayReturn = asyncHandler(async (req, res) => {
     var vnp_Params = req.query;
+    console.log(res); 
 
-    const result = await bookingRoomRepository.vnpayReturn(vnp_Params);
-    res.status(HttpStatusCode.OK).json({
-        status: STATUS.SUCCESS,
-        message: 'get status payment successfully.',
-        data: result,
-    });
+    await bookingRoomRepository.vnpayReturn(vnp_Params, res);
+
+    res.redirect('http://localhost:3000/danh-sach-giao-dich');
 });
 
 export default {

@@ -51,9 +51,9 @@ const COLLECTION = {
 };
 
 const STATUS_BOOKING = {
-    BOOKED: 'Booked',
-    PAID: 'Paid',
-    CANCELLED: 'cancelled',
+    BOOKED: 'Chưa thanh toán',
+    PAID: 'Đã thanh toán',
+    CANCELLED: 'Đã hủy',
 };
 
 export {
