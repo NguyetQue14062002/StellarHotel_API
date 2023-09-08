@@ -155,7 +155,7 @@ const bookingRoom = async ({
         messageError,
     });
 
-    await bookingRoomModel
+   const booking= await bookingRoomModel
         .create({
             user: existingUser._id,
             typeRoom,
@@ -170,6 +170,11 @@ const bookingRoom = async ({
             printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
             throw new Exception(Exception.BOOKING_FAILED);
         });
+    return {
+        id: booking._id,
+        totalPrice: booking.totalprice,
+            
+    }     
 };
 
 const getTotalPrices = async ({ checkinDate, checkoutDate, typeRoom, quantity, acreage, typeBed, view, prices }) => {
@@ -311,6 +316,19 @@ const getAllTransactionHistory = async ({ page, size, searchString }) => {
         });
 };
 
+const getTotalAllTransactionHistory = async () => {
+    return await bookingRoomModel
+        .find({})
+        .exec()
+        .then((results) => {
+            return results.reduce((partialSum, a) => partialSum + 1, 0);
+        })
+        .catch((exception) => {
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.GET_TOTAL_TRANSACTION_HISTORY_FAILED);
+        });
+};
+
 const createPayment = async ({ orderId, bankCode }) => {
     var ipAddr = '127.0.0.1';
     var tmnCode = '9P74Q5DB';
@@ -362,7 +380,8 @@ function sortObject(obj) {
     }
     return sorted;
 }
-const vnpayReturn = async (vnp_Params) => {
+const vnpayReturn = async (vnp_Params, res) => {
+    printDebug(vnp_Params['vnp_TxnRef'], OutputTypeDebug.INFORMATION)
     var secureHash = vnp_Params['vnp_SecureHash'];
 
     delete vnp_Params['vnp_SecureHash'];
@@ -385,17 +404,16 @@ const vnpayReturn = async (vnp_Params) => {
             if (checkAmount) {
                 if (paymentStatus == '0') {
                     if (rspCode == '00') {
-                        let payment = await bookingRoomModel.findOne({ orderId: vnp_Params['vnp_TxnRef'] });
+                        let payment = await bookingRoomModel.findById(vnp_Params['vnp_TxnRef']);
                         payment.status = STATUS_BOOKING.PAID;
                         await payment.save();
                         printDebug(payment, OutputTypeDebug.INFORMATION);
-                        return { Message: 'Giao dịch thành công' };
+                        
                     } else {
-                        let payment = await bookingRoomModel.findOne({ orderId: vnp_Params['vnp_TxnRef'] });
+                        let payment = await bookingRoomModel.findById(vnp_Params['vnp_TxnRef']);
                         payment.status = STATUS_BOOKING.CANCELLED;
                         await payment.save();
                         printDebug(payment, OutputTypeDebug.INFORMATION);
-                        return { Message: 'Hủy giao dịch thành công' };
                     }
                 } else {
                     return { RspCode: '02', Message: 'This order has been updated to the payment status' };
@@ -417,6 +435,7 @@ export default {
     getTransactionHistory,
     getTotalTransactionHistory,
     getAllTransactionHistory,
+    getTotalAllTransactionHistory,
     createPayment,
     vnpayReturn,
 };

@@ -2,7 +2,8 @@ import { roomModel, typeRoomModel, bookingRoomModel, userModel } from '../models
 import Exception from '../exceptions/Exception.js';
 import { TYPE_BED } from '../global/constants.js';
 import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
-import { dateTimeOutputFormat, DateStrFormat } from '../helpers/timezone.js';
+
+import {dDate, dateTimeOutputFormat, DateStrFormat } from '../helpers/timezone.js';
 
 const getNumberAvailableRooms = async ({ typeRoom, checkinDate, checkoutDate, acreage, typeBed, view, prices }) => {
     // Kiểm tra có tồn tại loại phòng không
@@ -88,8 +89,8 @@ const getNumberAvailableRooms = async ({ typeRoom, checkinDate, checkoutDate, ac
 
     const getListAvailableRooms = getListRoomsByParameters.filter((item) => !getListRoomsBookedByDate.includes(item));
     printDebug(`getListAvailableRooms: ${getListAvailableRooms}`, OutputTypeDebug.INFORMATION);
-
-    return { result: getListAvailableRooms.length };
+    const d = dDate(checkinDate, checkoutDate);
+    return { result: getListAvailableRooms.length, dDate: d };
 };
 
 const getParametersRoom = async ({ typeRoom }) => {
