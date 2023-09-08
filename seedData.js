@@ -263,9 +263,7 @@ connect()
             printDebug('Insert Rooms fail', OutputTypeDebug.ERROR);
         }
     })
-    .then(async() => {
-        await login
-    })
+    
     .then(async () => {
         const myUtilities = [
             {

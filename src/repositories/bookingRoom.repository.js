@@ -155,7 +155,7 @@ const bookingRoom = async ({
         messageError,
     });
 
-   const booking= await bookingRoomModel
+    const booking = await bookingRoomModel
         .create({
             user: existingUser._id,
             typeRoom,
@@ -173,8 +173,7 @@ const bookingRoom = async ({
     return {
         id: booking._id,
         totalPrice: booking.totalprice,
-            
-    }     
+    };
 };
 
 const getTotalPrices = async ({ checkinDate, checkoutDate, typeRoom, quantity, acreage, typeBed, view, prices }) => {
@@ -316,6 +315,15 @@ const getAllTransactionHistory = async ({ page, size, searchString }) => {
         });
 };
 
+const getTransactionHistoryById = async ({ idBooking }) => {
+    const existingBooking = await bookingRoomModel.findById(idBooking);
+    console.log(idBooking);
+    if (!existingBooking) {
+        throw new Exception(Exception.GET_TRANSACTION_HISTORY_FAILED);
+    }
+    return existingBooking;
+};
+
 const getTotalAllTransactionHistory = async () => {
     return await bookingRoomModel
         .find({})
@@ -381,7 +389,7 @@ function sortObject(obj) {
     return sorted;
 }
 const vnpayReturn = async (vnp_Params, res) => {
-    printDebug(vnp_Params['vnp_TxnRef'], OutputTypeDebug.INFORMATION)
+    printDebug(vnp_Params['vnp_TxnRef'], OutputTypeDebug.INFORMATION);
     var secureHash = vnp_Params['vnp_SecureHash'];
 
     delete vnp_Params['vnp_SecureHash'];
@@ -408,7 +416,6 @@ const vnpayReturn = async (vnp_Params, res) => {
                         payment.status = STATUS_BOOKING.PAID;
                         await payment.save();
                         printDebug(payment, OutputTypeDebug.INFORMATION);
-                        
                     } else {
                         let payment = await bookingRoomModel.findById(vnp_Params['vnp_TxnRef']);
                         payment.status = STATUS_BOOKING.CANCELLED;
@@ -435,6 +442,7 @@ export default {
     getTransactionHistory,
     getTotalTransactionHistory,
     getAllTransactionHistory,
+    getTransactionHistoryById,
     getTotalAllTransactionHistory,
     createPayment,
     vnpayReturn,
