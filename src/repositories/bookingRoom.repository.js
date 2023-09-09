@@ -317,11 +317,27 @@ const getAllTransactionHistory = async ({ page, size, searchString }) => {
 
 const getTransactionHistoryById = async ({ idBooking }) => {
     const existingBooking = await bookingRoomModel.findById(idBooking);
-    console.log(idBooking);
     if (!existingBooking) {
         throw new Exception(Exception.GET_TRANSACTION_HISTORY_FAILED);
     }
-    return existingBooking;
+    const idUser = existingBooking.user;
+    const existingUser = await userModel.findById(idUser);
+    if (!existingUser) {
+        throw new Exception(Exception.GET_TRANSACTION_HISTORY_FAILED);
+    }
+    return ({
+        id: existingBooking._id,
+        user: {
+            existingUser
+        },
+        typeRoom: existingBooking.typeRoom,
+        rooms: existingBooking.rooms,
+        quantity: existingBooking.quantity,
+        totalprice: existingBooking.totalprice,
+        status: existingBooking.status,
+        checkinDate: existingBooking.checkinDate,
+        checkoutDate: existingBooking.checkoutDate,
+    })
 };
 
 const getTotalAllTransactionHistory = async () => {
