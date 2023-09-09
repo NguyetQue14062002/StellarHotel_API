@@ -318,6 +318,7 @@ const getAllTransactionHistory = async ({ page, size, searchString }) => {
 const getTransactionHistoryById = async ({ idBooking }) => {
     const existingBooking = await bookingRoomModel.findById(idBooking);
     if (!existingBooking) {
+        printDebug('Không tồn tại đơn đặt phòng', OutputTypeDebug.INFORMATION);
         throw new Exception(Exception.GET_TRANSACTION_HISTORY_FAILED);
     }
     const idUser = existingBooking.user;
@@ -325,10 +326,13 @@ const getTransactionHistoryById = async ({ idBooking }) => {
     if (!existingUser) {
         throw new Exception(Exception.GET_TRANSACTION_HISTORY_FAILED);
     }
-    return ({
+    return {
         id: existingBooking._id,
         user: {
-            existingUser
+            id: existingUser._id,
+            name: existingUser.userName,
+            email: existingUser.email,
+            phone: existingUser.phoneNumber,
         },
         typeRoom: existingBooking.typeRoom,
         rooms: existingBooking.rooms,
@@ -337,7 +341,7 @@ const getTransactionHistoryById = async ({ idBooking }) => {
         status: existingBooking.status,
         checkinDate: existingBooking.checkinDate,
         checkoutDate: existingBooking.checkoutDate,
-    })
+    };
 };
 
 const getTotalAllTransactionHistory = async () => {
