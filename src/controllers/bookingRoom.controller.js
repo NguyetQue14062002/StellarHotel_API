@@ -4,6 +4,7 @@ import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS, MAX_RECORDS } from '../global/constants.js';
 import { dateTimeInputFormat, DateStrFormat } from '../helpers/timezone.js';
 import { printDebug, OutputTypeDebug } from '../helpers/printDebug.js';
+import { query } from 'express';
 
 const bookingRoom = asyncHandler(async (req, res) => {
     const userId = req.userId;
@@ -106,6 +107,17 @@ const getTotalAllTransactionHistory = asyncHandler(async (req, res) => {
     });
 });
 
+const getTransactionHistoryById = asyncHandler(async (req, res)=>{
+    const {idBooking} = req.query;
+    const exsitBooking = await bookingRoomRepository.getTransactionHistoryById({idBooking});
+
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Get list of successful transaction history by id',
+        data: exsitBooking,
+    });
+})
+
 const createPayment = asyncHandler(async (req, res) => {
     const { orderId, bankCode } = req.body;
     const result = await bookingRoomRepository.createPayment({ orderId, bankCode });
@@ -131,6 +143,7 @@ export default {
     getAllTransactionHistory,
     getTotalTransactionHistory,
     getTotalAllTransactionHistory,
+    getTransactionHistoryById,
     createPayment,
     vnpayReturn,
 };
