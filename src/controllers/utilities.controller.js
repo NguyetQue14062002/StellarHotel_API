@@ -62,7 +62,7 @@ const deleteUtility = async (req, res) => {
     if (!errors.isEmpty()) {
         return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
     }
-    const { id } = req.body;
+    const { id } = req.query;
     try {
         const deletedUtility = await utilitiesRepository.deleteUtility(id);
         res.status(HttpStatusCode.OK).json({
