@@ -267,4 +267,74 @@ const updateRoom = async (name, roomNumber, acreage, typeBed, capacity, view, pr
     }
 };
 
-export default { getNumberAvailableRooms, getParametersRoom, getRoomsByTypeRoom, createRoom, updateRoom };
+const getNumberStatusRooms = async ({ date, typeRoom }) => {
+    let getListRoomsParameters;
+    let getListRoomsBookedByDateParameters;
+    if (typeRoom === '') {
+        getListRoomsParameters = {};
+        getListRoomsBookedByDateParameters = {
+            checkinDate: { $lte: date },
+            checkoutDate: { $gte: date },
+        };
+    } else {
+        const existingTypeRoom = await typeRoomModel.findById(typeRoom);
+        if (!existingTypeRoom) {
+            printDebug('Không tồn tại loại phòng', OutputTypeDebug.INFORMATION);
+            throw new Exception(Exception.GET_NUMBER_AVAILABLE_ROOMS_FAILED);
+        }
+        getListRoomsParameters = { typeRoom: existingTypeRoom._id };
+        getListRoomsBookedByDateParameters = {
+            typeRoom: existingTypeRoom._id,
+            checkinDate: { $lte: date },
+            checkoutDate: { $gte: date },
+        };
+    }
+
+    const getListRooms = await roomModel
+        .find(getListRoomsParameters, { _id: 0, roomNumber: 1 })
+        .sort({ roomNumber: 1 })
+        .exec()
+        .then((elements) => {
+            return elements.map((element) => element.roomNumber);
+        })
+        .catch((exception) => {
+            printDebug('Lấy danh sách phòng không thành công', OutputTypeDebug.INFORMATION);
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.GET_NUMBER_AVAILABLE_ROOMS_FAILED);
+        });
+    printDebug(`getListRooms: ${getListRooms}`, OutputTypeDebug.INFORMATION);
+
+    // Lâý danh sách phòng đã đặt theo ngày
+    const getListRoomsBookedByDate = await bookingRoomModel
+        .find(getListRoomsBookedByDateParameters, {
+            _id: 0,
+            rooms: 1,
+        })
+        .exec()
+        .then((elements) => {
+            let idRooms = [];
+            elements.map((element) => idRooms.push(...element.rooms));
+            return idRooms;
+        })
+        .catch((exception) => {
+            printDebug('Lấy danh sách phòng đã đặt không thành công', OutputTypeDebug.INFORMATION);
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.GET_NUMBER_AVAILABLE_ROOMS_FAILED);
+        });
+
+    printDebug(`getListRoomsBookedByDate: ${getListRoomsBookedByDate}`, OutputTypeDebug.INFORMATION);
+
+    return {
+        bookedRoomsNumber: getListRoomsBookedByDate.length,
+        availableRoomsNumber: getListRooms.length - getListRoomsBookedByDate.length,
+    };
+};
+
+export default {
+    getNumberAvailableRooms,
+    getParametersRoom,
+    getRoomsByTypeRoom,
+    createRoom,
+    updateRoom,
+    getNumberStatusRooms,
+};

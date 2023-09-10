@@ -18,6 +18,16 @@ const filterTypeRooms = asyncHandler(async (req, res) => {
     });
 });
 
+const getTypeRoomNames = asyncHandler(async (req, res) => {
+    const existingTypeRooms = await typeRoomRepository.getTypeRoomNames();
+
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Get the successful room type name list!',
+        data: existingTypeRooms,
+    });
+})
+
 const updateTypeRoom = async (req, res) => {
     const { files } = req;
     const link_img = files.map((file) => file.path);
@@ -64,4 +74,4 @@ const getListTotalRoomsByTypeRoom = asyncHandler(async (req, res) => {
     });
 });
 
-export default { filterTypeRooms, updateTypeRoom, getTotalTyperooms, getListTotalRoomsByTypeRoom };
+export default { filterTypeRooms, getTypeRoomNames, updateTypeRoom, getTotalTyperooms, getListTotalRoomsByTypeRoom };

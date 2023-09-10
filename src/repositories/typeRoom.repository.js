@@ -34,6 +34,17 @@ const filterTypeRooms = async ({ page, size, searchString }) => {
 
     return filterTypeRooms;
 };
+
+const getTypeRoomNames = async () => {
+    return await typeRoomModel
+        .find({}, { _id: 1, name: 1 })
+        .exec()
+        .catch((exception) => {
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.GET_LIST_TYPE_ROOMS_NAME_FAILED);
+        });
+};
+
 const updateTypeRoom = async (idTypeRoom, link_img) => {
     const existingTypeRoom = await typeRoomModel
         .findByIdAndUpdate(idTypeRoom, {
@@ -70,19 +81,16 @@ const getListTotalRoomsByTypeRoom = async () => {
         .populate({ path: 'typeRoom', select: { _id: 0, name: 1 } })
         .exec()
         .then((results) => {
-            console.log(results);
             const typeRooms = results
                 .map((result) => {
                     return result.typeRoom.name;
                 })
                 .filter((item, index, array) => array.indexOf(item) === index);
 
-            console.log(typeRooms);
-
             return typeRooms.map((typeRoom) => {
                 return {
                     typeRoom,
-                    count: results.reduce((sum, result) => {
+                    totalRoom: results.reduce((sum, result) => {
                         if (result.typeRoom.name === typeRoom) {
                             return sum + 1;
                         }
@@ -97,4 +105,4 @@ const getListTotalRoomsByTypeRoom = async () => {
         });
 };
 
-export default { filterTypeRooms, updateTypeRoom, getTotalTyperooms, getListTotalRoomsByTypeRoom };
+export default { filterTypeRooms, getTypeRoomNames, updateTypeRoom, getTotalTyperooms, getListTotalRoomsByTypeRoom };

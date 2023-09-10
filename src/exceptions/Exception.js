@@ -60,6 +60,8 @@ export default class Exception extends Error {
     static GET_TOTAL_TYPE_ROOMS_FAILED = 'Get the total number of failed type rooms';
     static GET_ALL_TRANSACTION_HISTORY_FAILED = 'Get full list of failed transaction history';
     static GET_LIST_TOAL_ROOMS_BY_TYPE_ROOM_FAILED = 'Get list total rooms by typeroom failed';
+    static GET_LIST_TYPE_ROOMS_NAME_FAILED = 'Get list type rooms name failed';
+    static GET_SALES_STATISTICS_FAILED = 'Get sales statistics failed';
 
     static GET_PAYMENT_FAILED = 'Get the list of failed payment';
     constructor(message, validatorErrors = {}) {

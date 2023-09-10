@@ -113,7 +113,7 @@ const loginAdmin = async ({ email, password }) => {
         },
         process.env.JWT_SECRET_ACCESS,
         {
-            expiresIn: '1 days',
+            expiresIn: '1m',
         },
     );
 
