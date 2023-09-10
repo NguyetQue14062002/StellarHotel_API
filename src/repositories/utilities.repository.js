@@ -1,16 +1,19 @@
 import { utilitiesModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
-import { OutputType, print } from '../helpers/print.js';
-import {v2 as cloudinary} from 'cloudinary';
 
-const getAllUtilities = async (page, size, name) => {
+
+const getAllUtilities = async (page, size, searchString) => {
     const filterUtilities = await utilitiesModel.aggregate([
         {
             $match: {
                 $or: [
                     {
-                        name: { $regex: name, $options: 'i' },
+                        name: { $regex: `.*${searchString}.*`, $options: 'i' },
                     },
+                    {
+                        type: { $regex: `.*${searchString}.*`, $options: 'i' },
+                    }
+                    
                 ],
             },
         },
@@ -26,6 +29,7 @@ const getAllUtilities = async (page, size, name) => {
                 name: 1,
                 description: 1,
                 image: 1,
+                type: 1,
             },
         },
     ]);

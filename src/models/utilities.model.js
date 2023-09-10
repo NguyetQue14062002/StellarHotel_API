@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { URL_ROOM_DEFAULT } from '../global/constants.js';
+import { DEFAULT_UTILITIES } from '../global/constants.js'
 
 const utilitiesSchema = new mongoose.Schema(
     {
@@ -17,6 +18,13 @@ const utilitiesSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        type: {
+            type: String,
+            enum: {
+                values: [DEFAULT_UTILITIES.RES, DEFAULT_UTILITIES.UTILITIES],
+                message: '{VALUE} is not supported',
+            },
+        }
     },
     {
         timestamps: {

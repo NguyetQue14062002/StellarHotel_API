@@ -66,6 +66,7 @@ const userSchema = new mongoose.Schema(
                 values: [DEFAULT_GENDER.MALE, DEFAULT_GENDER.FEMALE],
                 message: '{VALUE} is not supported',
             },
+            default: DEFAULT_GENDER.MALE,
         },
         nationality: {
             type: String,

@@ -13,6 +13,11 @@ const DEFAULT_GENDER = {
     FEMALE: 'female',
 };
 
+const DEFAULT_UTILITIES = {
+    RES: 'Restaurant',
+    UTILITIES: 'Utilities',
+};
+
 const MAX_RECORDS = 100;
 
 const TYPE_ROOMS = {
@@ -68,4 +73,5 @@ export {
     DESCRIPTION_ROOM,
     COLLECTION,
     STATUS_BOOKING,
+    DEFAULT_UTILITIES,
 };
