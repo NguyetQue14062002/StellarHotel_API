@@ -29,8 +29,24 @@ const validateGetNumberAvailableRooms = [
         .withMessage(Exception.INVALID_CHECKOUT_DATE),
 ];
 
+const validateGetNumberStatusRooms = [
+    query('date')
+        .trim()
+        .not()
+        .isEmpty()
+        .custom((value, { req }) => {
+            return dateTimeInputFormat(value, DateStrFormat.DATE);
+        })
+        .withMessage(Exception.INVALID_CHECKIN_DATE),
+];
+
 const validateGetParametersRoom = [query('typeRoom').trim().not().isEmpty().withMessage(Exception.INVALID_TYPE_ROOM)];
 
 const validateGetRoomsByTypeRoom = [query('typeRoom').trim().not().isEmpty().withMessage(Exception.INVALID_TYPE_ROOM)];
 
-export default { validateGetNumberAvailableRooms, validateGetParametersRoom, validateGetRoomsByTypeRoom };
+export default {
+    validateGetNumberAvailableRooms,
+    validateGetParametersRoom,
+    validateGetRoomsByTypeRoom,
+    validateGetNumberStatusRooms,
+};

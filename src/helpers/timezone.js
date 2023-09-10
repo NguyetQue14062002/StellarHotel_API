@@ -30,4 +30,10 @@ const dDate = (checkinDate, checkoutDate) => {
     return Number((new Date(checkoutDate) - new Date(checkinDate)) / 86400000);
 };
 
-export { DateStrFormat, dateTimeInputFormat, dateTimeOutputFormat, dDate };
+const nDate = (date) => {
+    const nDate = new Date(date);
+    nDate.setDate(nDate.getDate() + 1);
+    return nDate.toISOString();
+};
+
+export { DateStrFormat, dateTimeInputFormat, dateTimeOutputFormat, dDate, nDate };

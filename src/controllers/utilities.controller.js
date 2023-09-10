@@ -9,10 +9,10 @@ const getAllUtilities = async (req, res, next) => {
     if (!errors.isEmpty()) {
         return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
     }
-    let { page = 1, size = MAX_RECORDS, name = '' } = req.query;
+    let { page = 1, size = MAX_RECORDS,searchString } = req.query;
     size = size >= MAX_RECORDS ? MAX_RECORDS : size;
     try {
-        const existingUtilities = await utilitiesRepository.getAllUtilities(page, size, name);
+        const existingUtilities = await utilitiesRepository.getAllUtilities(page, size,searchString);
         res.status(HttpStatusCode.OK).json({
             status: STATUS.SUCCESS,
             data: existingUtilities,

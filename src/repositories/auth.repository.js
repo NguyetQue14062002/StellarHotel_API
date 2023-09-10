@@ -29,7 +29,6 @@ const login = async ({ email, password }) => {
         throw new Exception(Exception.WRONG_EMAIL_OR_PASSWORD);
     }
 
-
     if (existingAccount.status === 0) {
         printDebug('Tài khoản đã bị khóa', OutputTypeDebug.INFORMATION);
         throw new Exception(Exception.ACCOUNT_DISABLED);
@@ -91,7 +90,6 @@ const loginAdmin = async ({ email, password }) => {
         throw new Exception(Exception.WRONG_EMAIL_OR_PASSWORD);
     }
 
-
     if (existingAccount.status === 0) {
         printDebug('Tài khoản đã bị khóa', OutputTypeDebug.INFORMATION);
         throw new Exception(Exception.ACCOUNT_DISABLED);
@@ -142,7 +140,6 @@ const loginAdmin = async ({ email, password }) => {
     return {
         accessToken,
         prefreshToken,
-        role: existingAccount.role
     };
 };
 
@@ -182,7 +179,7 @@ const logout = async ({ userId }) => {
 };
 
 //Reset password
-const sendOTPresetPass = async ({ userId}) => {
+const sendOTPresetPass = async ({ userId }) => {
     const filterUser = await userModel.findById({ _id: userId });
     printDebug(filterUser, OutputTypeDebug.INFORMATION);
 
@@ -246,27 +243,27 @@ const checkOTPresetPass = async ({ userId, email, otp }) => {
 };
 
 const resetPassword = async (userId, oldpass, newpass, otp) => {
-   let user = await userModel.findById({ _id: userId });
-   if(user.otp === Number(otp)){
-    const hashPassword = await bcrypt.hash(newpass, parseInt(process.env.SALT_ROUNDS));
+    let user = await userModel.findById({ _id: userId });
+    if (user.otp === Number(otp)) {
+        const hashPassword = await bcrypt.hash(newpass, parseInt(process.env.SALT_ROUNDS));
 
-    let isMatched = await bcrypt.compare(oldpass, user.password);
-    if (!isMatched) {
-        printDebug('Mật khẩu không đúng!', OutputTypeDebug.INFORMATION);
-        throw new Exception(Exception.WRONG_EMAIL_OR_PASSWORD);
+        let isMatched = await bcrypt.compare(oldpass, user.password);
+        if (!isMatched) {
+            printDebug('Mật khẩu không đúng!', OutputTypeDebug.INFORMATION);
+            throw new Exception(Exception.WRONG_EMAIL_OR_PASSWORD);
+        }
+
+        user.password = hashPassword ?? user.password;
+        user.otp = null;
+        await user.save().catch((exception) => {
+            printDebug(` ${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.RESET_PASSWORD_FAILED);
+        });
+        printDebug('Đổi mật khẩu thành công', OutputTypeDebug.INFORMATION);
+        return Exception.CHANGED_PASSWORD_SUCCESS;
     }
-
-    user.password = hashPassword ?? user.password;
-    user.otp = null;
-    await user.save().catch((exception) => {
-        printDebug(` ${exception.message}`, OutputTypeDebug.ERROR);
-        throw new Exception(Exception.RESET_PASSWORD_FAILED);
-    });
-    printDebug('Đổi mật khẩu thành công', OutputTypeDebug.INFORMATION);
-    return Exception.CHANGED_PASSWORD_SUCCESS;
-   }
-   printDebug('otp không hợp lệ', OutputTypeDebug.INFORMATION);
-   throw new Exception(Exception.RESET_PASSWORD_FAILED);                    
+    printDebug('otp không hợp lệ', OutputTypeDebug.INFORMATION);
+    throw new Exception(Exception.RESET_PASSWORD_FAILED);
 };
 
 //forgot password
@@ -331,20 +328,18 @@ const checkOTPforgotPass = async ({ email, otp }) => {
     }
 
     await userModel.updateOne({ _id: user._id }, { $set: { otp: null } });
-    sendPasswordByEmail(user._id,email);
-
+    sendPasswordByEmail(user._id, email);
 };
 
-const sendPasswordByEmail = async (id,email) => {
-
+const sendPasswordByEmail = async (id, email) => {
     const length = 12;
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&';
     let password = '';
     const charactersLength = characters.length;
-  
+
     for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * charactersLength);
-      password += characters.charAt(randomIndex);
+        const randomIndex = Math.floor(Math.random() * charactersLength);
+        password += characters.charAt(randomIndex);
     }
     printDebug(password, OutputTypeDebug.INFORMATION);
 
@@ -380,7 +375,6 @@ const sendPasswordByEmail = async (id,email) => {
             password: hashPassword,
         })
         .exec();
-
 };
 
 export default {
@@ -393,5 +387,5 @@ export default {
     checkOTPresetPass,
     resetPassword,
     sendOTPforgotPass,
-    checkOTPforgotPass
+    checkOTPforgotPass,
 };
