@@ -63,24 +63,24 @@ const getTransactionHistory = asyncHandler(async (req, res) => {
     let { page = 1, size = MAX_RECORDS } = req.query;
     size = size >= MAX_RECORDS ? MAX_RECORDS : size;
 
-    const existingUser = await bookingRoomRepository.getTransactionHistory({ userId, page, size });
+    const existingBookingRooms = await bookingRoomRepository.getTransactionHistory({ userId, page, size });
 
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Get a list of successful transaction history',
-        data: existingUser,
+        data: existingBookingRooms,
     });
 });
 
 const getTotalTransactionHistory = asyncHandler(async (req, res) => {
     const userId = req.userId;
 
-    const existingUser = await bookingRoomRepository.getTotalTransactionHistory({ userId });
+    const existingBookingRooms = await bookingRoomRepository.getTotalTransactionHistory({ userId });
 
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Get total list of successful transaction history',
-        data: existingUser,
+        data: existingBookingRooms,
     });
 });
 
@@ -88,22 +88,22 @@ const getAllTransactionHistory = asyncHandler(async (req, res) => {
     let { page = 1, size = MAX_RECORDS, searchString = '' } = req.query;
     size = size >= MAX_RECORDS ? MAX_RECORDS : size;
 
-    const existingUser = await bookingRoomRepository.getAllTransactionHistory({ page, size, searchString });
+    const existingBookingRooms = await bookingRoomRepository.getAllTransactionHistory({ page, size, searchString });
 
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Get a complete list of successful transaction history',
-        data: existingUser,
+        data: existingBookingRooms,
     });
 });
 
 const getTotalAllTransactionHistory = asyncHandler(async (req, res) => {
-    const existingUser = await bookingRoomRepository.getTotalAllTransactionHistory();
+    const existingBookingRooms = await bookingRoomRepository.getTotalAllTransactionHistory();
 
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Get total list of successful transaction history',
-        data: existingUser,
+        data: existingBookingRooms,
     });
 });
 
@@ -136,6 +136,24 @@ const vnpayReturn = asyncHandler(async (req, res) => {
     res.redirect('http://localhost:3000/danh-sach-giao-dich');
 });
 
+const getSalesStatistics = asyncHandler(async (req, res) => {
+    const startDate = dateTimeInputFormat(req.query.startDate + ' 12:00', DateStrFormat.DATE_AND_TIME);
+    const endDate = dateTimeInputFormat(req.query.endDate + ' 12:00', DateStrFormat.DATE_AND_TIME);
+    printDebug(`startDate format: ${startDate}`, OutputTypeDebug.INFORMATION);
+    printDebug(`endDate format: ${endDate}`, OutputTypeDebug.INFORMATION);
+
+    let existingBookingRooms = await bookingRoomRepository.getSalesStatistics({
+        startDate,
+        endDate,
+    });
+
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Get sales statistics successfully',
+        data: existingBookingRooms,
+    });
+});
+
 export default {
     bookingRoom,
     getTotalPrices,
@@ -146,4 +164,5 @@ export default {
     getTransactionHistoryById,
     createPayment,
     vnpayReturn,
+    getSalesStatistics,
 };

@@ -4,7 +4,7 @@ import Exception from '../exceptions/Exception.js';
 import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
 
 import asyncHandler from 'express-async-handler';
-import { dDate, dateTimeOutputFormat, DateStrFormat } from '../helpers/timezone.js';
+import { dDate, dateTimeOutputFormat, DateStrFormat, nDate } from '../helpers/timezone.js';
 import date from 'date-and-time';
 import querystring from 'qs';
 import crypto from 'crypto';
@@ -456,6 +456,42 @@ const vnpayReturn = async (vnp_Params, res) => {
     }
 };
 
+const getSalesStatistics = async ({ startDate, endDate }) => {
+    return await bookingRoomModel
+        .find(
+            {
+                createdAt: { $gte: startDate, $lte: endDate },
+            },
+            { _id: 0, totalprice: 1, createdAt: 1 },
+        )
+        .sort({ createdAt: 1 })
+        .exec()
+        .then((results) => {
+            const d = dDate(startDate, endDate);
+            let n;
+            let arr = [];
+            for (let i = 0; i <= d; i++) {
+                n = i !== 0 ? nDate(n) : startDate;
+                let total = results
+                    .filter((result, index, results) =>
+                        results
+                            .map((result) => dateTimeOutputFormat(result.createdAt, DateStrFormat.DATE))
+                            .includes(dateTimeOutputFormat(n, DateStrFormat.DATE)),
+                    )
+                    .reduce((sum, result) => sum + result.totalprice, 0);
+                arr.push({
+                    date: dateTimeOutputFormat(n, DateStrFormat.DATE),
+                    totalPrice: total,
+                });
+            }
+            return arr;
+        })
+        .catch((exception) => {
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.GET_SALES_STATISTICS_FAILED);
+        });
+};
+
 export default {
     bookingRoom,
     getTotalPrices,
@@ -466,4 +502,5 @@ export default {
     getTotalAllTransactionHistory,
     createPayment,
     vnpayReturn,
+    getSalesStatistics,
 };

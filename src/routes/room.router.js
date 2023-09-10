@@ -14,6 +14,14 @@ router.get(
     roomController.getNumberAvailableRooms,
 );
 router.get(
+    '/get-number-status-rooms',
+    roomValidation.validateGetNumberStatusRooms,
+    validationError,
+    verifyToken,
+    isAdmin,
+    roomController.getNumberStatusRooms,
+);
+router.get(
     '/get-parameters-room',
     roomValidation.validateGetParametersRoom,
     validationError,

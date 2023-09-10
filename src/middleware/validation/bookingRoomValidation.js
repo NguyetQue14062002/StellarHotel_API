@@ -55,4 +55,26 @@ const validateGetPrices = [
         .withMessage(Exception.INVALID_CHECKOUT_DATE),
 ];
 
-export default { validateBookingRoom, validateGetPrices };
+const validateGetSalesStatistics = [
+    query('startDate')
+        .trim()
+        .not()
+        .isEmpty()
+        .custom((value, { req }) => {
+            return dateTimeInputFormat(value, DateStrFormat.DATE);
+        })
+        .withMessage(Exception.INVALID_CHECKIN_DATE),
+    query('endDate')
+        .trim()
+        .not()
+        .isEmpty()
+        .custom((value, { req }) => {
+            return (
+                dateTimeInputFormat(value, DateStrFormat.DATE) >
+                dateTimeInputFormat(req.query.startDate, DateStrFormat.DATE)
+            );
+        })
+        .withMessage(Exception.INVALID_CHECKOUT_DATE),
+];
+
+export default { validateBookingRoom, validateGetPrices, validateGetSalesStatistics };

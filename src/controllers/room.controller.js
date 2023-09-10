@@ -60,6 +60,24 @@ const getNumberAvailableRooms = asyncHandler(async (req, res) => {
     });
 });
 
+const getNumberStatusRooms = asyncHandler(async (req, res) => {
+    const date = dateTimeInputFormat(req.query.date + ' 12:00', DateStrFormat.DATE_AND_TIME);
+    const { typeRoom = '' } = req.query;
+    printDebug(`date: ${date}`, OutputTypeDebug.INFORMATION);
+    printDebug(`typeRoom: ${typeRoom}`, OutputTypeDebug.INFORMATION);
+
+    const existingRooms = await roomRepository.getNumberStatusRooms({
+        date,
+        typeRoom,
+    });
+
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Get number status available rooms successfully!',
+        data: existingRooms,
+    });
+});
+
 const getParametersRoom = asyncHandler(async (req, res) => {
     const { typeRoom } = req.query;
     const existingRooms = await roomRepository.getParametersRoom({
@@ -94,4 +112,11 @@ const getRoomsByTypeRoom = asyncHandler(async (req, res) => {
     });
 });
 
-export default { createRoom, updateRoom, getNumberAvailableRooms, getParametersRoom, getRoomsByTypeRoom };
+export default {
+    createRoom,
+    updateRoom,
+    getNumberAvailableRooms,
+    getNumberStatusRooms,
+    getParametersRoom,
+    getRoomsByTypeRoom,
+};
