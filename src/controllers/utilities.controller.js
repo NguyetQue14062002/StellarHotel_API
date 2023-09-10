@@ -17,40 +17,54 @@ const getAllUtilities = asyncHandler(async (req, res) => {
 });
 
 const createUtility = async (req, res) => {
-    const link_img = req.file?.path;
-    const { name, description } = req.body;
+    const { files } = req;
+    const link_img = files.map((file) => file.path);
+    const { name, description, type } = req.body;
     try {
-        const newUtility = await utilitiesRepository.createUtility(name, link_img, description);
+        const newUtility = await utilitiesRepository.createUtility(name, link_img, description, type);
         res.status(HttpStatusCode.OK).json({
             status: STATUS.SUCCESS,
             message: 'Create utility successfully.',
             data: newUtility,
         });
     } catch (exception) {
-        await cloudinary.uploader.destroy(req.file.filename, { invalidate: true, resource_type: 'image' });
+        try {
+            for (const file of files) {
+                await cloudinary.uploader.destroy(file.filename, { invalidate: true, resource_type: 'image' });
+            }
+        } catch (error) {
+            console.log(error);
+        }
         res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
             error: STATUS.ERROR,
             message: `${exception.message}`,
-        });
+        });;
     }
 };
 
 const updateUtility = async (req, res) => {
-    const link_img = req.file?.path;
+    const { files } = req;
+    const link_img = files.map((file) => file.path);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
     }
-    const { id, name, description } = req.body;
+    const { id, name, description, type } = req.body;
     try {
-        const updatedUtility = await utilitiesRepository.updateUtility(id, name, link_img, description);
+        const updatedUtility = await utilitiesRepository.updateUtility(id, name, link_img, description, type);
         res.status(HttpStatusCode.OK).json({
             status: STATUS.SUCCESS,
             message: 'Update utility successfully.',
             data: updatedUtility,
         });
     } catch (exception) {
-        await cloudinary.uploader.destroy(req.file.filename, { invalidate: true, resource_type: 'image' });
+        try {
+            for (const file of files) {
+                await cloudinary.uploader.destroy(file.filename, { invalidate: true, resource_type: 'image' });
+            }
+        } catch (error) {
+            console.log(error);
+        }
         res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
             error: STATUS.ERROR,
             message: `${exception.message}`,

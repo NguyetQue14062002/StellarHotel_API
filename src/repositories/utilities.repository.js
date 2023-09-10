@@ -1,33 +1,34 @@
 import { utilitiesModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
+import { DEFAULT_UTILITIES } from '../global/constants.js';
 
 const getAllUtilities = async (page, size, searchString) => {
     page = parseInt(page);
     size = parseInt(size);
-    let params =
-        searchString === ''
-            ? {}
-            : {
-                  $or: [
-                      {
-                          name: { $regex: `.*${searchString}.*`, $options: 'i' },
-                      },
-                      {
-                          type: { $regex: `.*${searchString}.*`, $options: 'i' },
-                      },
-                  ],
-              };
-    return await utilitiesModel
-        .find(params, { _id: 1, name: 1, description: 1, image: 1, type: 1 })
-        .skip((page - 1) * size)
-        .limit(size)
-        .exec()
-        .catch((exception) => {
-            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
-            throw new Exception(Exception.UTILITIES_NOT_EXIST);
-        });
+    
+    let params = searchString === ''
+        ? {}
+        : {
+            $or: [
+                { name: { $regex: `.*${searchString}.*`, $options: 'i' } },
+                { type: { $regex: `.*${searchString}.*`, $options: 'i' } }
+            ]
+        };
+    
+    try {
+        const utilities = await utilitiesModel
+            .find(params, { _id: 1, name: 1, description: 1, image: 1, type: 1 })
+            .skip((page - 1) * size)
+            .limit(size)
+            .exec();
+        return utilities;
+    } catch (exception) {
+        printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+        throw new Exception(Exception.UTILITIES_NOT_EXIST);
+    }
 };
-const createUtility = async (name, link_img, description) => {
+
+const createUtility = async (name, link_img, description, type) => {
     const existingUtilities = await utilitiesModel.findOne({ name });
     if (existingUtilities) {
         throw new Exception(Exception.UTILITIES_EXIST);
@@ -36,6 +37,7 @@ const createUtility = async (name, link_img, description) => {
             name,
             image: link_img,
             description,
+            type: DEFAULT_UTILITIES[type],
         });
         if (!newUtility) {
             throw new Exception(Exception.CREATE_UTILITIES_ERROR);
@@ -45,10 +47,11 @@ const createUtility = async (name, link_img, description) => {
             name: newUtility.name,
             image: newUtility.image,
             description: newUtility.description,
+            type: newUtility.type,
         };
     }
 };
-const updateUtility = async (id, name, link_img, description) => {
+const updateUtility = async (id, name, link_img, description, type) => {
     try {
         let existingUtilities = await utilitiesModel.findById(id);
         if (!existingUtilities) {
@@ -57,12 +60,14 @@ const updateUtility = async (id, name, link_img, description) => {
             existingUtilities.name = name ?? existingUtilities.name;
             existingUtilities.image = link_img ?? existingUtilities.image;
             existingUtilities.description = description ?? existingUtilities.description;
+            existingUtilities.type = DEFAULT_UTILITIES[type] ?? existingUtilities.type;
             await existingUtilities.save();
             return {
                 id: existingUtilities._id,
                 name: existingUtilities.name,
                 image: existingUtilities.image,
                 description: existingUtilities.description,
+                type: existingUtilities.type,
             };
         }
     } catch (error) {

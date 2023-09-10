@@ -10,7 +10,7 @@ const utilitiesSchema = new mongoose.Schema(
             unique: true,
         },
         image: {
-            type: String,
+            type: [String],
             required: true,
             default: URL_ROOM_DEFAULT
         },
