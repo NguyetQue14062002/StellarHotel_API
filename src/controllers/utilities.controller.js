@@ -1,26 +1,21 @@
-import {utilitiesRepository} from '../repositories/index.js';
+import { utilitiesRepository } from '../repositories/index.js';
 import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS, MAX_RECORDS } from '../global/constants.js';
-import {v2 as cloudinary} from 'cloudinary';
+import { v2 as cloudinary } from 'cloudinary';
+import asyncHandler from 'express-async-handler';
 
-const getAllUtilities = async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
-    }
-    let { page = 1, size = MAX_RECORDS,searchString } = req.query;
+const getAllUtilities = asyncHandler(async (req, res) => {
+    let { page = 1, size = MAX_RECORDS, searchString = '' } = req.query;
     size = size >= MAX_RECORDS ? MAX_RECORDS : size;
-    try {
-        const existingUtilities = await utilitiesRepository.getAllUtilities(page, size,searchString);
-        res.status(HttpStatusCode.OK).json({
-            status: STATUS.SUCCESS,
-            data: existingUtilities,
-        });
-    } catch (error) {
-        next(error);
-    }
-};
+
+    const existingUtilities = await utilitiesRepository.getAllUtilities(page, size, searchString);
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        data: existingUtilities,
+    });
+});
+
 const createUtility = async (req, res) => {
     const link_img = req.file?.path;
     const { name, description } = req.body;
@@ -32,24 +27,21 @@ const createUtility = async (req, res) => {
             data: newUtility,
         });
     } catch (exception) {
-             await cloudinary.uploader.destroy(
-                req.file.filename,
-                { invalidate: true, resource_type: "image" }
-            );
-            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-                error: STATUS.ERROR,
-                message: `${exception.message}`,
-            });
+        await cloudinary.uploader.destroy(req.file.filename, { invalidate: true, resource_type: 'image' });
+        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+            error: STATUS.ERROR,
+            message: `${exception.message}`,
+        });
     }
 };
 
 const updateUtility = async (req, res) => {
-    const link_img = req.file ?.path;
+    const link_img = req.file?.path;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
     }
-    const { id, name,  description } = req.body;
+    const { id, name, description } = req.body;
     try {
         const updatedUtility = await utilitiesRepository.updateUtility(id, name, link_img, description);
         res.status(HttpStatusCode.OK).json({
@@ -58,10 +50,7 @@ const updateUtility = async (req, res) => {
             data: updatedUtility,
         });
     } catch (exception) {
-        await cloudinary.uploader.destroy(
-            req.file.filename,
-            { invalidate: true, resource_type: "image" }
-        );
+        await cloudinary.uploader.destroy(req.file.filename, { invalidate: true, resource_type: 'image' });
         res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
             error: STATUS.ERROR,
             message: `${exception.message}`,
@@ -89,4 +78,4 @@ const deleteUtility = async (req, res) => {
     }
 };
 
-export default { getAllUtilities, createUtility, updateUtility, deleteUtility};
+export default { getAllUtilities, createUtility, updateUtility, deleteUtility };

@@ -1,43 +1,31 @@
 import { utilitiesModel } from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
 
-
 const getAllUtilities = async (page, size, searchString) => {
-    const filterUtilities = await utilitiesModel.aggregate([
-        {
-            $match: {
-                $or: [
-                    {
-                        name: { $regex: `.*${searchString}.*`, $options: 'i' },
-                    },
-                    {
-                        type: { $regex: `.*${searchString}.*`, $options: 'i' },
-                    }
-                    
-                ],
-            },
-        },
-        {
-            $skip: (page - 1) * size,
-        },
-        {
-            $limit: size,
-        },
-        {
-            $project: {
-                id: 1,
-                name: 1,
-                description: 1,
-                image: 1,
-                type: 1,
-            },
-        },
-    ]);
-    if (filterUtilities) {
-        return filterUtilities;
-    } else {
-        throw new Exception(Exception.UTILITIES_NOT_EXIST);
-    }
+    page = parseInt(page);
+    size = parseInt(size);
+    let params =
+        searchString === ''
+            ? {}
+            : {
+                  $or: [
+                      {
+                          name: { $regex: `.*${searchString}.*`, $options: 'i' },
+                      },
+                      {
+                          type: { $regex: `.*${searchString}.*`, $options: 'i' },
+                      },
+                  ],
+              };
+    return await utilitiesModel
+        .find(params, { _id: 1, name: 1, description: 1, image: 1, type: 1 })
+        .skip((page - 1) * size)
+        .limit(size)
+        .exec()
+        .catch((exception) => {
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.UTILITIES_NOT_EXIST);
+        });
 };
 const createUtility = async (name, link_img, description) => {
     const existingUtilities = await utilitiesModel.findOne({ name });
@@ -87,11 +75,9 @@ const deleteUtility = async (id) => {
         if (!existingUtilities) {
             throw new Error('Utilities not exist');
         } else {
-            await existingUtilities.deleteOne(
-                {
-                    _id: id,
-                }
-            );
+            await existingUtilities.deleteOne({
+                _id: id,
+            });
             return Exception.DELETE_UTILITIES_SUCCESS;
         }
     } catch (error) {

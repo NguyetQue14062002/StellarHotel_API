@@ -1,5 +1,4 @@
 import { typeRoomRepository } from '../repositories/index.js';
-import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import { STATUS, MAX_RECORDS } from '../global/constants.js';
 import { v2 as cloudinary } from 'cloudinary';
