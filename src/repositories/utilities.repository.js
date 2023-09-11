@@ -57,6 +57,7 @@ const updateUtility = async (id, name, link_img, description, type) => {
         if (!existingUtilities) {
             throw new Error('Utilities not exist');
         } else {
+            
             existingUtilities.name = name ?? existingUtilities.name;
             existingUtilities.image = link_img ?? existingUtilities.image;
             existingUtilities.description = description ?? existingUtilities.description;
