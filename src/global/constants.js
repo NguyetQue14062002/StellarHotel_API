@@ -61,6 +61,11 @@ const STATUS_BOOKING = {
     CANCELLED: 'Đã hủy',
 };
 
+const STATUS_CONFERENCES = {
+    PENDING: 'chưa xử lý',
+    SOVLED: 'đã xử lý',
+}
+
 export {
     STATUS,
     DEFAULT_ROLES,
@@ -74,4 +79,5 @@ export {
     COLLECTION,
     STATUS_BOOKING,
     DEFAULT_UTILITIES,
+    STATUS_CONFERENCES,
 };

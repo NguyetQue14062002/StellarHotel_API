@@ -63,8 +63,10 @@ export default class Exception extends Error {
     static GET_LIST_TYPE_ROOMS_NAME_FAILED = 'Get list type rooms name failed';
     static GET_SALES_STATISTICS_FAILED = 'Get sales statistics failed';
     static UPDATE_STATUS_FAILED = 'Update status failed';
-
     static GET_PAYMENT_FAILED = 'Get the list of failed payment';
+    static CREATE_CONTACT_FAILED = 'Create contact failed';
+    static GET_CONTACT_FAILED = 'Get contact failed';
+    static UPDATE_CONTACT_FAILED = 'Update contact failed';
     constructor(message, validatorErrors = {}) {
         super(message); // call constructor of parent class(Error)
         printDebug(message, OutputTypeDebug.ERROR);

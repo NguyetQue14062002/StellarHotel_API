@@ -52,9 +52,16 @@ const getTypeRoomNames = asyncHandler(async (req, res) => {
 });
 
 const updateTypeRoom = asyncHandler(async (req, res) => {
-    const { files } = req;
-    const link_img = files.map((file) => file.path);
+    const { files } = req.body;
+    let link_img = [];
+    if (!files) {
+        link_img = 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fpistachiohotel.com%2Fvi%2Falbum-anh&psig=AOvVaw17Bp4SBdoUCBjSlnPT-3to&ust=1691672214173000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCMDWzJzQz4ADFQAAAAAdAAAAABAE';
+    }
+    else{
+        link_img = files.map((file) => file.path);
+    } 
     const { idTypeRoom } = req.body;
+    console.log(files);
     try {
         const result = await typeRoomRepository.updateTypeRoom(idTypeRoom, link_img);
         res.status(HttpStatusCode.OK).json({

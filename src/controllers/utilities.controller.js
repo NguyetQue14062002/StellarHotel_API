@@ -18,7 +18,13 @@ const getAllUtilities = asyncHandler(async (req, res) => {
 
 const createUtility = async (req, res) => {
     const { files } = req;
-    const link_img = files.map((file) => file.path);
+    let link_img = [];
+    if (!files) {
+        link_img =
+            'https://www.google.com/url?sa=i&url=https%3A%2F%2Fpistachiohotel.com%2Fvi%2Falbum-anh&psig=AOvVaw17Bp4SBdoUCBjSlnPT-3to&ust=1691672214173000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCMDWzJzQz4ADFQAAAAAdAAAAABAE';
+    } else {
+        link_img = files.map((file) => file.path);
+    }
     const { name, description, type } = req.body;
     try {
         const newUtility = await utilitiesRepository.createUtility(name, link_img, description, type);
@@ -38,13 +44,19 @@ const createUtility = async (req, res) => {
         res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
             error: STATUS.ERROR,
             message: `${exception.message}`,
-        });;
+        });
     }
 };
 
 const updateUtility = async (req, res) => {
     const { files } = req;
-    const link_img = files.map((file) => file.path);
+    let link_img = [];
+    if (!files) {
+        link_img =
+            'https://www.google.com/url?sa=i&url=https%3A%2F%2Fpistachiohotel.com%2Fvi%2Falbum-anh&psig=AOvVaw17Bp4SBdoUCBjSlnPT-3to&ust=1691672214173000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCMDWzJzQz4ADFQAAAAAdAAAAABAE';
+    } else {
+        link_img = files.map((file) => file.path);
+    }
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(HttpStatusCode.BAD_REQUEST).json({ errors: errors.array() });
