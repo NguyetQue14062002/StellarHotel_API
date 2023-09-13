@@ -230,7 +230,62 @@ const getTransactionHistory = async ({ userId, page, size }) => {
         });
 };
 
+const getTransactionHistoryForAdmin = async ({ userId, page, size }) => {
+    const existingUser = await userModel.findById(userId);
+    if (!existingUser) {
+        throw new Exception(Exception.GET_TRANSACTION_HISTORY_FAILED);
+    }
+
+    size = parseInt(size);
+    page = parseInt(page);
+
+    return await bookingRoomModel
+        .find(
+            { user: existingUser._id },
+            { _id: 1, typeRoom: 1, rooms: 1, quantity: 1, totalprice: 1, status: 1, checkinDate: 1, checkoutDate: 1 },
+        )
+
+        .populate({ path: 'typeRoom', select: { _id: 0, name: 1 } })
+        .sort({ createdAt: 1 })
+        .skip((page - 1) * size)
+        .limit(size)
+        .exec()
+        .then((results) => {
+            return results.map((result) => {
+                const { typeRoom, checkinDate, checkoutDate, ...objNew } = result;
+                objNew._doc.typeRoom = typeRoom.name;
+                objNew._doc.checkinDate = dateTimeOutputFormat(checkinDate, DateStrFormat.DATE_AND_TIME);
+                objNew._doc.checkoutDate = dateTimeOutputFormat(checkoutDate, DateStrFormat.DATE_AND_TIME);
+                return objNew._doc;
+            });
+        })
+        .catch((exception) => {
+            printDebug('Đặt phòng khong thành công!', OutputTypeDebug.INFORMATION);
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.GET_TRANSACTION_HISTORY_FAILED);
+        });
+};
+
 const getTotalTransactionHistory = async ({ userId }) => {
+    const existingUser = await userModel.findById(userId);
+    if (!existingUser) {
+        throw new Exception(Exception.GET_TOTAL_TRANSACTION_HISTORY_FAILED);
+    }
+
+    return await bookingRoomModel
+        .find({ user: existingUser._id })
+        .exec()
+        .then((results) => {
+            return { totalTransactionHistory: results.reduce((partialSum, a) => partialSum + 1, 0) };
+        })
+        .catch((exception) => {
+            printDebug('Đặt phòng khong thành công!', OutputTypeDebug.INFORMATION);
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.GET_TOTAL_TRANSACTION_HISTORY_FAILED);
+        });
+};
+
+const getTotalTransactionHistoryForAdmin = async ({ userId }) => {
     const existingUser = await userModel.findById(userId);
     if (!existingUser) {
         throw new Exception(Exception.GET_TOTAL_TRANSACTION_HISTORY_FAILED);
@@ -496,7 +551,9 @@ export default {
     bookingRoom,
     getTotalPrices,
     getTransactionHistory,
+    getTransactionHistoryForAdmin,
     getTotalTransactionHistory,
+    getTotalTransactionHistoryForAdmin,
     getAllTransactionHistory,
     getTransactionHistoryById,
     getTotalAllTransactionHistory,

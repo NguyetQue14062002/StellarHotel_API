@@ -17,5 +17,6 @@ router.patch(
     userController.updateProfile,
 );
 router.get('/get-total-account', verifyToken, isAdmin, userController.getTotalAccount);
+router.patch('/update-status', verifyToken, isAdmin, userController.updateStatus);
 
 export default router;

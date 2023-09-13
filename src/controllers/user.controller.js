@@ -107,4 +107,15 @@ const getTotalAccount = asyncHandler(async (req, res) => {
     });
 });
 
-export default { getAllUser, updateUser, deleteUser, getUser, getName, updateProfile, getTotalAccount };
+const updateStatus = asyncHandler(async (req, res) => {
+    const { userId } = req.body;
+
+    await userRepository.updateStatus({userId});
+
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Update status successfully!',
+    });
+});
+
+export default { getAllUser, updateUser, deleteUser, getUser, getName, updateProfile, getTotalAccount, updateStatus };

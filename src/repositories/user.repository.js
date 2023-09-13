@@ -43,6 +43,7 @@ const getAllUser = async ({ page, size, searchString }) => {
                     gender: 1,
                     nationality: 1,
                     yearOfBirth: 1,
+                    status: 1,
                 },
             },
         ])
@@ -164,4 +165,21 @@ const getTotalAccount = async () => {
         });
 };
 
-export default { getAllUser, updateUser, getUser, updateProfile, getName, deleteUser, getTotalAccount };
+const updateStatus = async ({ userId }) => {
+    return await userModel
+        .findById(userId)
+        .exec()
+        .then((user) => {
+            user.status = user.status === 0 ? 1 : 0;
+            return user.save().catch((exception) => {
+                printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+                throw new Exception(Exception.UPDATE_STATUS_FAILED);
+            });
+        })
+        .catch((exception) => {
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.UPDATE_STATUS_FAILED);
+        });
+};
+
+export default { getAllUser, updateUser, getUser, updateProfile, getName, deleteUser, getTotalAccount, updateStatus };

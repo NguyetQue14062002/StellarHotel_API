@@ -51,7 +51,7 @@ const getTypeRoomNames = asyncHandler(async (req, res) => {
     });
 });
 
-const updateTypeRoom = async (req, res) => {
+const updateTypeRoom = asyncHandler(async (req, res) => {
     const { files } = req;
     const link_img = files.map((file) => file.path);
     const { idTypeRoom } = req.body;
@@ -75,7 +75,7 @@ const updateTypeRoom = async (req, res) => {
             message: `${exception.message}`,
         });
     }
-};
+});
 
 const getTotalTyperooms = asyncHandler(async (req, res) => {
     const existingTypeRoom = await typeRoomRepository.getTotalTyperooms();

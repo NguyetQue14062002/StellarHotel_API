@@ -29,7 +29,7 @@ const bookingRoom = asyncHandler(async (req, res) => {
     res.status(HttpStatusCode.INSERT_OK).json({
         status: STATUS.SUCCESS,
         message: 'Booking room successful',
-        data:booking
+        data: booking,
     });
 });
 
@@ -72,10 +72,35 @@ const getTransactionHistory = asyncHandler(async (req, res) => {
     });
 });
 
+const getTransactionHistoryForAdmin = asyncHandler(async (req, res) => {
+    let { userId, page = 1, size = MAX_RECORDS } = req.query;
+    size = size >= MAX_RECORDS ? MAX_RECORDS : size;
+
+    const existingBookingRooms = await bookingRoomRepository.getTransactionHistoryForAdmin({ userId, page, size });
+
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Get a list of successful transaction history',
+        data: existingBookingRooms,
+    });
+});
+
 const getTotalTransactionHistory = asyncHandler(async (req, res) => {
     const userId = req.userId;
 
     const existingBookingRooms = await bookingRoomRepository.getTotalTransactionHistory({ userId });
+
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Get total list of successful transaction history',
+        data: existingBookingRooms,
+    });
+});
+
+const getTotalTransactionHistoryForAdmin = asyncHandler(async (req, res) => {
+    const { userId } = req.query;
+
+    const existingBookingRooms = await bookingRoomRepository.getTotalTransactionHistoryForAdmin({ userId });
 
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
@@ -107,16 +132,16 @@ const getTotalAllTransactionHistory = asyncHandler(async (req, res) => {
     });
 });
 
-const getTransactionHistoryById = asyncHandler(async (req, res)=>{
-    const {idBooking} = req.query;
-    const exsitBooking = await bookingRoomRepository.getTransactionHistoryById({idBooking});
+const getTransactionHistoryById = asyncHandler(async (req, res) => {
+    const { idBooking } = req.query;
+    const exsitBooking = await bookingRoomRepository.getTransactionHistoryById({ idBooking });
 
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
         message: 'Get list of successful transaction history by id',
         data: exsitBooking,
     });
-})
+});
 
 const createPayment = asyncHandler(async (req, res) => {
     const { orderId, bankCode } = req.body;
@@ -129,7 +154,7 @@ const createPayment = asyncHandler(async (req, res) => {
 });
 const vnpayReturn = asyncHandler(async (req, res) => {
     var vnp_Params = req.query;
-    console.log(res); 
+    console.log(res);
 
     await bookingRoomRepository.vnpayReturn(vnp_Params, res);
 
@@ -158,7 +183,9 @@ export default {
     bookingRoom,
     getTotalPrices,
     getTransactionHistory,
+    getTransactionHistoryForAdmin,
     getAllTransactionHistory,
+    getTotalTransactionHistoryForAdmin,
     getTotalTransactionHistory,
     getTotalAllTransactionHistory,
     getTransactionHistoryById,
