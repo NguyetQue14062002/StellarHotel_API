@@ -44,9 +44,12 @@ const validateGetParametersRoom = [query('typeRoom').trim().not().isEmpty().with
 
 const validateGetRoomsByTypeRoom = [query('typeRoom').trim().not().isEmpty().withMessage(Exception.INVALID_TYPE_ROOM)];
 
+const validateDeleteRoom = [query('id').trim().not().isEmpty().withMessage(Exception.INVALID_ID_ROOM)];
+
 export default {
     validateGetNumberAvailableRooms,
     validateGetParametersRoom,
     validateGetRoomsByTypeRoom,
     validateGetNumberStatusRooms,
+    validateDeleteRoom
 };

@@ -6,14 +6,13 @@ import { dateTimeInputFormat, DateStrFormat } from '../helpers/timezone.js';
 import { printDebug, OutputTypeDebug } from '../helpers/printDebug.js';
 
 const createRoom = asyncHandler(async (req, res) => {
-    const { idTypeRoom, roomNumber, acreage, typeBed, capacity, view, prices } = req.body;
+    const { idTypeRoom, roomNumber, acreage, typeBed, view, prices } = req.body;
 
     await roomRepository.createRoom({
         idTypeRoom,
         roomNumber,
         acreage,
         typeBed,
-        capacity,
         view,
         prices,
     });
@@ -25,9 +24,9 @@ const createRoom = asyncHandler(async (req, res) => {
 });
 
 const updateRoom = asyncHandler(async (req, res) => {
-    const { name, roomNumber, acreage, typeBed, capacity, view, prices, status } = req.body;
+    const { id, roomNumber, acreage, typeBed, view, prices } = req.body;
 
-    const result = await roomRepository.updateRoom(name, roomNumber, acreage, typeBed, capacity, view, prices, status);
+    const result = await roomRepository.updateRoom({ id, roomNumber, acreage, typeBed, view, prices });
 
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
@@ -112,6 +111,25 @@ const getRoomsByTypeRoom = asyncHandler(async (req, res) => {
     });
 });
 
+const getRoomById = asyncHandler(async (req, res) => {
+    const { id } = req.query;
+    const existingRoom = await roomRepository.getRoomById({ id });
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Get room by id successfully!',
+        data: existingRoom,
+    });
+});
+
+const deleteRoom = asyncHandler(async (req, res) => {
+    const id = req.query.id;
+    await roomRepository.deleteRoom(id);
+    res.status(HttpStatusCode.OK).json({
+        status: STATUS.SUCCESS,
+        message: 'Delete room successfully!',
+    });
+});
+
 export default {
     createRoom,
     updateRoom,
@@ -119,4 +137,6 @@ export default {
     getNumberStatusRooms,
     getParametersRoom,
     getRoomsByTypeRoom,
+    getRoomById,
+    deleteRoom,
 };

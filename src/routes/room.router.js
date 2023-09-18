@@ -35,5 +35,7 @@ router.get(
     isAdmin,
     roomController.getRoomsByTypeRoom,
 );
+router.get('/get-room-by-id', verifyToken, isAdmin, roomController.getRoomById);
+router.delete('/', roomValidation.validateDeleteRoom, validationError, verifyToken, isAdmin, roomController.deleteRoom);
 
 export default router;
