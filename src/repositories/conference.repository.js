@@ -94,7 +94,7 @@ const createContact = async ({ name, email, phoneNumber, message }) => {
         }
     });
     return {
-        message: 'Main đã được gửi đi. Vui lòng kiểm tra email của bạn',
+        message: 'Mail đã được gửi đi. Vui lòng kiểm tra email của bạn',
     };
 };
 
