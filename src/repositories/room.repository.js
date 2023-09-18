@@ -3,7 +3,7 @@ import Exception from '../exceptions/Exception.js';
 import { TYPE_BED } from '../global/constants.js';
 import { OutputTypeDebug, printDebug } from '../helpers/printDebug.js';
 
-import {dDate, dateTimeOutputFormat, DateStrFormat } from '../helpers/timezone.js';
+import { dDate, dateTimeOutputFormat, DateStrFormat } from '../helpers/timezone.js';
 
 const getNumberAvailableRooms = async ({ typeRoom, checkinDate, checkoutDate, acreage, typeBed, view, prices }) => {
     // Kiểm tra có tồn tại loại phòng không
@@ -204,7 +204,7 @@ const getRoomsByTypeRoom = async ({ userId, typeRoom, page, size, searchString }
     return existingRooms;
 };
 
-const createRoom = async ({ idTypeRoom, roomNumber, acreage, typeBed, capacity, view, prices }) => {
+const createRoom = async ({ idTypeRoom, roomNumber, acreage, typeBed, view, prices }) => {
     let existingTypeRoom = await typeRoomModel.findById(idTypeRoom);
 
     if (!existingTypeRoom) {
@@ -215,8 +215,7 @@ const createRoom = async ({ idTypeRoom, roomNumber, acreage, typeBed, capacity, 
         typeRoom: existingTypeRoom.id,
         roomNumber,
         acreage,
-        typeBed: TYPE_BED[typeBed],
-        capacity,
+        typeBed,
         view,
         prices,
     });
@@ -226,38 +225,20 @@ const createRoom = async ({ idTypeRoom, roomNumber, acreage, typeBed, capacity, 
     }
 };
 
-const updateRoom = async (name, roomNumber, acreage, typeBed, capacity, view, prices, status) => {
+const updateRoom = async ({ id, roomNumber, acreage, typeBed, view, prices }) => {
     try {
-        let existingTypeRoom = await typeRoomModel.findOne({ name });
-        let existingRoom = await roomModel.findOne({ roomNumber });
+        let existingRoom = await roomModel.findById(id);
 
-        if (!existingTypeRoom) {
-            throw new Error('TYPE_ROOM_NOT_EXIST');
-        } else if (!existingRoom) {
+        if (!existingRoom) {
             throw new Error('ROOM_NOT_EXIST');
         } else {
-            existingRoom.typeRoom = existingTypeRoom.id ?? existingRoom.typeRoom;
+            existingRoom.roomNumber = roomNumber ?? existingRoom.roomNumber;
             existingRoom.acreage = acreage ?? existingRoom.acreage;
-            existingRoom.typeBed = TYPE_BED[typeBed] ?? existingRoom.typeBed;
-            existingRoom.capacity = capacity || existingRoom.capacity;
+            existingRoom.typeBed = typeBed ?? existingRoom.typeBed;
             existingRoom.view = view ?? existingRoom.view;
             existingRoom.prices = prices ?? existingRoom.prices;
-            existingRoom.status = status ?? existingRoom.status;
 
             await existingRoom.save();
-
-            return {
-                id: existingRoom._id,
-                typeRoom: existingTypeRoom.name,
-                roomNumber: existingRoom.roomNumber,
-                description: existingTypeRoom.description,
-                acreage: existingRoom.acreage,
-                typeBed: existingRoom.typeBed,
-                capacity: existingRoom.capacity,
-                view: existingRoom.view,
-                prices: existingRoom.prices,
-                status: existingRoom.status,
-            };
         }
     } catch (error) {
         if (error.message === 'TYPE_ROOM_NOT_EXIST' || error.message === 'ROOM_NOT_EXIST') {
@@ -331,6 +312,22 @@ const getNumberStatusRooms = async ({ date, typeRoom }) => {
     };
 };
 
+const getRoomById = async ({ id }) => {
+    return await roomModel
+        .findById(id, { _id: 0, roomNumber: 1, acreage: 1, typeBed: 1, view: 1, prices: 1 })
+        .catch((exception) => {
+            printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+            throw new Exception(Exception.GET_ROOM_BY_ID_FAILED);
+        });
+};
+
+const deleteRoom = async (id) => {
+    return await roomModel.findByIdAndDelete(id).catch((exception) => {
+        printDebug(`${exception.message}`, OutputTypeDebug.ERROR);
+        throw new Exception(Exception.DELETE_ROOM_FAILED);
+    });
+};
+
 export default {
     getNumberAvailableRooms,
     getParametersRoom,
@@ -338,4 +335,6 @@ export default {
     createRoom,
     updateRoom,
     getNumberStatusRooms,
+    getRoomById,
+    deleteRoom
 };

@@ -63,6 +63,9 @@ export default class Exception extends Error {
     static GET_LIST_TYPE_ROOMS_NAME_FAILED = 'Get list type rooms name failed';
     static GET_SALES_STATISTICS_FAILED = 'Get sales statistics failed';
     static UPDATE_STATUS_FAILED = 'Update status failed';
+    static GET_ROOM_BY_ID_FAILED = 'Get room by id failed';
+    static DELETE_ROOM_FAILED = 'Delete room failed';
+    static INVALID_ID_ROOM = 'Invalid id room';
     static GET_PAYMENT_FAILED = 'Get the list of failed payment';
     static CREATE_CONTACT_FAILED = 'Create contact failed';
     static GET_CONTACT_FAILED = 'Get contact failed';
