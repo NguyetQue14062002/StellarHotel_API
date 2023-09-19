@@ -268,7 +268,7 @@ const resetPassword = async (userId, oldpass, newpass, otp) => {
 
 //forgot password
 const sendOTPforgotPass = async ({ email }) => {
-    const filterUser = await userModel.findOne({ email });
+    const filterUser = await userModel.findOne({ email, role: process.env.CLIENT });
 
     if (!filterUser) {
         printDebug('Email không hợp lệ!', OutputTypeDebug.INFORMATION);

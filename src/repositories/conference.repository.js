@@ -28,7 +28,10 @@ const getAllContact = async (page, size, searchString) => {
                 },
             },
             {
-                $sort: { email: 1 },
+                $sort: {
+                    status: 1,
+                    createdAt: 1
+                },
             },
             {
                 $skip: (page - 1) * size,
@@ -36,6 +39,7 @@ const getAllContact = async (page, size, searchString) => {
             {
                 $limit: size,
             },
+
             {
                 $project: {
                     name: 1,

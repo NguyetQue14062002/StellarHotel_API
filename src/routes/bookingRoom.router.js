@@ -19,10 +19,20 @@ router.get(
     validationError,
     bookingRoomController.getTotalPrices,
 );
-router.get('/get-transaction-history', verifyToken, bookingRoomController.getTransactionHistory);
-router.get('/get-transaction-history-for-admin', verifyToken, isAdmin, bookingRoomController.getTransactionHistoryForAdmin);
+router.get('/get-transaction-history', verifyToken, isClient, bookingRoomController.getTransactionHistory);
+router.get(
+    '/get-transaction-history-for-admin',
+    verifyToken,
+    isAdmin,
+    bookingRoomController.getTransactionHistoryForAdmin,
+);
 router.get('/get-total-transaction-history', verifyToken, isClient, bookingRoomController.getTotalTransactionHistory);
-router.get('/get-total-transaction-history-for-admin', verifyToken, isAdmin, bookingRoomController.getTotalTransactionHistoryForAdmin);
+router.get(
+    '/get-total-transaction-history-for-admin',
+    verifyToken,
+    isAdmin,
+    bookingRoomController.getTotalTransactionHistoryForAdmin,
+);
 
 router.get('/get-all-transactions-history', verifyToken, isAdmin, bookingRoomController.getAllTransactionHistory);
 

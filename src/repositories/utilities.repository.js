@@ -37,7 +37,7 @@ const createUtility = async (name, link_img, description, type) => {
             name,
             image: link_img,
             description,
-            type: DEFAULT_UTILITIES[type],
+            type: type,
         });
         if (!newUtility) {
             throw new Exception(Exception.CREATE_UTILITIES_ERROR);
@@ -61,7 +61,7 @@ const updateUtility = async (id, name, link_img, description, type) => {
             existingUtilities.name = name ?? existingUtilities.name;
             existingUtilities.image = link_img ?? existingUtilities.image;
             existingUtilities.description = description ?? existingUtilities.description;
-            existingUtilities.type = DEFAULT_UTILITIES[type] ?? existingUtilities.type;
+            existingUtilities.type = type ?? existingUtilities.type;
             await existingUtilities.save();
             return {
                 id: existingUtilities._id,

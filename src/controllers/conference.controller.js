@@ -11,6 +11,7 @@ const getAllContact = asyncHandler(async (req, res) => {
     const contacts = await conferenceRepository.getAllContact(page, size, searchString);
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
+        message: 'Get the successful contact list!',
         data: contacts,
     });
 });
@@ -37,6 +38,7 @@ const updateContact = asyncHandler(async (req, res) => {
     });
     res.status(HttpStatusCode.OK).json({
         status: STATUS.SUCCESS,
+        message: 'Contact updated successfully!',
         data: contact,
     });
 });
