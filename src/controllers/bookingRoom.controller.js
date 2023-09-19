@@ -158,7 +158,7 @@ const vnpayReturn = asyncHandler(async (req, res) => {
 
     await bookingRoomRepository.vnpayReturn(vnp_Params, res);
 
-    res.redirect('http://localhost:3000/danh-sach-giao-dich');
+    res.redirect('https://fe-stellar.vercel.app/danh-sach-giao-dich');
 });
 
 const getSalesStatistics = asyncHandler(async (req, res) => {
